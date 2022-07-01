@@ -1,0 +1,38 @@
+{
+    "folders": [
+        {
+            "name": "root",
+            "path": "."
+        },
+        {
+            "path": "./darkmoon"
+        },
+        {
+            "path": "./darkmoon-cli"
+        }
+    ],
+    "settings": {
+        "python.defaultInterpreterPath": ".venv/bin/python",
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.flake8Path": ".venv/bin/pflake8",
+        "python.linting.mypyEnabled": true,
+        "python.linting.mypyPath": ".venv/bin/mypy",
+        "python.analysis.typeCheckingMode": "basic",
+        "python.formatting.provider": "black",
+        "python.formatting.blackPath": ".venv/bin/black",
+        "editor.formatOnSave": true,
+        "[python]": {
+            "editor.codeActionsOnSave": {
+                "source.organizeImports": true
+            }
+        },
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestPath": ".venv/bin/pytest",
+        "eslint.workingDirectories": [
+            "."
+        ]
+    }
+}

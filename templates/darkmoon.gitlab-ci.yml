@@ -1,0 +1,16 @@
+# Copyright (C) 2022 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
+# Unauthorized copying of this file, via any medium is strictly prohibited.
+# All rights reserved. No warranty, explicit or implicit, provided.
+# Proprietary and confidential.
+
+.install-deps-template:
+  before_script:
+    - cd $CI_PROJECT_DIR/backend/
+    - cp TEMPLATE.env .env # copy over testing .env
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - pip install poetry
+    - poetry --version
+    - poetry config repositories.gitlab "$PYPI_REGISTRY"
+    - poetry config http-basic.gitlab gitlab-ci-token "$CI_JOB_TOKEN"
+    - poetry install

@@ -1,0 +1,39 @@
+# Copyright (C) 2022 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
+# Unauthorized copying of this file, via any medium is strictly prohibited.
+# All rights reserved. No warranty, explicit or implicit, provided.
+# Proprietary and confidential.
+
+version: "1.0"
+
+services:
+  darkmoon:
+    build:
+      context: ./darkmoon
+      dockerfile: Dockerfile
+      target: runner
+    image: darkmoon:latest
+    ports:
+      - 8000:8000
+    environment:
+      - MONGO_HOST=mongodb
+    volumes:
+      - type: bind
+        source: ./darkmoon
+        target: /opt/app
+      - /opt/app/.venv
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=darkmoon
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=darkmoon
+    volumes:
+      - mongodb:/data/db
+      - mongodb_config:/data/configdb
+
+volumes:
+  mongodb:
+  mongodb_config:

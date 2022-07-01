@@ -1,0 +1,160 @@
+# Copyright (C) 2022 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
+# Unauthorized copying of this file, via any medium is strictly prohibited.
+# All rights reserved. No warranty, explicit or implicit, provided.
+# Proprietary and confidential.
+
+[tool.poetry]
+authors = ["Obscurity Labs"]
+description = "Project DarkMoon - Web API service"
+name = "darkmoon"
+version = "0.0.1"
+
+[tool.poetry.scripts]
+darkmoon = "darkmoon.main:cli_app"
+
+[tool.poetry.dependencies]
+MarkupSafe = "2.0.0"
+aenum = "^3.1.11"
+asyncio = "^3.4.3"
+beanie = "^1.11.0"
+fastapi = {version = "^0.78.0", extras = ["all"]}
+fastapi-mail = "^0.4.1"
+loguru = "^0.5.3"
+motor = "^2.3.1"
+pydantic = {extras = ["dotenv"], version = "^1.8.2"}
+pydantic-jsonapi = "^0.11.0"
+pyjwkest = "^1.4.2"
+python = "^3.10"
+python-dotenv = "^0.15.0"
+python-slugify = "^4.0.1"
+typer = {version = "^0.4.1", extras = ["all"]}
+types-requests = "^2.27.13"
+
+[tool.poetry.dev-dependencies]
+Faker = "^13.3.2"
+asgi-lifespan = "^1.0.1"
+autoflake = "^1.4"
+black = "^22.6.0"
+commitizen = "^2.20.4"
+flake8 = "^4.0.1"
+flake8-bandit = "^3.0.0"
+flake8-bugbear = "^22.3.20"
+flake8-commas = "^2.1.0"
+flake8-comprehensions = "^3.8.0"
+flake8-debugger = "^4.0.0"
+flake8-docstrings = "^1.6.0"
+flake8-eradicate = "^1.2.0"
+isort = "^5.10.1"
+mkdocs = "^1.2.3"
+mkdocs-awesome-pages-plugin = "^2.7.0"
+mkdocs-material = "^8.2.5"
+mkdocs-minify-plugin = "^0.5.0"
+mkdocstrings = "^0.18.1"
+mypy = "^0.931"
+nest-asyncio = "^1.5.4"
+pre-commit = "^2.17.0"
+pydantic-to-typescript = "^1.0.6"
+pyproject-flake8 = "^0.0.1-alpha.2"
+pytest = "^6.2.4"
+pytest-asyncio = "^0.14.0"
+pytest-clarity = "^0.3.0-alpha.0"
+pytest-cov = "^2.11.1"
+pytest-docker = "^0.10.1"
+pytest-icdiff = "^0.5"
+pytest-mock = "^3.6.1"
+pytest-sugar = "^0.9.4"
+pyupgrade = "^2.31.1"
+types-PyYAML = "^6.0.5"
+types-requests = "^2.27.14"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::RuntimeWarning",
+]
+markers = [
+  "unit",
+  "integration",
+]
+testpaths = [
+  "tests",
+]
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "**/tests/**",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+]
+fail_under = 60
+show_missing = true
+skip_covered = true
+
+[tool.isort]
+line_length = 120
+profile = "black"
+
+[tool.mypy]
+allow_redefinition = true
+ignore_missing_imports = true
+no_warn_unused_ignores = true
+plugins = "pydantic.mypy"
+strict = true
+strict_optional = false
+
+[tool.black]
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | static
+    | docs
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
+include = '\.pyi?$'
+line-length = 120
+target-version = ['py38']
+
+[tool.flake8]
+docstring_style = "google"
+exclude = [".git", ".venv", "__pycache__", "build", "dist", "setup.py", "docs", "scripts"]
+extend-ignore = "E203,"
+extend-immutable-calls = [
+  "fastapi.Depends",
+  "fastapi.Header",
+  "fastapi.Path",
+  "Depends",
+  "fastapi.params.Depends",
+  "Query",
+  "Body",
+  "Header",
+  "typer.Option",
+  "darkmoon.settings",
+  "settings",
+]
+ignore = ["B506", "D100", "D104", "S101", "W504", "W503", "D301"]
+max-complexity = 10
+max_line_length = 120
+strictness = "full"
