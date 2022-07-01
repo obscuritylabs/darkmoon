@@ -7,6 +7,17 @@ variables:
   PIP_CACHE_DIR: "${CI_PROJECT_DIR}/.cache/pip"
   PYPI_REGISTRY: https://gitlab.obscuritylabs.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi
 
+.dependencies-template: &install-deps
+  before_script:
+    - cd $CI_PROJECT_DIR/darkmoon/
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - pip install poetry
+    - poetry --version
+    - poetry config repositories.gitlab "$PYPI_REGISTRY"
+    - poetry config http-basic.gitlab gitlab-ci-token "$CI_JOB_TOKEN"
+    - poetry install
+
 cache: &global-poetry-cache
   key:
     files:
@@ -15,9 +26,6 @@ cache: &global-poetry-cache
     prefix: poetry
   paths:
     - $CI_PROJECT_DIR/darkmoon/.venv
-
-include:
-  - local: templates/darkmoon.gitlab-ci.yml
 
 workflow:
   rules:
@@ -30,7 +38,7 @@ stages:
   - test
 
 .quality-template: &quality
-  extends: .install-deps-template
+  <<: *install-deps
   image: python:3.10
   stage: quality
   cache:
@@ -59,7 +67,7 @@ check-imports:
 
 # Testing Stage
 python3.10:
-  extends: .install-deps-template
+  <<: *install-deps
   image: python:3.10
   stage: test
   script: make test
