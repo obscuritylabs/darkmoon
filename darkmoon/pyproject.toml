@@ -102,7 +102,6 @@ profile = "black"
 allow_redefinition = true
 ignore_missing_imports = true
 no_warn_unused_ignores = true
-plugins = "pydantic.mypy"
 strict = true
 strict_optional = false
 
