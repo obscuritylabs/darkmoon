@@ -5,7 +5,7 @@
 
 .install-deps-template:
   before_script:
-    - cd $CI_PROJECT_DIR/backend/
+    - cd $CI_PROJECT_DIR/darkmoon/
     - cp TEMPLATE.env .env # copy over testing .env
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
