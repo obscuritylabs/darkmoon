@@ -6,8 +6,6 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-print("Hello world")
-
 
 @app.get("/")
 def read_root() -> Any:
