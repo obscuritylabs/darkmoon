@@ -1,4 +1,3 @@
-# example from https://typer.tiangolo.com/typer-cli/#sample-script
 import os
 from pathlib import Path
 from typing import Optional
@@ -31,6 +30,7 @@ def bye(name: Optional[str] = None) -> None:
 def test() -> None:
     """
     Iterate over folder and print out metadata for each file in the folder.
+
     Uses os library to access files.
 
         Parameters:
@@ -39,7 +39,6 @@ def test() -> None:
             None
 
     """
-
     all_files = os.listdir("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
     for file in all_files:
         print("size:" + str(os.path.getsize(os.getcwd() + "/testing/" + file)))
@@ -55,6 +54,7 @@ def test() -> None:
 def path() -> None:
     """
     Iterate over folder and print out metadata for each file in the folder.
+
     Uses Pathlib library to access files.
 
         Parameters:
@@ -63,7 +63,6 @@ def path() -> None:
             None
 
     """
-
     p = Path("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
     size = p.stat().st_size
     print(size)

@@ -25,4 +25,3 @@ extend-immutable-calls =
   settings
 
 max-complexity = 10
-strictness = full
