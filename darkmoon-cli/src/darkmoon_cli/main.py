@@ -1,3 +1,4 @@
+"""This is the main.py file."""
 import os
 from pathlib import Path
 from typing import Optional
