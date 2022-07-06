@@ -1,0 +1,28 @@
+# flake8: noqa
+[flake8]
+ignore =
+    E203
+
+max-line-length = 120
+exclude = .git,
+    .venv,
+    __pycache__,
+    build,
+    dist,
+    setup.py,
+    docs,
+    scripts
+
+docstring_style = google
+extend-immutable-calls =
+  Depends,
+  fastapi.params.Depends,
+  Query,
+  Body,
+  Header,
+  typer.Option,
+  darkmoon.settings,
+  settings
+
+max-complexity = 10
+strictness = full
