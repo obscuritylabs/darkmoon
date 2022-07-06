@@ -29,6 +29,16 @@ def bye(name: Optional[str] = None) -> None:
 # function to iterate over files using os
 @app.command()
 def test() -> None:
+    """
+    Iterate over folder and print out metadata for each file in the folder.
+    Uses os library to access files.
+
+        Parameters:
+            None
+        Returns:
+            None
+
+    """
 
     all_files = os.listdir("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
     for file in all_files:
@@ -43,6 +53,16 @@ def test() -> None:
 # function to iterate over files using pathlib
 @app.command()
 def path() -> None:
+    """
+    Iterate over folder and print out metadata for each file in the folder.
+    Uses Pathlib library to access files.
+
+        Parameters:
+            None
+        Returns:
+            None
+
+    """
 
     p = Path("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
     size = p.stat().st_size
