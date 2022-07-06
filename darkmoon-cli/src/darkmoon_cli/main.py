@@ -28,7 +28,7 @@ def bye(name: Optional[str] = None) -> None:
 
 # function to iterate over files using os
 @app.command()
-def test():
+def test() -> None:
 
     all_files = os.listdir("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
     for file in all_files:
@@ -42,7 +42,7 @@ def test():
 
 # function to iterate over files using pathlib
 @app.command()
-def path():
+def path() -> None:
 
     p = Path("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
     size = p.stat().st_size
