@@ -57,7 +57,7 @@ check: | check-lint check-format check-types check-imports ##@check Run all chec
 
 .PHONY: check-lint
 check-lint: ##@check Check code linting (pylint, flake8).
-	@poetry run pflake8
+	@poetry run flake8
 
 .PHONY: check-format
 check-format: ##@check Check code formating (black).
