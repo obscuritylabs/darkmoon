@@ -20,4 +20,4 @@ async def find():
     return res
 
 
-asyncio.new_event_loop().run_until_complete(find())
+asyncio.run(find())
