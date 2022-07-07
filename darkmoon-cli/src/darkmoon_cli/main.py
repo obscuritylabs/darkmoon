@@ -116,6 +116,11 @@ def hashes():
     all_hashes.append(h_sha256.hexdigest())
     all_hashes.append(h_sha512.hexdigest())
 
+    # Code to find the file type
+    child_file = filename.split("/")[-1]
+    extension = child_file.split(".")[-1]
+    print("file type:" + extension)
+
     print(all_hashes)
     # return the hex digest
     return all_hashes
