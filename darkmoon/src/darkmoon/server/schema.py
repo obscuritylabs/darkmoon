@@ -8,19 +8,19 @@ class HeaderInfo(BaseModel):
     """Creates the HeaderInfo class, used in both Incoming Files and Outgoing Files."""
 
     architecture: str = Field(
-        description="",
+        description="architecture of the file",
         example="",
     )
     timestap: datetime = Field(
-        description="",
-        example="",
+        description="timestap of file",
+        example="12/2/23 17:57:43",
     )
     compile_time: float = Field(
-        description="",
+        description="compile time of the file",
         example="",
     )
     signature: str = Field(
-        description="",
+        description="digital file signature",
         example="",
     )
 
@@ -38,15 +38,15 @@ class IncomingFiles(BaseModel):
     )
     hashes: list[str] = Field(
         description="a hash",
-        example="",
+        example="[8743b52063cd84097a65d1633f5c74f5, 8743b52063cd84097a65d1633f5c74f5]",
     )
     source_ISO_name: str = Field(
-        description="",
+        description="source ISO name",
         example="",
     )
-    source_ISO_hash: str = Field(
-        description="",
-        example="",
+    source_ISO_hash: list[str] = Field(
+        description="source ISO hash",
+        example="[8743b52063cd84097a65d1633f5c74f5, 8743b52063cd84097a65d1633f5c74f5]",
     )
     header_info: HeaderInfo = Field(
         description="contains all the header information",
@@ -71,15 +71,15 @@ class OutgoingFiles(BaseModel):
     )
     hashes: list[str] = Field(
         description="a hash",
-        example="",
+        example="[8743b52063cd84097a65d1633f5c74f5, 8743b52063cd84097a65d1633f5c74f5]",
     )
     source_ISO_name: str = Field(
-        description="",
+        description="source ISO name",
         example="",
     )
-    source_ISO_hash: str = Field(
-        description="",
-        example="",
+    source_ISO_hash: list[str] = Field(
+        description="source ISO hash",
+        example="[8743b52063cd84097a65d1633f5c74f5, 8743b52063cd84097a65d1633f5c74f5]",
     )
     header_info: HeaderInfo = Field(
         description="contains all the header information",
