@@ -1,8 +1,31 @@
 """Imports the modules."""
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
-class Incoming_Files(BaseModel):
+class HeaderInfo(BaseModel):
+    """Creates the HeaderInfo class, used in both Incoming Files and Outgoing Files."""
+
+    architecture: str = Field(
+        description="",
+        example="",
+    )
+    timestap: datetime = Field(
+        description="",
+        example="",
+    )
+    compile_time: float = Field(
+        description="",
+        example="",
+    )
+    signature: str = Field(
+        description="",
+        example="",
+    )
+
+
+class IncomingFiles(BaseModel):
     """Creates the incoming files class."""
 
     name: str = Field(
@@ -13,7 +36,7 @@ class Incoming_Files(BaseModel):
         description="the extension of a file",
         example=".jpeg",
     )
-    hashes: str = Field(
+    hashes: list[str] = Field(
         description="a hash",
         example="",
     )
@@ -25,10 +48,13 @@ class Incoming_Files(BaseModel):
         description="",
         example="",
     )
-    header_info = {"architecture": str, "timestap": str, "compile_time": str, "signature": str}
+    header_info: HeaderInfo = Field(
+        description="contains all the header information",
+        example="",
+    )
 
 
-class Outgoing_Files(BaseModel):
+class OutgoingFiles(BaseModel):
     """Creates the outoging files class."""
 
     id: str = Field(
@@ -43,7 +69,7 @@ class Outgoing_Files(BaseModel):
         description="the extension of a file",
         example=".jpeg",
     )
-    hashes: str = Field(
+    hashes: list[str] = Field(
         description="a hash",
         example="",
     )
@@ -55,4 +81,7 @@ class Outgoing_Files(BaseModel):
         description="",
         example="",
     )
-    header_info = {"architecture": str, "timestap": str, "compile_time": str, "signature": str}
+    header_info: HeaderInfo = Field(
+        description="contains all the header information",
+        example="",
+    )
