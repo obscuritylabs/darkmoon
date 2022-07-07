@@ -11,12 +11,10 @@ db = client.darkmoon
 collection = db.test
 
 
-async def find():
+async def find() -> None:
     """Runs the find function."""
-
     res = await collection.find_one({"test": "test"})
     print(res)
-    return res
 
 
 asyncio.run(find())
