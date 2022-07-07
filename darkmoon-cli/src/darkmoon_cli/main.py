@@ -1,6 +1,7 @@
 """This is the main.py file."""
 import hashlib
 import os
+import platform
 from pathlib import Path
 from typing import Optional
 
@@ -82,7 +83,7 @@ def path() -> None:
 
 
 @app.command()
-def hashes():
+def hashes() -> list:
     """
     Create a list of hashes for files.
 
@@ -121,13 +122,16 @@ def hashes():
     extension = child_file.split(".")[-1]
     print("file type:" + extension)
 
+    # code to find operating system
+    print("Operating System: " + platform.platform())
+
     print(all_hashes)
     # return the hex digest
     return all_hashes
 
 
 @app.command()
-def rich_pe_header(exe_file):
+def rich_pe_header(exe_file) -> list:
     """
     Get a list of rich PE hash headers.
 
@@ -151,6 +155,8 @@ def rich_pe_header(exe_file):
     all_pe_header.append(binarysha1.get_rich_header_hash("sha1"))
     all_pe_header.append(binarysha256.get_rich_header_hash("sha256"))
     all_pe_header.append(binarysha512.get_rich_header_hash("sha512"))
+
+    return all_pe_header
 
 
 if __name__ == "__main__":
