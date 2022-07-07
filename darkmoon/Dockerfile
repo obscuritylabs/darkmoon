@@ -26,4 +26,4 @@ FROM darkmoon-base AS runner
 COPY --from=darkmoon-builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 ENV PRODUCTION=true \
     STATIC_PATH=/opt/app/
-CMD ["python", "-m", "uvicorn", "darkmoon.main:app", "--host=0.0.0.0", "--port=8000"]
+CMD ["python", "-m", "uvicorn", "darkmoon.main:app", "--host=0.0.0.0", "--port=8000", "--reload"]
