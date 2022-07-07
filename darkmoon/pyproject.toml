@@ -16,11 +16,9 @@ darkmoon = "darkmoon.main:cli_app"
 MarkupSafe = "2.0.0"
 aenum = "^3.1.11"
 asyncio = "^3.4.3"
-beanie = "^1.11.0"
 fastapi = {version = "^0.78.0", extras = ["all"]}
 fastapi-mail = "^0.4.1"
 loguru = "^0.5.3"
-motor = "^2.3.1"
 pydantic = {extras = ["dotenv"], version = "^1.8.2"}
 pydantic-jsonapi = "^0.11.0"
 pyjwkest = "^1.4.2"
@@ -29,6 +27,7 @@ python-dotenv = "^0.15.0"
 python-slugify = "^4.0.1"
 typer = {version = "^0.4.1", extras = ["all"]}
 types-requests = "^2.27.13"
+motor = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 Faker = "^13.3.2"
