@@ -12,7 +12,6 @@ collection = db.test
 
 
 async def find():
-
     """Runs the find function."""
 
     res = await collection.find_one({"test": "test"})
