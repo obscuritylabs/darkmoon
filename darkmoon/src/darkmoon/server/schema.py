@@ -26,7 +26,7 @@ class HeaderInfo(BaseModel):
 
 
 class IncomingFiles(BaseModel):
-    """Creates the incoming files class."""
+    """Sets incoming file requirements."""
 
     name: str = Field(
         description="name of file",
@@ -55,7 +55,7 @@ class IncomingFiles(BaseModel):
 
 
 class OutgoingFiles(BaseModel):
-    """Creates the outoging files class."""
+    """Sets outgoing file requirements."""
 
     id: str = Field(
         description="ID",
