@@ -5,7 +5,7 @@ app = FastAPI()
 
 
 @app.get("/")
-def home():
+def home() -> None:
     """Print data."""
     my_dict = {"Data": "Test"}
     print(my_dict)
