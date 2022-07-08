@@ -102,7 +102,7 @@ def get_metadata(path: Path) -> str:
 
 # function to iterate over files using pathlib
 @app.command()
-def iterate():
+def iterate() -> None:
     """
     Iterate over folder and call metadata function for each file.
 
@@ -120,7 +120,6 @@ def iterate():
     queue.append(root)
 
     while queue:
-        print("1")
         m = queue.pop(0)
 
         for files in m.glob("*"):
@@ -136,7 +135,7 @@ def hashes(path: Path) -> list[str]:
     """
     Create a list of hashes for files.
 
-    Uses hashlib library
+    Uses hashlib library.
 
         Parameters:
             None
@@ -189,7 +188,7 @@ def rich_pe_header(exe_file: Path) -> list[str]:
     """
     Get a list of rich PE hash headers.
 
-    Uses pefile library
+    Uses pefile library.
 
         Parameters:
             None
