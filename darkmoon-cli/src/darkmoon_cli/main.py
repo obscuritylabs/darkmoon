@@ -83,7 +83,7 @@ def path() -> None:
 
 
 @app.command()
-def hashes() -> list:
+def hashes() -> list[str]:
     """
     Create a list of hashes for files.
 
@@ -131,7 +131,7 @@ def hashes() -> list:
 
 
 @app.command()
-def source_ISO() -> str:
+def source_iso() -> str:
     """
     Extract source ISO metadata.
 
@@ -145,7 +145,7 @@ def source_ISO() -> str:
 
 
 @app.command()
-def rich_pe_header(exe_file) -> list:
+def rich_pe_header(exe_file: str) -> list[str]:
     """
     Get a list of rich PE hash headers.
 
