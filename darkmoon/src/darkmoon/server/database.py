@@ -1,4 +1,4 @@
-"""Imports the libraries."""
+"""Statement imports libraries."""
 
 import asyncio
 
@@ -12,7 +12,7 @@ collection = db.test
 
 
 async def find() -> None:
-    """Runs the find function."""
+    """Print data."""
     res = await collection.find_one({"test": "test"})
     print(res)
 

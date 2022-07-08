@@ -1,3 +1,4 @@
+"""Import libraries."""
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -5,4 +6,6 @@ app = FastAPI()
 
 @app.get("/")
 def home():
-    return {"Data": "Test"}
+    """Print data."""
+    my_dict = {"Data": "Test"}
+    print(my_dict)
