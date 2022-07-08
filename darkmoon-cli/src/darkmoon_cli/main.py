@@ -131,6 +131,20 @@ def hashes() -> list:
 
 
 @app.command()
+def source_ISO() -> str:
+    """
+    Extract source ISO metadata.
+
+        Parameters:
+            None
+        Returns:
+            String
+
+    """
+    return "source ISO"
+
+
+@app.command()
 def rich_pe_header(exe_file) -> list:
     """
     Get a list of rich PE hash headers.
