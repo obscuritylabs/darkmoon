@@ -41,7 +41,6 @@ repos:
       - id: flake8
         args: ["--config=darkmoon/.flake8"]
         additional_dependencies:
-          - flake8-bandit
           - flake8-bugbear
           - flake8-commas
           - flake8-comprehensions
