@@ -8,6 +8,7 @@
 from typing import Any, Union
 
 from fastapi import FastAPI
+from server.schema import IncomingFiles
 
 app = FastAPI()
 
@@ -22,3 +23,8 @@ def read_root() -> Any:
 def read_item(item_id: int, q: Union[str, None] = None) -> Any:
     """Fast API example."""
     return {"item_id": item_id, "q": q}
+
+
+@app.post("/IncomingFiles/{file_id}")
+async def WriteFile(file: IncomingFiles):
+    return file
