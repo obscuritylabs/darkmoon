@@ -1,4 +1,5 @@
 """This is the main.py file."""
+
 import hashlib
 import os
 import platform
@@ -97,9 +98,9 @@ def get_metadata(path: Path) -> str:
 
 # function to iterate over files using pathlib
 @app.command()
-def path() -> None:
+def iterate():
     """
-    Iterate over folder and print out metadata for each file in the folder.
+    Iterate over folder and call metadata function for each file.
 
     Uses Pathlib library to access files.
 
@@ -109,8 +110,23 @@ def path() -> None:
             None
 
     """
-    p = Path("faker.txt")
-    get_metadata(p)
+    root = Path("/testing")
+
+    queue = []
+    queue.append(root)
+
+    while queue:
+        print("1")
+        m = queue.pop(0)
+
+        for files in m.glob("*"):
+            print(files)
+            if files.is_dir():
+                queue.append(files)
+            else:
+                get_metadata(files)
+
+    # iterate over files and going into folders given root
 
 
 @app.command()
