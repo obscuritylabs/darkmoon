@@ -53,6 +53,48 @@ def test() -> None:
         print(str(os.path.getctime(os.getcwd() + "/testing/" + file)))
 
 
+@app.command()
+def get_metadata(path: Path) -> str:
+    """
+    Call all of the metadata functions.
+
+        Parameters:
+            path(Path): The path of the file that metadata will be extracted from.
+        Returns:
+            json(str): The metadata of the file formated in json format.
+
+    """
+    # name of the file
+    curr_filename = path.name
+
+    # file type
+    extension = path.suffix
+
+    # Hashes of the file in list form
+    hash_list = hashes(path)
+
+    # Operating System
+    operating_system = str(platform.platform())
+
+    # Source ISO
+    source_iso_data = source_iso()
+
+    # rich PE header hash
+    if extension == ".exe":
+        rich_pe_header(curr_filename)
+
+    # print statements used for testing
+    print("name:" + curr_filename)
+    print("filetype:" + extension)
+    print("hashes:" + str(hash_list))
+    print("OS:" + operating_system)
+    print("ISO:" + source_iso_data)
+
+    json = ""
+
+    return json
+
+
 # function to iterate over files using pathlib
 @app.command()
 def path() -> None:
@@ -68,22 +110,11 @@ def path() -> None:
 
     """
     p = Path("faker.txt")
-    size = p.stat().st_size
-    print(size)
-    for file in p.iterdir():
-        t = Path(file)
-        print("\n")
-        print(t.stem)
-        print("size:")
-        print(t.stat().st_size)
-        print("last motified:")
-        print(t.stat().st_atime)
-        print("creation time:")
-        print(t.stat().st_ctime)
+    get_metadata(p)
 
 
 @app.command()
-def hashes() -> list[str]:
+def hashes(path: Path) -> list[str]:
     """
     Create a list of hashes for files.
 
@@ -95,7 +126,7 @@ def hashes() -> list[str]:
             list
 
     """
-    filename = "faker.txt"
+    filename = str(path.name)
     h_md5 = hashlib.md5()
     h_sha1 = hashlib.sha1()
     h_sha256 = hashlib.sha256()
@@ -117,15 +148,6 @@ def hashes() -> list[str]:
     all_hashes.append(h_sha256.hexdigest())
     all_hashes.append(h_sha512.hexdigest())
 
-    # Code to find the file type
-    child_file = filename.split("/")[-1]
-    extension = child_file.split(".")[-1]
-    print("file type:" + extension)
-
-    # code to find operating system
-    print("Operating System: " + platform.platform())
-
-    print(all_hashes)
     # return the hex digest
     return all_hashes
 
