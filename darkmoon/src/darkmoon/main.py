@@ -27,6 +27,7 @@ def read_item(item_id: int, q: Union[str, None] = None) -> Any:
 
 @app.get("/IncomingFiles1/{file_id}")
 async def getHeader(IncomingFiles: Union[str, None] = Header(default=None)):
+    """Fast API example."""
     return {"Header Info": IncomingFiles}
 
 
@@ -38,5 +39,6 @@ async def WriteFile(file: IncomingFiles):
 
 @app.get("/headers-and-object/")
 def get_headers(response: Response):
+    """Fast API example."""
     response.headers["X-Cat-Dog"] = "alone in the world"
     return {"message": "Hello World"}
