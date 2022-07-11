@@ -1,23 +1,32 @@
 """Imports the modules/classes Field, BaseModel, and datetime."""
 
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
 class HeaderInfo(BaseModel):
-    """Creates the HeaderInfo class, used in both Incoming Files and Outgoing Files."""
+    """Creates the HeaderInfo class, used in both Incoming Files and Outgoing Files if an .exe file."""
+
+    # Known as 'PE Header' in darkmoon_cli/main.py
 
     architecture: str = Field(
-        description="architecture of the file",
-        example="",
+        description="The architecture of the .exe file.",
+        example="32-bit",
     )
+
+    # Called 'Last Modified' in darkmoon_cli/main.py.
+
     timestamp: str = Field(
         description="timestap of file",
         example="12/2/23 17:57:43",
     )
+
     compile_time: str = Field(
         description="compile time of the file",
         example="",
     )
+
     signature: str = Field(
         description="digital file signature",
         example="",
@@ -37,7 +46,10 @@ class IncomingFiles(BaseModel):
     )
     hashes: list[str] = Field(
         description="a hash",
-        example=["8743b52063cd84097a65d1633f5c74f5", "8743b52063cd84097a65d1633f5c74f5"],
+        example=[
+            "8743b52063cd84097a65d1633f5c74f5",
+            "8743b52063cd84097a65d1633f5c74f5",
+        ],
     )
     source_ISO_name: str = Field(
         description="source ISO name",
@@ -45,9 +57,15 @@ class IncomingFiles(BaseModel):
     )
     source_ISO_hash: list[str] = Field(
         description="source ISO hash",
-        example=["8743b52063cd84097a65d1633f5c74f5", "8743b52063cd84097a65d1633f5c74f5"],
+        example=[
+            "8743b52063cd84097a65d1633f5c74f5",
+            "8743b52063cd84097a65d1633f5c74f5",
+        ],
     )
-    header_info: HeaderInfo = Field(
+
+    """Only for .exe files"""
+
+    header_info: Optional[HeaderInfo] = Field(
         description="contains all the header information",
     )
 
@@ -69,7 +87,10 @@ class OutgoingFiles(BaseModel):
     )
     hashes: list[str] = Field(
         description="a hash",
-        example=["8743b52063cd84097a65d1633f5c74f5", "8743b52063cd84097a65d1633f5c74f5"],
+        example=[
+            "8743b52063cd84097a65d1633f5c74f5",
+            "8743b52063cd84097a65d1633f5c74f5",
+        ],
     )
     source_ISO_name: str = Field(
         description="source ISO name",
@@ -77,9 +98,12 @@ class OutgoingFiles(BaseModel):
     )
     source_ISO_hash: list[str] = Field(
         description="source ISO hash",
-        example=["8743b52063cd84097a65d1633f5c74f5", "8743b52063cd84097a65d1633f5c74f5"],
+        example=[
+            "8743b52063cd84097a65d1633f5c74f5",
+            "8743b52063cd84097a65d1633f5c74f5",
+        ],
     )
-    header_info: HeaderInfo = Field(
+    header_info: Optional[HeaderInfo] = Field(
         description="contains all the header information",
         example="",
     )

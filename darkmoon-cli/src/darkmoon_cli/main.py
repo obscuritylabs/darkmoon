@@ -4,7 +4,7 @@ import hashlib
 import os
 import platform
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import pefile
 import typer
@@ -80,7 +80,7 @@ def get_metadata(path: Path) -> str:
     # Source ISO
     source_iso_data = source_iso()
 
-    # rich PE header hash
+    # Rich PE header hash
 
     # print statements used for testing
     print("name:" + curr_filename)
@@ -91,7 +91,7 @@ def get_metadata(path: Path) -> str:
 
     # rich PE header hash
     if extension == ".exe":
-        pe_header = rich_pe_header(path)
+        pe_header = rich_pe_header_hashes(path)
         print("rich_pe_header_hash:" + str(pe_header))
     print("\n")
 
@@ -184,7 +184,21 @@ def source_iso() -> str:
 
 
 @app.command()
-def rich_pe_header(exe_file: Path) -> list[str]:
+def source_iso_hash() -> list[str]:
+    """
+    Extract source ISO hashes metadata.
+
+        Parameters:
+            None
+        Returns:
+            List of strings
+
+    """
+    return ["source ISO hash list"]
+
+
+@app.command()
+def rich_pe_header_hashes(exe_file: Path) -> list[str]:
     """
     Get a list of rich PE hash headers.
 
@@ -194,7 +208,6 @@ def rich_pe_header(exe_file: Path) -> list[str]:
             None
         Returns:
             list
-
     """
     # check that it is .exe in main func using glob
     binarymd5 = pefile.PE(exe_file)
@@ -210,6 +223,76 @@ def rich_pe_header(exe_file: Path) -> list[str]:
     all_pe_header.append(binarysha512.get_rich_header_hash("sha512"))
 
     return all_pe_header
+
+
+@app.command()
+def pe_header_sig(exe_file: Path) -> Any:
+    """
+    Get the signature of the .exe file.
+
+    Uses pefile library.
+
+        Parameters:
+            .exe file
+        Returns:
+            string
+    """
+    sig = pefile.PE(exe_file)
+    sig = hex(sig.NT_Headers.Signature)
+    return str(sig)
+
+
+@app.command()
+def pe_header_time(exe_file: Path) -> Any:
+    """
+    Get the timestamp of the .exe file.
+
+    Uses pefile library.
+
+        Parameters:
+            .exe file
+        Returns:
+            string
+    """
+    time = pefile.PE(exe_file)
+    time = time.FILE_HEADER.dump_dict()["TimeDateStamp"]["Value"].split("[")[1][:-1]
+    return str(time)
+
+
+@app.command()
+def pe_header_comptime(exe_file: Path) -> Any:
+    """
+    Get the compile time of the .exe file.
+
+    Uses pefile library.
+
+        Parameters:
+            .exe file
+        Returns:
+            string
+    """
+    CompTime = "Time to compile file"
+    return CompTime
+
+
+@app.command()
+def pe_architect(exe_file: Path) -> Any:
+    """
+    Get the architecture of the .exe file.
+
+    Uses pefile library.
+
+        Parameters:
+            .exe file
+        Returns:
+            string
+    """
+    arch = pefile.PE(exe_file)
+    if hex(arch.pe.FILE_HEADER.Machine) == 0x14C:
+        arch_file = "32 bit"
+    else:
+        arch_file = "64 bit"
+    return str(arch_file)
 
 
 if __name__ == "__main__":
