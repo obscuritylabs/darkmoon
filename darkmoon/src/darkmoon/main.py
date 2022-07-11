@@ -1,7 +1,7 @@
 """This is the main.py file."""
-from typing import Any, Union
+from typing import Any
 
-from fastapi import FastAPI, Header, Response
+from fastapi import FastAPI
 from server.schema import IncomingFiles
 
 app = FastAPI()
@@ -13,26 +13,7 @@ def read_root() -> Any:
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None) -> Any:
-    """Fast API example."""
-    return {"item_id": item_id, "q": q}
-
-
-@app.get("/IncomingFiles1/{file_id}")
-async def getHeader(IncomingFiles: Union[str, None] = Header(default=None)):
-    """Fast API example."""
-    return {"Header Info": IncomingFiles}
-
-
-@app.post("/IncomingFiles/{file_id}")
-async def WriteFile(file: IncomingFiles):
-    """Fast API POST function for Incoming Files."""
+@app.post("/incomingfiles/")
+async def WriteFile(file: IncomingFiles) -> Any:
+    """Fast API POST function for incoming files."""
     return file
-
-
-@app.get("/headers-and-object/")
-def get_headers(response: Response):
-    """Fast API example."""
-    response.headers["X-Cat-Dog"] = "alone in the world"
-    return {"message": "Hello World"}
