@@ -13,7 +13,7 @@ def read_root() -> Any:
     return {"Hello": "World"}
 
 
-@app.post("/incomingfiles/")
+@app.post("/incoming-files")
 async def WriteFile(file: IncomingFiles) -> Any:
     """Fast API POST function for incoming files."""
     return file
