@@ -311,7 +311,6 @@ def pe_machine(exe_file: Path) -> Any:
     arch = str(arch.FILE_HEADER)
     arch_list = arch.split()
     machine = arch_list[arch_list.index("Machine:") + 1]
-
     return machine
 
 
