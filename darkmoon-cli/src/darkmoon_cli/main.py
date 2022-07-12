@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import pefile
+import requests
 import typer
 
 app = typer.Typer()
@@ -88,6 +89,18 @@ def get_metadata(path: Path) -> str:
     print("Hashes:" + str(hash_list))
     print("OS:" + operating_system)
     print("ISO:" + source_iso_data)
+
+    TODO = {
+        "Name": curr_filename,
+        "File Extension": extension,
+        "Hashes": str(hash_list),
+        "OS": operating_system,
+        "ISO": source_iso_data,
+    }
+
+    response = requests.post("mongodb://10.0.8.11:27017/", json=TODO)
+    response.json()
+    response.status_code
 
     # rich PE header hash
     if extension == ".exe":
