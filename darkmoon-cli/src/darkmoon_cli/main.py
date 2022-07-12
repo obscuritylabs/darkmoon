@@ -124,7 +124,14 @@ def get_metadata(path: Path) -> None:
 
     response = requests.post("mongodb://10.0.8.11:27017/", json=TODO)
     response.json()
-    response.status_code
+    status = response.status_code
+    if status == 200:
+        print("Working")
+    elif status == 404:
+        print("Server not found")
+    else:
+        print("Error: Not working")
+    print(status)
 
 
 # function to iterate over files using pathlib
