@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 
 class HeaderInfo(BaseModel):
-    """Creates the HeaderInfo class, used in both Incoming Files and Outgoing Files if an .exe file."""
+    """Holds HeaderInfo class properties for .exe files."""
 
     # Known as 'PE Header' in darkmoon_cli/main.py
 
