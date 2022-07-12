@@ -83,16 +83,25 @@ def get_metadata(path: Path) -> str:
     # Rich PE header hash
 
     # print statements used for testing
-    print("name:" + curr_filename)
-    print("filetype:" + extension)
-    print("hashes:" + str(hash_list))
+    print("Name:" + curr_filename)
+    print("Filetype:" + extension)
+    print("Hashes:" + str(hash_list))
     print("OS:" + operating_system)
     print("ISO:" + source_iso_data)
 
     # rich PE header hash
     if extension == ".exe":
         pe_header = rich_pe_header_hashes(path)
+        pe_sig = pe_header_sig(path)
+        pe_timestamp = pe_header_time(path)
+        pe_arch = pe_machine(path)
+        pe_comptime = pe_header_comptime(path)
+
         print("rich_pe_header_hash:" + str(pe_header))
+        print("PE Signature:" + str(pe_sig))
+        print("PE_Timestamp:" + str(pe_timestamp))
+        print("Compile Time: " + str(pe_comptime))
+        print("Machine: " + str(pe_arch))
     print("\n")
 
     json = ""
@@ -226,7 +235,7 @@ def rich_pe_header_hashes(exe_file: Path) -> list[str]:
 
 
 @app.command()
-def pe_header_sig(exe_file: Path) -> Any:
+def pe_header_sig(exe_file: Path) -> str:
     """
     Get the signature of the .exe file.
 
@@ -238,8 +247,10 @@ def pe_header_sig(exe_file: Path) -> Any:
             string
     """
     sig = pefile.PE(exe_file)
-    sig = hex(sig.NT_Headers.Signature)
-    return str(sig)
+    sig = str(sig.NT_HEADERS)
+    sig_list = sig.split()
+    signature = sig_list[sig_list.index("Signature:") + 1]
+    return signature
 
 
 @app.command()
@@ -255,8 +266,17 @@ def pe_header_time(exe_file: Path) -> Any:
             string
     """
     time = pefile.PE(exe_file)
-    time = time.FILE_HEADER.dump_dict()["TimeDateStamp"]["Value"].split("[")[1][:-1]
-    return str(time)
+    time = str(time.FILE_HEADER)
+    time_list = time.split()
+    timestamp = str(time_list[time_list.index("TimeDateStamp:") + 1])
+    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 2])
+    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 3])
+    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 4])
+    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 5])
+    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 6])
+    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 7])
+
+    return timestamp
 
 
 @app.command()
@@ -276,7 +296,7 @@ def pe_header_comptime(exe_file: Path) -> Any:
 
 
 @app.command()
-def pe_architect(exe_file: Path) -> Any:
+def pe_machine(exe_file: Path) -> Any:
     """
     Get the architecture of the .exe file.
 
@@ -288,11 +308,10 @@ def pe_architect(exe_file: Path) -> Any:
             string
     """
     arch = pefile.PE(exe_file)
-    if hex(arch.pe.FILE_HEADER.Machine) == 0x14C:
-        arch_file = "32 bit"
-    else:
-        arch_file = "64 bit"
-    return str(arch_file)
+    arch = str(arch.FILE_HEADER)
+    arch_list = arch.split()
+    machine = arch_list[arch_list.index("Machine:") + 1]
+    return machine
 
 
 if __name__ == "__main__":

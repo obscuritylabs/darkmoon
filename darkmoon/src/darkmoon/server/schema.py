@@ -56,7 +56,7 @@ class IncomingFiles(BaseModel):
         example="",
     )
 
-    """Only for .exe files"""
+    # Only for .exe files
 
     header_info: Optional[HeaderInfo] = Field(
         description="contains all the header information",
