@@ -56,7 +56,7 @@ def test() -> None:
 
 
 @app.command()
-def get_metadata(path: Path) -> str:
+def get_metadata(path: Path) -> None:
     """
     Call all of the metadata functions.
 
@@ -98,10 +98,6 @@ def get_metadata(path: Path) -> str:
         "ISO": source_iso_data,
     }
 
-    response = requests.post("mongodb://10.0.8.11:27017/", json=TODO)
-    response.json()
-    response.status_code
-
     # rich PE header hash
     if extension == ".exe":
         pe_header = rich_pe_header_hashes(path)
@@ -110,6 +106,15 @@ def get_metadata(path: Path) -> str:
         pe_arch = pe_machine(path)
         pe_comptime = pe_header_comptime(path)
 
+        exe_metadata = {
+            "architecture": pe_arch,
+            "timestamp": pe_timestamp,
+            "compile_time": pe_comptime,
+            "signature": pe_sig,
+        }
+
+        TODO["header_info"] = exe_metadata
+
         print("rich_pe_header_hash:" + str(pe_header))
         print("PE Signature:" + str(pe_sig))
         print("PE_Timestamp:" + str(pe_timestamp))
@@ -117,9 +122,9 @@ def get_metadata(path: Path) -> str:
         print("Machine: " + str(pe_arch))
     print("\n")
 
-    json = ""
-
-    return json
+    response = requests.post("mongodb://10.0.8.11:27017/", json=TODO)
+    response.json()
+    response.status_code
 
 
 # function to iterate over files using pathlib
