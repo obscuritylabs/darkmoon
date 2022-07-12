@@ -55,13 +55,6 @@ class IncomingFiles(BaseModel):
         description="source ISO name",
         example="",
     )
-    source_ISO_hash: list[str] = Field(
-        description="source ISO hash",
-        example=[
-            "8743b52063cd84097a65d1633f5c74f5",
-            "8743b52063cd84097a65d1633f5c74f5",
-        ],
-    )
 
     """Only for .exe files"""
 
