@@ -20,7 +20,8 @@ python = "^3.10"
 python-dotenv = "^0.15.0"
 typer = {version = "^0.4.1", extras = ["all"]}
 types-requests = "^2.27.13"
-pefile = "^2022.5.30"
+pefile = "2022.5.30"
+future = "^0.18.2"
 
 [tool.poetry.dev-dependencies]
 autoflake = "^1.4"
