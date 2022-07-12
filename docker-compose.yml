@@ -28,6 +28,9 @@ services:
       - 27017:27017
     environment:
       - MONGO_INITDB_DATABASE=darkmoon
+      - MONGO_INITDB_ROOT_USERNAME=darkmoon
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
     volumes:
       - mongodb:/data/db
       - mongodb_config:/data/configdb
