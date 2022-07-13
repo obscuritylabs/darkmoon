@@ -85,17 +85,16 @@ def get_metadata(path: Path) -> None:
 
     # print statements used for testing
     print("Name:" + curr_filename)
-    print("Filetype:" + extension)
+    print("file_extension:" + extension)
     print("Hashes:" + str(hash_list))
     print("OS:" + operating_system)
     print("ISO:" + source_iso_data)
 
     TODO = {
-        "Name": curr_filename,
-        "File Extension": extension,
-        "Hashes": str(hash_list),
-        "OS": operating_system,
-        "ISO": source_iso_data,
+        "name": curr_filename,
+        "file_extension": extension,
+        "hashes": list(hash_list),
+        "source_ISO_name": source_iso_data,
     }
 
     # rich PE header hash
@@ -122,7 +121,7 @@ def get_metadata(path: Path) -> None:
         print("Machine: " + str(pe_arch))
     print("\n")
 
-    response = requests.post("mongodb://10.0.8.11:27017/", json=TODO)
+    response = requests.post("http://127.0.0.1:8000/incoming-files", json=TODO)
     response.json()
     status = response.status_code
     if status == 200:

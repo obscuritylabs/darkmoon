@@ -40,7 +40,7 @@ class IncomingFiles(BaseModel):
         description="name of file",
         example="End_Of_The_World",
     )
-    file_extention: str = Field(
+    file_extension: str = Field(
         description="the extension of a file",
         example=".jpeg",
     )
