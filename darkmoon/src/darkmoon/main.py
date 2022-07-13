@@ -19,7 +19,7 @@ async def upload_metadata(file: IncomingFiles) -> Any:
     if file.header_info:
         this_dict = {
             "name": file.name,
-            "file_extention": file.file_extention,
+            "file_extension": file.file_extension,
             "hashes": file.hashes,
             "source_ISO_name": file.source_ISO_name,
             "header_info": file.header_info,
@@ -28,7 +28,7 @@ async def upload_metadata(file: IncomingFiles) -> Any:
 
         this_dict = {
             "name": file.name,
-            "file_extention": file.file_extention,
+            "file_extension": file.file_extension,
             "hashes": file.hashes,
             "source_ISO_name": file.source_ISO_name,
         }
