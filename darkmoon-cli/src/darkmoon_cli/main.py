@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import pefile
+import requests
 import typer
 
 app = typer.Typer()
@@ -55,7 +56,7 @@ def test() -> None:
 
 
 @app.command()
-def get_metadata(path: Path) -> str:
+def get_metadata(path: Path) -> None:
     """
     Call all of the metadata functions.
 
@@ -84,10 +85,18 @@ def get_metadata(path: Path) -> str:
 
     # print statements used for testing
     print("Name:" + curr_filename)
-    print("Filetype:" + extension)
+    print("file_extension:" + extension)
     print("Hashes:" + str(hash_list))
     print("OS:" + operating_system)
     print("ISO:" + source_iso_data)
+
+    TODO = {
+        "name": curr_filename,
+        "file_extension": extension,
+        "hashes": list(hash_list),
+        "source_ISO_name": source_iso_data,
+        "header_info": {},
+    }
 
     # rich PE header hash
     if extension == ".exe":
@@ -97,6 +106,15 @@ def get_metadata(path: Path) -> str:
         pe_arch = pe_machine(path)
         pe_comptime = pe_header_comptime(path)
 
+        exe_metadata = {
+            "architecture": pe_arch,
+            "timestamp": pe_timestamp,
+            "compile_time": pe_comptime,
+            "signature": pe_sig,
+        }
+
+        TODO["header_info"] = exe_metadata
+
         print("rich_pe_header_hash:" + str(pe_header))
         print("PE Signature:" + str(pe_sig))
         print("PE_Timestamp:" + str(pe_timestamp))
@@ -104,9 +122,16 @@ def get_metadata(path: Path) -> str:
         print("Machine: " + str(pe_arch))
     print("\n")
 
-    json = ""
-
-    return json
+    response = requests.post("http://127.0.0.1:8000/incoming-files", json=TODO)
+    response.json()
+    status = response.status_code
+    if status == 200:
+        print("Working")
+    elif status == 404:
+        print("Server not found")
+    else:
+        print("Error: Not working")
+    print(status)
 
 
 # function to iterate over files using pathlib
