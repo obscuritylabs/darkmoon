@@ -95,6 +95,7 @@ def get_metadata(path: Path) -> None:
         "file_extension": extension,
         "hashes": list(hash_list),
         "source_ISO_name": source_iso_data,
+        "header_info": {},
     }
 
     # rich PE header hash
