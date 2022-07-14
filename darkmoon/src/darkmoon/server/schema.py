@@ -10,24 +10,24 @@ class HeaderInfo(BaseModel):
 
     # Known as 'PE Header' in darkmoon_cli/main.py
 
-    architecture: str = Field(
+    architecture: Optional[str] = Field(
         description="The architecture of the .exe file.",
         example="32-bit",
     )
 
     # Called 'Last Modified' in darkmoon_cli/main.py.
 
-    timestamp: str = Field(
+    timestamp: Optional[str] = Field(
         description="timestap of file",
         example="12/2/23 17:57:43",
     )
 
-    compile_time: str = Field(
+    compile_time: Optional[str] = Field(
         description="compile time of the file",
         example="",
     )
 
-    signature: str = Field(
+    signature: Optional[str] = Field(
         description="digital file signature",
         example="",
     )

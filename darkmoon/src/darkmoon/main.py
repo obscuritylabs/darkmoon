@@ -17,7 +17,7 @@ def read_root() -> Any:
 async def upload_metadata(file: IncomingFiles) -> Any:
     """Fast API POST function for incoming files."""
     if file.header_info:
-        this_dict = {
+        metadata_dict = {
             "name": file.name,
             "file_extension": file.file_extension,
             "hashes": file.hashes,
@@ -26,11 +26,11 @@ async def upload_metadata(file: IncomingFiles) -> Any:
         }
     else:
 
-        this_dict = {
+        metadata_dict = {
             "name": file.name,
             "file_extension": file.file_extension,
             "hashes": file.hashes,
             "source_ISO_name": file.source_ISO_name,
         }
 
-    return this_dict
+    return metadata_dict
