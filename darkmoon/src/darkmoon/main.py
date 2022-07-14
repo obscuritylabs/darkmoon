@@ -3,7 +3,7 @@ from typing import Any
 
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
-from server.schema import IncomingFiles
+from server.schema import Metadata
 
 conn = "mongodb://darkmoon:password@10.0.8.4:27017/"
 
@@ -22,7 +22,7 @@ def read_root() -> Any:
 
 
 @app.post("/upload-metadata")
-async def upload_metadata(file: IncomingFiles) -> None:
+async def upload_metadata(file: Metadata) -> None:
     """Fast API POST function for incoming files."""
     file_metadata = file.dict()
     db.collection.insert_one(file_metadata)
