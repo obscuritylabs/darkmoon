@@ -12,6 +12,7 @@ from typing import Any
 import pefile
 import requests
 import typer
+from settings import settings
 
 ####################
 # GLOBAL VARIABLES #
@@ -276,7 +277,7 @@ def iterate_files() -> None:
             None
 
     """
-    root = Path("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
+    root = Path(settings.FILE_DIRECTORY)
 
     queue = []
     queue.append(root)
