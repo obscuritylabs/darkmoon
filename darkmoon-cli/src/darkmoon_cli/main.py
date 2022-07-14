@@ -1,58 +1,32 @@
 """This is the main.py file."""
 
+###########
+# IMPORTS #
+###########
+
 import hashlib
 import os
 import platform
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import pefile
 import requests
 import typer
 
+####################
+# GLOBAL VARIABLES #
+####################
+
 app = typer.Typer()
 
 
-@app.command()
-def hello(name: Optional[str] = None) -> None:
-    """Hello test example."""
-    if name:
-        typer.echo(f"Hello {name}")
-    else:
-        typer.echo("Hello World!")
-
-
-@app.command()
-def bye(name: Optional[str] = None) -> None:
-    """Goodbye test example."""
-    if name:
-        typer.echo(f"Bye {name}")
-    else:
-        typer.echo("Goodbye!")
+#############
+# FUNCTIONS #
+#############
 
 
 # function to iterate over files using os
-@app.command()
-def test() -> None:
-    """
-    Iterate over folder and print out metadata for each file in the folder.
-
-    Uses os library to access files.
-
-        Parameters:
-            None
-        Returns:
-            None
-
-    """
-    all_files = os.listdir("faker.txt")
-    for file in all_files:
-        print("size:" + str(os.path.getsize(os.getcwd() + "/testing/" + file)))
-        print(file + "metadata:")
-        print("last motified:")
-        print(str(os.path.getmtime(os.getcwd() + "/testing/" + file)))
-        print("creation date:")
-        print(str(os.path.getctime(os.getcwd() + "/testing/" + file)))
 
 
 @app.command()
@@ -132,36 +106,6 @@ def get_metadata(path: Path) -> None:
     else:
         print("Error: Not working")
     print(status)
-
-
-# function to iterate over files using pathlib
-@app.command()
-def iterate() -> None:
-    """
-    Iterate over folder and call metadata function for each file.
-
-    Uses Pathlib library to access files.
-
-        Parameters:
-            None
-        Returns:
-            None
-
-    """
-    root = Path("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
-
-    queue = []
-    queue.append(root)
-
-    while queue:
-        m = queue.pop(0)
-
-        for files in m.glob("*"):
-            print(files)
-            if files.is_file():
-                get_metadata(files)
-            else:
-                queue.append(files)
 
 
 @app.command()
@@ -337,6 +281,59 @@ def pe_machine(exe_file: Path) -> Any:
     arch_list = arch.split()
     machine = arch_list[arch_list.index("Machine:") + 1]
     return machine
+
+
+# function to iterate over files using pathlib
+@app.command()
+def iterate() -> None:
+    """
+    Iterate over folder and call metadata function for each file.
+
+    Uses Pathlib library to access files.
+
+        Parameters:
+            None
+        Returns:
+            None
+
+    """
+    root = Path("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing")
+
+    queue = []
+    queue.append(root)
+
+    while queue:
+        m = queue.pop(0)
+
+        for files in m.glob("*"):
+            print(files)
+            if files.is_file():
+                get_metadata(files)
+            else:
+                queue.append(files)
+
+
+@app.command()
+def test() -> None:
+    """
+    Iterate over folder and print out metadata for each file in the folder.
+
+    Uses os library to access files.
+
+        Parameters:
+            None
+        Returns:
+            None
+
+    """
+    all_files = os.listdir("faker.txt")
+    for file in all_files:
+        print("size:" + str(os.path.getsize(os.getcwd() + "/testing/" + file)))
+        print(file + "metadata:")
+        print("last motified:")
+        print(str(os.path.getmtime(os.getcwd() + "/testing/" + file)))
+        print("creation date:")
+        print(str(os.path.getctime(os.getcwd() + "/testing/" + file)))
 
 
 if __name__ == "__main__":
