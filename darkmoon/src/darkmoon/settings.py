@@ -5,7 +5,7 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     """Settings class."""
 
-    DATABASE_URL: str = "mongodb://darkmoon:password@10.0.8.4:27017/"
+    DATABASE_URL: str = "mongodb://darkmoon:password@10.0.8.8:27017/"
 
     class Config:
         """Config class."""
