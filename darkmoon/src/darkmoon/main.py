@@ -24,5 +24,5 @@ def read_root() -> Any:
 @app.post("/incoming-files")
 async def upload_metadata(file: IncomingFiles) -> None:
     """Fast API POST function for incoming files."""
-    this_dict = file.dict()
-    db.collection.insert_one(this_dict)
+    metadata_dict = file.dict()
+    db.collection.insert_one(metadata_dict)
