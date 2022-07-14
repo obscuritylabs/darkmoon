@@ -10,7 +10,7 @@ class HeaderInfo(BaseModel):
 
     # Known as 'PE Header' in darkmoon_cli/main.py
 
-    machine: Optional[str] = Field(
+    machine_type: Optional[str] = Field(
         description="The machine type of the .exe file.",
         example="0x14c",
     )

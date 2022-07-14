@@ -3,9 +3,11 @@ from typing import Any
 
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
-from server.schema import Metadata
 
-conn = "mongodb://darkmoon:password@10.0.8.4:27017/"
+from darkmoon.server.schema import Metadata
+from darkmoon.settings import settings
+
+conn = settings.DATABASE_URL
 
 client = AsyncIOMotorClient(conn, serverSelectionTimeoutMS=5000)
 
