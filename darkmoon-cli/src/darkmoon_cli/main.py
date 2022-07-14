@@ -64,7 +64,7 @@ def get_metadata(path: Path) -> None:
     print("OS:" + operating_system)
     print("ISO:" + source_iso_data)
 
-    TODO = {
+    data_fields = {
         "name": curr_filename,
         "file_extension": extension,
         "hashes": list(hash_list),
@@ -77,28 +77,28 @@ def get_metadata(path: Path) -> None:
         pe_header = rich_pe_header_hashes(path)
         pe_sig = pe_header_sig(path)
         pe_timestamp = pe_header_time(path)
-        pe_arch = pe_machine(path)
+        pe_mach = pe_machine(path)
         pe_comptime = pe_header_comptime(path)
 
         exe_metadata = {
-            "architecture": pe_arch,
+            "architecture": pe_mach,
             "timestamp": pe_timestamp,
             "compile_time": pe_comptime,
             "signature": pe_sig,
         }
 
-        TODO["header_info"] = exe_metadata
+        data_fields["header_info"] = exe_metadata
 
         print("rich_pe_header_hash:" + str(pe_header))
         print("PE Signature:" + str(pe_sig))
         print("PE_Timestamp:" + str(pe_timestamp))
         print("Compile Time: " + str(pe_comptime))
-        print("Machine: " + str(pe_arch))
+        print("Machine: " + str(pe_mach))
     print("\n")
 
-    response = requests.post("http://127.0.0.1:8000/incoming-files", json=TODO)
-    response.json()
-    status = response.status_code
+    api_response = requests.post("http://127.0.0.1:8000/incoming-files", json=data_fields)
+    api_response.json()
+    status = api_response.status_code
     if status == 200:
         print("Working")
     elif status == 404:
@@ -157,20 +157,6 @@ def source_iso() -> str:
 
     """
     return "source ISO"
-
-
-@app.command()
-def source_iso_hash() -> list[str]:
-    """
-    Extract source ISO hashes metadata.
-
-        Parameters:
-            None
-        Returns:
-            List of strings
-
-    """
-    return ["source ISO hash list"]
 
 
 @app.command()
@@ -254,8 +240,8 @@ def pe_header_comptime(exe_file: Path) -> Any:
         Returns:
             string
     """
-    CompTime = "Time to compile file"
-    return CompTime
+    comp_time = "Time to compile file"
+    return comp_time
 
 
 @app.command()
@@ -297,9 +283,9 @@ def iterate() -> None:
     queue.append(root)
 
     while queue:
-        m = queue.pop(0)
+        curr_dir = queue.pop(0)
 
-        for files in m.glob("*"):
+        for files in curr_dir.glob("*"):
             print(files)
             if files.is_file():
                 get_metadata(files)
