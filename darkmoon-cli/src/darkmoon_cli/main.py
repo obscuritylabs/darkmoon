@@ -5,7 +5,6 @@
 ###########
 
 import hashlib
-import os
 import platform
 from pathlib import Path
 from typing import Any
@@ -47,13 +46,13 @@ def get_metadata(path: Path) -> None:
     extension = path.suffix
 
     # Hashes of the file in list form
-    hash_list = hashes(path)
+    hash_list = get_hashes(path)
 
     # Operating System
     operating_system = str(platform.platform())
 
     # Source ISO
-    source_iso_data = source_iso()
+    source_iso_data = get_source_iso()
 
     # Rich PE header hash
 
@@ -74,11 +73,11 @@ def get_metadata(path: Path) -> None:
 
     # rich PE header hash
     if extension == ".exe":
-        pe_header = rich_pe_header_hashes(path)
-        pe_sig = pe_header_sig(path)
-        pe_timestamp = pe_header_time(path)
-        pe_mach = pe_machine(path)
-        pe_comptime = pe_header_comptime(path)
+        pe_header = get_header_hashes(path)
+        pe_sig = get_header_sig(path)
+        pe_timestamp = get_time(path)
+        pe_mach = get_machine(path)
+        pe_comptime = get_comptime(path)
 
         exe_metadata = {
             "architecture": pe_mach,
@@ -109,7 +108,7 @@ def get_metadata(path: Path) -> None:
 
 
 @app.command()
-def hashes(path: Path) -> list[str]:
+def get_hashes(path: Path) -> list[str]:
     """
     Create a list of hashes for files.
 
@@ -146,7 +145,7 @@ def hashes(path: Path) -> list[str]:
 
 
 @app.command()
-def source_iso() -> str:
+def get_source_iso() -> str:
     """
     Extract source ISO metadata.
 
@@ -160,7 +159,7 @@ def source_iso() -> str:
 
 
 @app.command()
-def rich_pe_header_hashes(exe_file: Path) -> list[str]:
+def get_header_hashes(exe_file: Path) -> list[str]:
     """
     Get a list of rich PE hash headers.
 
@@ -188,7 +187,7 @@ def rich_pe_header_hashes(exe_file: Path) -> list[str]:
 
 
 @app.command()
-def pe_header_sig(exe_file: Path) -> str:
+def get_header_sig(exe_file: Path) -> str:
     """
     Get the signature of the .exe file.
 
@@ -207,7 +206,7 @@ def pe_header_sig(exe_file: Path) -> str:
 
 
 @app.command()
-def pe_header_time(exe_file: Path) -> Any:
+def get_time(exe_file: Path) -> Any:
     """
     Get the timestamp of the .exe file.
 
@@ -229,7 +228,7 @@ def pe_header_time(exe_file: Path) -> Any:
 
 
 @app.command()
-def pe_header_comptime(exe_file: Path) -> Any:
+def get_comptime(exe_file: Path) -> Any:
     """
     Get the compile time of the .exe file.
 
@@ -245,7 +244,7 @@ def pe_header_comptime(exe_file: Path) -> Any:
 
 
 @app.command()
-def pe_machine(exe_file: Path) -> Any:
+def get_machine(exe_file: Path) -> Any:
     """
     Get the architecture of the .exe file.
 
@@ -265,7 +264,7 @@ def pe_machine(exe_file: Path) -> Any:
 
 # function to iterate over files using pathlib
 @app.command()
-def iterate() -> None:
+def iterate_files() -> None:
     """
     Iterate over folder and call metadata function for each file.
 
@@ -291,29 +290,6 @@ def iterate() -> None:
                 get_metadata(files)
             else:
                 queue.append(files)
-
-
-@app.command()
-def test() -> None:
-    """
-    Iterate over folder and print out metadata for each file in the folder.
-
-    Uses os library to access files.
-
-        Parameters:
-            None
-        Returns:
-            None
-
-    """
-    all_files = os.listdir("faker.txt")
-    for file in all_files:
-        print("size:" + str(os.path.getsize(os.getcwd() + "/testing/" + file)))
-        print(file + "metadata:")
-        print("last motified:")
-        print(str(os.path.getmtime(os.getcwd() + "/testing/" + file)))
-        print("creation date:")
-        print(str(os.path.getctime(os.getcwd() + "/testing/" + file)))
 
 
 if __name__ == "__main__":
