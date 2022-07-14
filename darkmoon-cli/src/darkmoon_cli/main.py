@@ -121,11 +121,13 @@ def hashes(path: Path) -> list[str]:
             list
 
     """
-    all_hashes = []
     h_md5 = hashlib.md5()
     h_sha1 = hashlib.sha1()
     h_sha256 = hashlib.sha256()
     h_sha512 = hashlib.sha512()
+
+    store_hash = [h_md5, h_sha1, h_sha256, h_sha512]
+    all_hashes = []
 
     with open(path, "rb") as file:
         # read file in chunks and update hash
@@ -133,15 +135,11 @@ def hashes(path: Path) -> list[str]:
             data = file.read(1024)
             if not data:
                 break
-            h_md5.update(data)
-            h_sha1.update(data)
-            h_sha256.update(data)
-            h_sha512.update(data)
+            for hash in store_hash:
+                hash.update(data)
 
-    all_hashes.append(h_md5.hexdigest())
-    all_hashes.append(h_sha1.hexdigest())
-    all_hashes.append(h_sha256.hexdigest())
-    all_hashes.append(h_sha512.hexdigest())
+    for hash in store_hash:
+        all_hashes.append(hash.hexdigest())
 
     # return the hex digest
     return all_hashes
@@ -193,14 +191,14 @@ def rich_pe_header_hashes(exe_file: Path) -> list[str]:
     binarysha256 = pefile.PE(exe_file)
     binarysha512 = pefile.PE(exe_file)
 
+    binary_hash = [binarymd5, binarysha1, binarysha256, binarysha512]
+    all_header_hash = []
     # adds all PE rich headers to a list
-    all_pe_header = []
-    all_pe_header.append(binarymd5.get_rich_header_hash())
-    all_pe_header.append(binarysha1.get_rich_header_hash("sha1"))
-    all_pe_header.append(binarysha256.get_rich_header_hash("sha256"))
-    all_pe_header.append(binarysha512.get_rich_header_hash("sha512"))
 
-    return all_pe_header
+    for hash in binary_hash:
+        all_header_hash.append(hash.get_rich_header_hash())
+
+    return all_header_hash
 
 
 @app.command()
@@ -238,12 +236,8 @@ def pe_header_time(exe_file: Path) -> Any:
     time = str(time.FILE_HEADER)
     time_list = time.split()
     timestamp = str(time_list[time_list.index("TimeDateStamp:") + 1])
-    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 2])
-    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 3])
-    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 4])
-    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 5])
-    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 6])
-    timestamp += str(time_list[time_list.index("TimeDateStamp:") + 7])
+    for num in range(2, 8):
+        timestamp += str(time_list[time_list.index("TimeDateStamp:") + num])
 
     return timestamp
 
