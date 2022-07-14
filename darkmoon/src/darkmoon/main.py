@@ -2,7 +2,15 @@
 from typing import Any
 
 from fastapi import FastAPI
-from server.schema import IncomingFiles
+from motor.motor_asyncio import AsyncIOMotorClient
+
+from darkmoon.server.database import collection
+from darkmoon.server.schema import Metadata
+from darkmoon.settings import settings
+
+conn = settings.DATABASE_URL
+
+client = AsyncIOMotorClient(conn, serverSelectionTimeoutMS=5000)
 
 app = FastAPI()
 
@@ -13,24 +21,8 @@ def read_root() -> Any:
     return {"Hello": "World"}
 
 
-@app.post("/incoming-files")
-async def upload_metadata(file: IncomingFiles) -> Any:
+@app.post("/upload-metadata")
+async def upload_metadata(file: Metadata) -> None:
     """Fast API POST function for incoming files."""
-    if file.header_info:
-        this_dict = {
-            "name": file.name,
-            "file_extension": file.file_extension,
-            "hashes": file.hashes,
-            "source_ISO_name": file.source_ISO_name,
-            "header_info": file.header_info,
-        }
-    else:
-
-        this_dict = {
-            "name": file.name,
-            "file_extension": file.file_extension,
-            "hashes": file.hashes,
-            "source_ISO_name": file.source_ISO_name,
-        }
-
-    return this_dict
+    file_metadata = file.dict()
+    collection.insert_one(file_metadata)
