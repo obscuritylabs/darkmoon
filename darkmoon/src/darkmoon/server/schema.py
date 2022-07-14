@@ -10,9 +10,9 @@ class HeaderInfo(BaseModel):
 
     # Known as 'PE Header' in darkmoon_cli/main.py
 
-    architecture: Optional[str] = Field(
-        description="The architecture of the .exe file.",
-        example="32-bit",
+    machine_type: Optional[str] = Field(
+        description="The machine type of the .exe file.",
+        example="0x14c",
     )
 
     # Called 'Last Modified' in darkmoon_cli/main.py.
@@ -33,7 +33,7 @@ class HeaderInfo(BaseModel):
     )
 
 
-class IncomingFiles(BaseModel):
+class Metadata(BaseModel):
     """Sets incoming file requirements."""
 
     name: str = Field(

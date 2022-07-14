@@ -3,14 +3,14 @@ from typing import Any
 
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
-from server.schema import IncomingFiles
 
-conn = "mongodb://darkmoon:password@10.0.8.4:27017/"
+from darkmoon.server.database import collection
+from darkmoon.server.schema import Metadata
+from darkmoon.settings import settings
+
+conn = settings.DATABASE_URL
 
 client = AsyncIOMotorClient(conn, serverSelectionTimeoutMS=5000)
-
-db = client.darkmoon
-collection = db.test
 
 app = FastAPI()
 
@@ -21,8 +21,8 @@ def read_root() -> Any:
     return {"Hello": "World"}
 
 
-@app.post("/incoming-files")
-async def upload_metadata(file: IncomingFiles) -> None:
+@app.post("/upload-metadata")
+async def upload_metadata(file: Metadata) -> None:
     """Fast API POST function for incoming files."""
     file_metadata = file.dict()
-    db.collection.insert_one(file_metadata)
+    collection.insert_one(file_metadata)
