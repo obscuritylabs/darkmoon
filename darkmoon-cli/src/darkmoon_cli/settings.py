@@ -7,10 +7,10 @@ class Settings(BaseSettings):
     """Settings class."""
 
     FILE_DIRECTORY: str = ""
-    API_URL: str = "http://127.0.0.1:8000/incoming-files"
+    API_URL: str = "http://127.0.0.1:8000"
 
     class Config:
-        """Congfig class."""
+        """Config class."""
 
         env_file = ".env"
         env_file_encoding = "utf-8"
