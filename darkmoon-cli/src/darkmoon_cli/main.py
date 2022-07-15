@@ -78,7 +78,7 @@ def get_metadata(path: Path) -> None:
         pe_sig = get_header_sig(path)
         pe_timestamp = get_time(path)
         pe_mach = get_machine(path)
-        pe_comptime = get_comptime(path)
+        pe_comptime = get_compile_time(path)
 
         exe_metadata = {
             "architecture": pe_mach,
@@ -96,7 +96,7 @@ def get_metadata(path: Path) -> None:
         print("Machine: " + str(pe_mach))
     print("\n")
 
-    api_response = requests.post("http://127.0.0.1:8000/incoming-files", json=data_fields)
+    api_response = requests.post(settings.API_URL, json=data_fields)
     api_response.json()
     status = api_response.status_code
     if status == 200:
@@ -229,7 +229,7 @@ def get_time(exe_file: Path) -> Any:
 
 
 @app.command()
-def get_comptime(exe_file: Path) -> Any:
+def get_compile_time(exe_file: Path) -> Any:
     """
     Get the compile time of the .exe file.
 
@@ -240,8 +240,8 @@ def get_comptime(exe_file: Path) -> Any:
         Returns:
             string
     """
-    comp_time = "Time to compile file"
-    return comp_time
+    compile_time = "Time to compile file"
+    return compile_time
 
 
 @app.command()
