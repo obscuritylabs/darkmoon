@@ -63,7 +63,7 @@ class Metadata(BaseModel):
     )
 
 
-class OutgoingFiles(BaseModel):
+class MetadataEntity(BaseModel):
     """Sets outgoing file requirements."""
 
     id: str = Field(
@@ -88,13 +88,6 @@ class OutgoingFiles(BaseModel):
     source_ISO_name: str = Field(
         description="source ISO name",
         example="",
-    )
-    source_ISO_hash: list[str] = Field(
-        description="source ISO hash",
-        example=[
-            "8743b52063cd84097a65d1633f5c74f5",
-            "8743b52063cd84097a65d1633f5c74f5",
-        ],
     )
     header_info: Optional[HeaderInfo] = Field(
         description="contains all the header information",
