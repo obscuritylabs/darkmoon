@@ -96,7 +96,7 @@ def get_metadata(path: Path) -> None:
         print("Machine: " + str(pe_mach))
     print("\n")
 
-    api_response = requests.post(settings.API_URL, json=data_fields)
+    api_response = requests.post(settings.API_URL + "/incoming-files", json=data_fields)
     api_response.json()
     status = api_response.status_code
     if status == 200:
