@@ -25,7 +25,7 @@ app = FastAPI()
 
 
 @app.get("/metadata")
-async def ob_all_metadata() -> list[MetadataEntity]:
+async def all_metadata() -> list[MetadataEntity]:
     """Return all metadata stored in the mongodb server.
 
     Parameters:
