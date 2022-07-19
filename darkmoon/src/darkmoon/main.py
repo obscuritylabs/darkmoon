@@ -6,7 +6,8 @@
 
 from typing import Optional
 
-from fastapi import FastAPI
+from bson.objectid import ObjectId
+from fastapi import FastAPI, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from darkmoon.server.database import collection
@@ -28,13 +29,13 @@ app = FastAPI()
 
 @app.get("/metadata")
 async def list_metadata(file_name: Optional[str] = None, hash: Optional[str] = None) -> list[MetadataEntity]:
-    """Return list of metadata that matches the parameters.
+    """Return list of metadata that matches the parameters in the database.
 
     Parameters:
         file_name: The name of the file being searched. Is None by default
         hash: Hash of the file. Is None by default.
     Returns:
-        documents: List of all documents that match parameters
+        documents: List of all documents that match parameters in the database
 
     """
     documents = []
@@ -50,20 +51,21 @@ async def list_metadata(file_name: Optional[str] = None, hash: Optional[str] = N
 
 
 @app.get("/metadata/{id}")
-async def get_metadata_by_id(id: str) -> list[MetadataEntity]:
+async def get_metadata_by_id(id: str) -> MetadataEntity:
     """Return file by ObjectID in MongoDB.
 
     Parameters:
         id: Unique id of specific entry in MongoDB
     Returns:
-        documents: Returns the entry with matching id
+        documents: Return the database entry with matching id or raise 404 error
 
     """
-    document = []
-    print("outside hello")
-    async for doc in collection.find({"_id": id}):
+    doc = await collection.find_one({"_id": ObjectId(id)})
+    if doc:
         doc["id"] = str(doc["_id"])
-        document.append(MetadataEntity(**doc))
+        document = MetadataEntity(**doc)
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")
 
     return document
 
@@ -78,6 +80,5 @@ async def upload_metadata(file: Metadata) -> None:
        None
 
     """
-    print("Hello this is working")
     file_metadata = file.dict()
     collection.insert_one(file_metadata)
