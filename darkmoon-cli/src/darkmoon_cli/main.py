@@ -280,10 +280,13 @@ def unzip_files(path: Path) -> None:
 
     """
     os.system("mkdir -p unzippedvmdk")
-    string_name = "7z x -ounzippedvmdk " + str(path)
+    string_name = "7z x " + str(path) + " -aoa -ounzippedvmdk"
     os.system(string_name)
 
     print(Path(str(os.getcwd() + "/unzippedvmdk")))
+
+    if path.suffix == ".ntfs":
+        os.system("rm " + str(path))
     iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")))
 
     os.system("rm -r /workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/unzippedvmdk")
@@ -333,7 +336,7 @@ def iterate_files(path: Path) -> None:
             print(files)
             if files.suffix == ".ntfs":
                 unzip_files(files)
-            elif files.is_file():
+            if files.is_file():
                 get_metadata(files)
             else:
                 queue.append(files)
