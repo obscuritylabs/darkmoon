@@ -12,6 +12,7 @@ from pathlib import Path
 import pefile
 import requests
 import typer
+from pefile import PEFormatError
 from settings import settings
 
 ####################
@@ -72,28 +73,32 @@ def get_metadata(path: Path) -> None:
         "header_info": {},
     }
 
-    # rich PE header hash
-    if extension == ".exe":
-        pe_header = get_header_hashes(path)
-        pe_sig = get_header_sig(path)
-        pe_timestamp = get_timestamp(path)
-        pe_mach = get_machine(path)
-        pe_comptime = get_compile_time(path)
+    try:
 
-        exe_metadata = {
-            "machine_type": pe_mach,
-            "timestamp": pe_timestamp,
-            "compile_time": pe_comptime,
-            "signature": pe_sig,
-        }
+        # rich PE header hash
+        if extension == ".exe":
+            pe_header = get_header_hashes(path)
+            pe_sig = get_header_sig(path)
+            pe_timestamp = get_timestamp(path)
+            pe_mach = get_machine(path)
+            pe_comptime = get_compile_time(path)
 
-        data_fields["header_info"] = exe_metadata
+            exe_metadata = {
+                "machine_type": pe_mach,
+                "timestamp": pe_timestamp,
+                "compile_time": pe_comptime,
+                "signature": pe_sig,
+            }
 
-        print("rich_pe_header_hash:" + str(pe_header))
-        print("PE Signature:" + str(pe_sig))
-        print("PE_Timestamp:" + str(pe_timestamp))
-        print("Compile Time: " + str(pe_comptime))
-        print("Machine: " + str(pe_mach))
+            data_fields["header_info"] = exe_metadata
+
+            print("rich_pe_header_hash:" + str(pe_header))
+            print("PE Signature:" + str(pe_sig))
+            print("PE_Timestamp:" + str(pe_timestamp))
+            print("Compile Time: " + str(pe_comptime))
+            print("Machine: " + str(pe_mach))
+    except (PEFormatError):
+        print("This program cannot read an NE file.")
     print("\n")
 
     api_response = requests.post(settings.API_URL + "/incoming-files", json=data_fields)
