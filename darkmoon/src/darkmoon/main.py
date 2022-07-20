@@ -4,7 +4,10 @@
 # IMPORTS #
 ###########
 
-from fastapi import FastAPI
+from typing import Optional
+
+from bson.objectid import ObjectId
+from fastapi import FastAPI, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from darkmoon.server.database import collection
@@ -25,38 +28,46 @@ app = FastAPI()
 
 
 @app.get("/metadata")
-async def all_metadata() -> list[MetadataEntity]:
-    """Return all metadata stored in the mongodb server.
+async def list_metadata(file_name: Optional[str] = None, hash: Optional[str] = None) -> list[MetadataEntity]:
+    """Return list of metadata that matches the parameters in the database.
 
     Parameters:
-        None
+        file_name (Optional[str]): The name of the file being searched. Is None by default
+        hash (Optional[str]): Hash of the file. Is None by default
     Returns:
-        'list[MetadataEntity]': Lists of all documents in server.
+        documents (list[MetadataEntity]): List of all documents that match parameters in the database
 
     """
     documents = []
-    async for doc in collection.find():
+    search = {}
+    if file_name:
+        search["name"] = file_name
+    if hash:
+        search["hashes"] = hash
+    async for doc in collection.find(search):
         doc["id"] = str(doc["_id"])
         documents.append(MetadataEntity(**doc))
-
     return documents
 
 
-@app.get("/metadata/{file_name}")
-async def get_metadata_by_filename(file_name: str) -> list[MetadataEntity]:
-    """Return file by name on mongodb server.
+@app.get("/metadata/{id}")
+async def get_metadata_by_id(id: str) -> MetadataEntity:
+    """Return file by ObjectID in MongoDB.
 
     Parameters:
-        file_name: The name of the file being searched.
+        id (str): Unique id of specific entry in MongoDB
     Returns:
-        documents: Lists of all documents in server.
+        document (MetadataEntity): Return the database entry with matching id or raise 404 error
 
     """
-    documents = []
-    async for doc in collection.find({"name": file_name}):
+    doc = await collection.find_one({"_id": ObjectId(id)})
+    if doc:
         doc["id"] = str(doc["_id"])
-        documents.append(MetadataEntity(**doc))
-    return documents
+        document = MetadataEntity(**doc)
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return document
 
 
 @app.post("/metadata")
@@ -64,11 +75,10 @@ async def upload_metadata(file: Metadata) -> None:
     """Fast API POST function for incoming files.
 
     Parameters:
-        file - The file that is uploaded to the database.
+        file (Metadata): The file that is uploaded to the database.
     Returns:
-       None
+        None
 
     """
-    print("Hello this is working")
     file_metadata = file.dict()
     collection.insert_one(file_metadata)

@@ -6,7 +6,7 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     """Settings class."""
 
-    FILE_DIRECTORY: str = ""
+    FILE_DIRECTORY: str = "/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/win10vmdk"
     API_URL: str = "http://127.0.0.1:8000"
 
     class Config:
