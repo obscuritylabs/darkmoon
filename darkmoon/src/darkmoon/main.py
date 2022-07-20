@@ -32,10 +32,10 @@ async def list_metadata(file_name: Optional[str] = None, hash: Optional[str] = N
     """Return list of metadata that matches the parameters in the database.
 
     Parameters:
-        file_name: The name of the file being searched. Is None by default
-        hash: Hash of the file. Is None by default.
+        file_name (Optional[str]): The name of the file being searched. Is None by default
+        hash (Optional[str]): Hash of the file. Is None by default
     Returns:
-        documents: List of all documents that match parameters in the database
+        documents (list[MetadataEntity]): List of all documents that match parameters in the database
 
     """
     documents = []
@@ -55,9 +55,9 @@ async def get_metadata_by_id(id: str) -> MetadataEntity:
     """Return file by ObjectID in MongoDB.
 
     Parameters:
-        id: Unique id of specific entry in MongoDB
+        id (str): Unique id of specific entry in MongoDB
     Returns:
-        documents: Return the database entry with matching id or raise 404 error
+        document (MetadataEntity): Return the database entry with matching id or raise 404 error
 
     """
     doc = await collection.find_one({"_id": ObjectId(id)})
@@ -75,9 +75,9 @@ async def upload_metadata(file: Metadata) -> None:
     """Fast API POST function for incoming files.
 
     Parameters:
-        file :The file that is uploaded to the database.
+        file (Metadata): The file that is uploaded to the database.
     Returns:
-       None
+        None
 
     """
     file_metadata = file.dict()
