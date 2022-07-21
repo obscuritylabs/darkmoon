@@ -59,11 +59,11 @@ def get_metadata(path: Path) -> None:
     # Rich PE header hash
 
     # print statements used for testing
-    print("Name:" + curr_filename)
-    print("file_extension:" + extension)
-    print("Hashes:" + str(hash_list))
-    print("OS:" + operating_system)
-    print("ISO:" + source_iso_data)
+    print("Name: " + curr_filename)
+    print("file_extension: " + extension)
+    print("Hashes: " + str(hash_list))
+    print("OS: " + operating_system)
+    print("ISO: " + source_iso_data)
 
     data_fields = {
         "name": curr_filename,
@@ -92,16 +92,16 @@ def get_metadata(path: Path) -> None:
 
             data_fields["header_info"] = exe_metadata
 
-            print("rich_pe_header_hash:" + str(pe_header))
-            print("PE Signature:" + str(pe_sig))
-            print("PE_Timestamp:" + str(pe_timestamp))
+            print("rich_pe_header_hash: " + str(pe_header))
+            print("PE Signature: " + str(pe_sig))
+            print("PE_Timestamp: " + str(pe_timestamp))
             print("Compile Time: " + str(pe_comptime))
             print("Machine: " + str(pe_mach))
     except (PEFormatError):
         print("This program cannot read an NE file.")
     print("\n")
 
-    api_response = requests.post(settings.API_URL + "/incoming-files", json=data_fields)
+    api_response = requests.post(settings.API_URL + "/metadata", json=data_fields)
     api_response.json()
     status = api_response.status_code
     if status == 200:
@@ -289,7 +289,7 @@ def unzip_files(path: Path) -> None:
         os.system("rm " + str(path))
     iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")))
 
-    os.system("rm -r /workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/unzippedvmdk")
+    os.system("rm -r " + str(os.getcwd() + "/unzippedvmdk"))
 
 
 @app.command()
