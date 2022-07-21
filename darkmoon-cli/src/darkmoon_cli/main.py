@@ -5,13 +5,14 @@
 ###########
 
 import hashlib
+import os
 import platform
 from pathlib import Path
-from typing import Any
 
 import pefile
 import requests
 import typer
+from pefile import PEFormatError
 from settings import settings
 
 ####################
@@ -32,12 +33,12 @@ app = typer.Typer()
 @app.command()
 def get_metadata(path: Path) -> None:
     """
-    Call all of the metadata functions.
+    Call all of the metadata functions and send data to api endpoint.
 
         Parameters:
             path(Path): The path of the file that metadata will be extracted from.
         Returns:
-            json(str): The metadata of the file formated in json format.
+            None
 
     """
     # name of the file
@@ -58,11 +59,11 @@ def get_metadata(path: Path) -> None:
     # Rich PE header hash
 
     # print statements used for testing
-    print("Name:" + curr_filename)
-    print("file_extension:" + extension)
-    print("Hashes:" + str(hash_list))
-    print("OS:" + operating_system)
-    print("ISO:" + source_iso_data)
+    print("Name: " + curr_filename)
+    print("file_extension: " + extension)
+    print("Hashes: " + str(hash_list))
+    print("OS: " + operating_system)
+    print("ISO: " + source_iso_data)
 
     data_fields = {
         "name": curr_filename,
@@ -72,31 +73,35 @@ def get_metadata(path: Path) -> None:
         "header_info": {},
     }
 
-    # rich PE header hash
-    if extension == ".exe":
-        pe_header = get_header_hashes(path)
-        pe_sig = get_header_sig(path)
-        pe_timestamp = get_time(path)
-        pe_mach = get_machine(path)
-        pe_comptime = get_compile_time(path)
+    try:
 
-        exe_metadata = {
-            "architecture": pe_mach,
-            "timestamp": pe_timestamp,
-            "compile_time": pe_comptime,
-            "signature": pe_sig,
-        }
+        # rich PE header hash
+        if extension == ".exe":
+            pe_header = get_header_hashes(path)
+            pe_sig = get_header_sig(path)
+            pe_timestamp = get_timestamp(path)
+            pe_mach = get_machine(path)
+            pe_comptime = get_compile_time(path)
 
-        data_fields["header_info"] = exe_metadata
+            exe_metadata = {
+                "machine_type": pe_mach,
+                "timestamp": pe_timestamp,
+                "compile_time": pe_comptime,
+                "signature": pe_sig,
+            }
 
-        print("rich_pe_header_hash:" + str(pe_header))
-        print("PE Signature:" + str(pe_sig))
-        print("PE_Timestamp:" + str(pe_timestamp))
-        print("Compile Time: " + str(pe_comptime))
-        print("Machine: " + str(pe_mach))
+            data_fields["header_info"] = exe_metadata
+
+            print("rich_pe_header_hash: " + str(pe_header))
+            print("PE Signature: " + str(pe_sig))
+            print("PE_Timestamp: " + str(pe_timestamp))
+            print("Compile Time: " + str(pe_comptime))
+            print("Machine: " + str(pe_mach))
+    except (PEFormatError):
+        print("This program cannot read an NE file.")
     print("\n")
 
-    api_response = requests.post(settings.API_URL + "/incoming-files", json=data_fields)
+    api_response = requests.post(settings.API_URL + "/metadata", json=data_fields)
     api_response.json()
     status = api_response.status_code
     if status == 200:
@@ -116,9 +121,9 @@ def get_hashes(path: Path) -> list[str]:
     Uses hashlib library.
 
         Parameters:
-            None
+             path (Path): Absolute path of file.
         Returns:
-            list
+            all_hashes (list[str]): List of all hashes.
 
     """
     h_md5 = hashlib.md5()
@@ -167,9 +172,9 @@ def get_header_hashes(exe_file: Path) -> list[str]:
     Uses pefile library.
 
         Parameters:
-            None
+            exe_file (Path): Path to an exe file.
         Returns:
-            list
+            all_header_hash (list[str]): List of all header hashes.
     """
     # check that it is .exe in main func using glob
     binarymd5 = pefile.PE(exe_file)
@@ -195,9 +200,9 @@ def get_header_sig(exe_file: Path) -> str:
     Uses pefile library.
 
         Parameters:
-            .exe file
+            exe_file (Path): Path to an exe file.
         Returns:
-            string
+            signature (str): The signature of the exe file.
     """
     sig = pefile.PE(exe_file)
     sig = str(sig.NT_HEADERS)
@@ -207,16 +212,16 @@ def get_header_sig(exe_file: Path) -> str:
 
 
 @app.command()
-def get_time(exe_file: Path) -> Any:
+def get_timestamp(exe_file: Path) -> str:
     """
     Get the timestamp of the .exe file.
 
     Uses pefile library.
 
         Parameters:
-            .exe file
+            exe_file (Path): Path to an exe file.
         Returns:
-            string
+            timestamp (str): The timestamp of the exe file.
     """
     time = pefile.PE(exe_file)
     time = str(time.FILE_HEADER)
@@ -229,32 +234,30 @@ def get_time(exe_file: Path) -> Any:
 
 
 @app.command()
-def get_compile_time(exe_file: Path) -> Any:
+def get_compile_time(exe_file: Path) -> str:
     """
     Get the compile time of the .exe file.
 
-    Uses pefile library.
-
         Parameters:
-            .exe file
+            exe_file (Path): Path to an exe file.
         Returns:
-            string
+            compile_time (str): The compile time of the exe file.
     """
     compile_time = "Time to compile file"
     return compile_time
 
 
 @app.command()
-def get_machine(exe_file: Path) -> Any:
+def get_machine(exe_file: Path) -> str:
     """
     Get the architecture of the .exe file.
 
     Uses pefile library.
 
         Parameters:
-            .exe file
+            exe_file (Path): Path to an exe file.
         Returns:
-            string
+            machine (str): The machine type of the exe file.
     """
     arch = pefile.PE(exe_file)
     arch = str(arch.FILE_HEADER)
@@ -263,21 +266,65 @@ def get_machine(exe_file: Path) -> Any:
     return machine
 
 
+@app.command()
+def unzip_files(path: Path) -> None:
+    """
+    Unzip vmdk and put in new folder.
+
+    Uses Pathlib library to access files.
+
+        Parameters:
+            path (Path): Absolute path of vmdk folder.
+        Returns:
+            None
+
+    """
+    os.system("mkdir -p unzippedvmdk")
+    string_name = "7z x " + str(path) + " -aoa -ounzippedvmdk"
+    os.system(string_name)
+
+    print(Path(str(os.getcwd() + "/unzippedvmdk")))
+
+    if path.suffix == ".ntfs":
+        os.system("rm " + str(path))
+    iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")))
+
+    os.system("rm -r " + str(os.getcwd() + "/unzippedvmdk"))
+
+
+@app.command()
+def iterate_unzip(path: Path) -> None:
+    """
+    Iterate over vmdk folder and call unzip files function for each vmdk.
+
+    Uses Pathlib library to access files.
+
+        Parameters:
+            path (Path): Absolute path of vmdk folder.
+        Returns:
+            None
+
+    """
+    for vmdk in path.glob("*"):
+        print(vmdk)
+        unzip_files(vmdk)
+
+
 # function to iterate over files using pathlib
 @app.command()
-def iterate_files() -> None:
+def iterate_files(path: Path) -> None:
     """
     Iterate over folder and call metadata function for each file.
 
     Uses Pathlib library to access files.
 
         Parameters:
-            None
+            path (Path): Absolute path of folder with extracted files from vmdk.
         Returns:
             None
 
     """
-    root = Path(settings.FILE_DIRECTORY)
+    root = Path(path)
 
     queue = []
     queue.append(root)
@@ -287,6 +334,8 @@ def iterate_files() -> None:
 
         for files in curr_dir.glob("*"):
             print(files)
+            if files.suffix == ".ntfs":
+                unzip_files(files)
             if files.is_file():
                 get_metadata(files)
             else:
