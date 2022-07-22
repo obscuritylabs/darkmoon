@@ -31,12 +31,13 @@ app = typer.Typer()
 
 
 @app.command()
-def get_metadata(path: Path) -> None:
+def get_metadata(path: Path, iso_name: str) -> None:
     """
     Call all of the metadata functions and send data to api endpoint.
 
         Parameters:
-            path(Path): The path of the file that metadata will be extracted from.
+            path (Path): The path of the file that metadata will be extracted from.
+            iso_name (str): The source ISO.
         Returns:
             None
 
@@ -48,27 +49,27 @@ def get_metadata(path: Path) -> None:
     extension = path.suffix
 
     # Hashes of the file in list form
-    hash_list = get_hashes(path)
+    hash_dict = get_hashes(path)
 
     # Operating System
     operating_system = str(platform.platform())
 
     # Source ISO
-    source_iso_data = get_source_iso()
+    source_iso_data = iso_name
 
     # Rich PE header hash
 
     # print statements used for testing
     print("Name: " + curr_filename)
     print("file_extension: " + extension)
-    print("Hashes: " + str(hash_list))
+    print("Hashes: " + str(hash_dict))
     print("OS: " + operating_system)
     print("ISO: " + source_iso_data)
 
     data_fields = {
         "name": curr_filename,
         "file_extension": extension,
-        "hashes": list(hash_list),
+        "hashes": hash_dict,
         "source_ISO_name": source_iso_data,
         "header_info": {},
     }
@@ -114,7 +115,7 @@ def get_metadata(path: Path) -> None:
 
 
 @app.command()
-def get_hashes(path: Path) -> list[str]:
+def get_hashes(path: Path) -> dict[str, str]:
     """
     Create a list of hashes for files.
 
@@ -123,7 +124,7 @@ def get_hashes(path: Path) -> list[str]:
         Parameters:
              path (Path): Absolute path of file.
         Returns:
-            all_hashes (list[str]): List of all hashes.
+            hash_dict (dict{str:str}): List of all hashes.
 
     """
     h_md5 = hashlib.md5()
@@ -133,6 +134,7 @@ def get_hashes(path: Path) -> list[str]:
 
     store_hash = [h_md5, h_sha1, h_sha256, h_sha512]
     all_hashes = []
+    hash_dict: dict[str, str] = {}
 
     with open(path, "rb") as file:
         # read file in chunks and update hash
@@ -146,8 +148,13 @@ def get_hashes(path: Path) -> list[str]:
     for hash in store_hash:
         all_hashes.append(hash.hexdigest())
 
+    hash_dict["md5"] = all_hashes[0]
+    hash_dict["sha1"] = all_hashes[1]
+    hash_dict["sha256"] = all_hashes[2]
+    hash_dict["sha512"] = all_hashes[3]
+
     # return the hex digest
-    return all_hashes
+    return hash_dict
 
 
 @app.command()
@@ -161,7 +168,7 @@ def get_source_iso() -> str:
             String
 
     """
-    return "source ISO"
+    return ""
 
 
 @app.command()
@@ -267,7 +274,7 @@ def get_machine(exe_file: Path) -> str:
 
 
 @app.command()
-def unzip_files(path: Path) -> None:
+def unzip_files(path: Path, iso_name: str) -> None:
     """
     Unzip vmdk and put in new folder.
 
@@ -275,6 +282,7 @@ def unzip_files(path: Path) -> None:
 
         Parameters:
             path (Path): Absolute path of vmdk folder.
+            iso_name (str): The source ISO.
         Returns:
             None
 
@@ -287,7 +295,7 @@ def unzip_files(path: Path) -> None:
 
     if path.suffix == ".ntfs":
         os.system("rm " + str(path))
-    iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")))
+    iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")), iso_name)
 
     os.system("rm -r " + str(os.getcwd() + "/unzippedvmdk"))
 
@@ -307,12 +315,14 @@ def iterate_unzip(path: Path) -> None:
     """
     for vmdk in path.glob("*"):
         print(vmdk)
-        unzip_files(vmdk)
+        get_iso = vmdk.name.split(".")
+        curr_iso = get_iso[0]
+        unzip_files(vmdk, curr_iso)
 
 
 # function to iterate over files using pathlib
 @app.command()
-def iterate_files(path: Path) -> None:
+def iterate_files(path: Path, iso_name: str) -> None:
     """
     Iterate over folder and call metadata function for each file.
 
@@ -320,6 +330,7 @@ def iterate_files(path: Path) -> None:
 
         Parameters:
             path (Path): Absolute path of folder with extracted files from vmdk.
+            iso_name (str): The source ISO.
         Returns:
             None
 
@@ -335,9 +346,9 @@ def iterate_files(path: Path) -> None:
         for files in curr_dir.glob("*"):
             print(files)
             if files.suffix == ".ntfs":
-                unzip_files(files)
+                unzip_files(files, iso_name)
             if files.is_file():
-                get_metadata(files)
+                get_metadata(files, iso_name)
             else:
                 queue.append(files)
 
