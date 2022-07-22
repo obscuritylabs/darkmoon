@@ -32,12 +32,13 @@ app = typer.Typer()
 
 
 @app.command()
-def get_metadata(path: Path) -> None:
+def get_metadata(path: Path, iso_name: str) -> None:
     """
     Call all of the metadata functions and send data to api endpoint.
 
         Parameters:
-            path(Path): The path of the file that metadata will be extracted from.
+            path (Path): The path of the file that metadata will be extracted from.
+            iso_name (str): The source ISO.
         Returns:
             None
 
@@ -56,8 +57,7 @@ def get_metadata(path: Path) -> None:
     operating_system = str(platform.platform())
     print("os: " + operating_system)
     # Source ISO
-    source_iso_data = get_source_iso()
-    print("iso: " + source_iso_data)
+    source_iso_data = iso_name
 
     # Rich PE header hash
 
@@ -124,7 +124,6 @@ def get_hashes(path: Path) -> list[str]:
 
     for hash in store_hash:
         all_hashes.append(hash.hexdigest())
-
     # return the hex digest
     return all_hashes
 
@@ -140,7 +139,7 @@ def get_source_iso() -> str:
             String
 
     """
-    return "source ISO"
+    return ""
 
 
 @app.command()
@@ -198,7 +197,7 @@ def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
 
 
 @app.command()
-def unzip_files(path: Path) -> None:
+def unzip_files(path: Path, iso_name: str) -> None:
     """
     Unzip vmdk and put in new folder.
 
@@ -206,6 +205,7 @@ def unzip_files(path: Path) -> None:
 
         Parameters:
             path (Path): Absolute path of vmdk folder.
+            iso_name (str): The source ISO.
         Returns:
             None
 
@@ -218,7 +218,7 @@ def unzip_files(path: Path) -> None:
 
     if path.suffix == ".ntfs":
         os.system("rm " + str(path))
-    iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")))
+    iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")), iso_name)
 
     os.system("rm -r " + str(os.getcwd() + "/unzippedvmdk"))
 
@@ -238,12 +238,14 @@ def iterate_unzip(path: Path) -> None:
     """
     for vmdk in path.glob("*"):
         print(vmdk)
-        unzip_files(vmdk)
+        get_iso = vmdk.name.split(".")
+        curr_iso = get_iso[0]
+        unzip_files(vmdk, curr_iso)
 
 
 # function to iterate over files using pathlib
 @app.command()
-def iterate_files(path: Path) -> None:
+def iterate_files(path: Path, iso_name: str) -> None:
     """
     Iterate over folder and call metadata function for each file.
 
@@ -251,6 +253,7 @@ def iterate_files(path: Path) -> None:
 
         Parameters:
             path (Path): Absolute path of folder with extracted files from vmdk.
+            iso_name (str): The source ISO.
         Returns:
             None
 
@@ -266,9 +269,9 @@ def iterate_files(path: Path) -> None:
         for files in curr_dir.glob("*"):
             print(files)
             if files.suffix == ".ntfs":
-                unzip_files(files)
+                unzip_files(files, iso_name)
             if files.is_file():
-                get_metadata(files)
+                get_metadata(files, iso_name)
             else:
                 queue.append(files)
 
