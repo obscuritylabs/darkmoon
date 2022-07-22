@@ -9,6 +9,7 @@ import os
 import platform
 from pathlib import Path
 
+import magic
 import pefile
 import requests
 import typer
@@ -44,8 +45,11 @@ def get_metadata(path: Path) -> None:
     # name of the file
     curr_filename = path.name
 
-    # file type
+    # file extension
     extension = path.suffix
+
+    # file type
+    file_type = magic.from_file(path)
 
     # Hashes of the file in list form
     hash_list = get_hashes(path)
@@ -68,6 +72,7 @@ def get_metadata(path: Path) -> None:
     data_fields = {
         "name": curr_filename,
         "file_extension": extension,
+        "file_type": file_type,
         "hashes": list(hash_list),
         "source_ISO_name": source_iso_data,
         "header_info": {},
