@@ -43,27 +43,24 @@ def get_metadata(path: Path) -> None:
     """
     # name of the file
     curr_filename = path.name
+    print("Name: " + curr_filename)
 
     # file type
     extension = path.suffix
-
+    print("file_extension: " + extension)
     # Hashes of the file in list form
     hash_list = get_hashes(path)
-
+    print("Hashes: " + str(hash_list))
     # Operating System
     operating_system = str(platform.platform())
-
+    print("os: " + operating_system)
     # Source ISO
     source_iso_data = get_source_iso()
+    print("iso: " + source_iso_data)
 
     # Rich PE header hash
 
     # print statements used for testing
-    print("Name: " + curr_filename)
-    print("file_extension: " + extension)
-    print("Hashes: " + str(hash_list))
-    print("OS: " + operating_system)
-    print("ISO: " + source_iso_data)
 
     data_fields = {
         "name": curr_filename,
@@ -75,13 +72,17 @@ def get_metadata(path: Path) -> None:
 
     try:
 
-        # rich PE header hash
-        if extension == ".exe":
+        if extension == ".exe" or extension == ".dll":
             pe_header = get_header_hashes(path)
+            print("rich_pe_header_hash: " + str(pe_header))
             pe_sig = get_header_sig(path)
+            print("PE Signature: " + str(pe_sig))
             pe_timestamp = get_timestamp(path)
+            print("PE_Timestamp: " + str(pe_timestamp))
             pe_mach = get_machine(path)
+            print("Machine: " + str(pe_mach))
             pe_comptime = get_compile_time(path)
+            print("Compile Time: " + str(pe_comptime))
 
             exe_metadata = {
                 "machine_type": pe_mach,
@@ -92,11 +93,6 @@ def get_metadata(path: Path) -> None:
 
             data_fields["header_info"] = exe_metadata
 
-            print("rich_pe_header_hash: " + str(pe_header))
-            print("PE Signature: " + str(pe_sig))
-            print("PE_Timestamp: " + str(pe_timestamp))
-            print("Compile Time: " + str(pe_comptime))
-            print("Machine: " + str(pe_mach))
     except (PEFormatError):
         print("This program cannot read an NE file.")
     print("\n")
@@ -137,7 +133,7 @@ def get_hashes(path: Path) -> list[str]:
     with open(path, "rb") as file:
         # read file in chunks and update hash
         while True:
-            data = file.read(1024)
+            data = file.read(65536)
             if not data:
                 break
             for hash in store_hash:
@@ -177,18 +173,16 @@ def get_header_hashes(exe_file: Path) -> list[str]:
             all_header_hash (list[str]): List of all header hashes.
     """
     # check that it is .exe in main func using glob
-    binarymd5 = pefile.PE(exe_file)
-    binarysha1 = pefile.PE(exe_file)
-    binarysha256 = pefile.PE(exe_file)
-    binarysha512 = pefile.PE(exe_file)
+    pe_obj = pefile.PE(exe_file)
 
-    binary_hash = [binarymd5, binarysha1, binarysha256, binarysha512]
+    binary_hash = ["md5", "sha1", "sha256", "sha512"]
     all_header_hash = []
     # adds all PE rich headers to a list
 
     for hash in binary_hash:
-        all_header_hash.append(hash.get_rich_header_hash())
+        all_header_hash.append(pe_obj.get_rich_header_hash(algorithm=hash))
 
+    print(all_header_hash)
     return all_header_hash
 
 
