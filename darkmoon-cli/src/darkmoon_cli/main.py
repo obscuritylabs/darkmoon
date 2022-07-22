@@ -36,7 +36,8 @@ def get_metadata(path: Path, iso: str) -> None:
     Call all of the metadata functions and send data to api endpoint.
 
         Parameters:
-            path(Path): The path of the file that metadata will be extracted from.
+            path (Path): The path of the file that metadata will be extracted from.
+            iso (str): The source ISO.
         Returns:
             None
 
@@ -274,6 +275,7 @@ def unzip_files(path: Path, iso: str) -> None:
 
         Parameters:
             path (Path): Absolute path of vmdk folder.
+            iso (str): The source ISO.
         Returns:
             None
 
@@ -321,6 +323,7 @@ def iterate_files(path: Path, iso: str) -> None:
 
         Parameters:
             path (Path): Absolute path of folder with extracted files from vmdk.
+            iso (str): The source ISO.
         Returns:
             None
 
