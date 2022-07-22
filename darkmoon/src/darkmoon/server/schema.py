@@ -44,6 +44,11 @@ class Metadata(BaseModel):
         description="the extension of a file",
         example=".jpeg",
     )
+
+    file_type: str = Field(
+        description="the type of file",
+        example="exe",
+    )
     hashes: list[str] = Field(
         description="a hash",
         example=[
@@ -78,6 +83,12 @@ class MetadataEntity(BaseModel):
         description="the extension of a file",
         example=".jpeg",
     )
+
+    file_type: str = Field(
+        description="the type of file",
+        example="exe",
+    )
+
     hashes: list[str] = Field(
         description="a hash",
         example=[
