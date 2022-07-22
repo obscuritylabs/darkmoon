@@ -8,6 +8,7 @@ import hashlib
 import os
 import platform
 from pathlib import Path
+from typing import Any
 
 import pefile
 import requests
@@ -89,6 +90,7 @@ def get_metadata(path: Path) -> None:
                 "timestamp": pe_timestamp,
                 "compile_time": pe_comptime,
                 "signature": pe_sig,
+                "rich_header_hashes": {},
             }
 
             data_fields["header_info"] = exe_metadata
@@ -158,6 +160,55 @@ def get_source_iso() -> str:
 
     """
     return "source ISO"
+
+
+@app.command()
+def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
+    """
+    Obtain all exe specific metadata and returns in dictionary format.
+
+    Uses pefile library.
+
+        Parameters:
+            exe_file (Path): Path to an exe file
+        Returns:
+            exe_metadata (dict[str, Any]): Dictionary of all exe metadata
+    """
+    pe_obj = pefile.PE(exe_file)
+
+    # header_hashes
+    all_header_hash = {"md5": "", "sha1": "", "sha256": "", "sha512": ""}
+    binary_hash = ["md5", "sha1", "sha256", "sha512"]
+    for hash in binary_hash:
+        all_header_hash[hash] = pe_obj.get_rich_header_hash(algorithm=hash)
+
+    # header_signature
+    sig = str(pe_obj.NT_HEADERS)
+    sig_list = sig.split()
+    signature = sig_list[sig_list.index("Signature:") + 1]
+
+    # compile_time
+    compile_time = "Time to compile file"
+
+    # timestamp
+    file_header = str(pe_obj.FILE_HEADER)
+    file_header_list = file_header.split()
+    timestamp = str(file_header_list[file_header_list.index("TimeDateStamp:") + 1])
+    for num in range(2, 8):
+        timestamp += str(file_header_list[file_header_list.index("TimeDateStamp:") + num])
+
+    # machine_type
+    machine = file_header_list[file_header_list.index("Machine:") + 1]
+
+    exe_metadata = {
+        "machine_type": machine,
+        "timestamp": timestamp,
+        "compile_time": compile_time,
+        "signature": signature,
+        "rich_header_hashes": all_header_hash,
+    }
+    print(exe_metadata)
+    return exe_metadata
 
 
 @app.command()
