@@ -50,7 +50,7 @@ def get_metadata(path: Path, iso_name: str) -> None:
     extension = path.suffix
 
     # file type
-    file_type = magic.from_file(path)
+    file_type = get_file_type(path)
 
     # Hashes of the file in list form
     hash_list = get_hashes(path)
@@ -66,6 +66,7 @@ def get_metadata(path: Path, iso_name: str) -> None:
     # print statements used for testing
     print("Name: " + curr_filename)
     print("file_extension: " + extension)
+    print("file_type: " + file_type)
     print("Hashes: " + str(hash_list))
     print("OS: " + operating_system)
     print("ISO: " + source_iso_data)
@@ -167,6 +168,23 @@ def get_source_iso() -> str:
 
     """
     return ""
+
+
+@app.command()
+def get_file_type(file: Path) -> str:
+    """
+    Get the file type of the file.
+
+    Uses magic library.
+
+        Parameters:
+            file (Path): Path to file.
+        Returns:
+            file_type_list[0]: first word of the returned string from the function
+    """
+    file_type_string = magic.from_file(file)
+    file_type_list = file_type_string.split(" ", 1)
+    return file_type_list[0]
 
 
 @app.command()
