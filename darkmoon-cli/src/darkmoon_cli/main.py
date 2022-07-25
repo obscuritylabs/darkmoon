@@ -50,29 +50,31 @@ def get_metadata(path: Path, iso_name: str) -> None:
 
     # file extension
     extension = path.suffix
+    print(extension)
 
     # file type
     file_type = magic.from_file(path)
+    print(file_type)
 
     # Hashes of the file in list form
     all_hashes = get_hashes(path)
     print("Hashes: " + str(all_hashes))
-    # Operating System
+
+    # Source ISO
+    source_iso = iso_name
+    print(source_iso)
+
+    # operating system
     operating_system = str(platform.platform())
     print("os: " + operating_system)
-    # Source ISO
-    source_iso_data = iso_name
-
-    # Rich PE header hash
-
-    # print statements used for testing
 
     data_fields = {
         "name": curr_filename,
         "file_extension": extension,
         "file_type": file_type,
-        "hashes": list(all_hashes),
-        "source_ISO_name": source_iso_data,
+        "hashes": all_hashes,
+        "source_iso_name": source_iso,
+        "operating_system": operating_system,
         "header_info": {},
     }
 
