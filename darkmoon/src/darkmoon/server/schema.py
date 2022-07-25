@@ -64,9 +64,9 @@ class HeaderInfo(BaseModel):
 class Metadata(BaseModel):
     """Sets incoming file requirements."""
 
-    name: str = Field(
+    name: list[str] = Field(
         description="name of file",
-        example="End_Of_The_World",
+        example="['End_Of_The_World']",
     )
     file_extension: str = Field(
         description="the extension of a file",
@@ -97,9 +97,9 @@ class MetadataEntity(BaseModel):
         description="ID",
         example="1",
     )
-    name: str = Field(
+    name: list[str] = Field(
         description="name of file",
-        example="End_Of_The_World",
+        example="['End_Of_The_World']",
     )
     file_extension: str = Field(
         description="the extension of a file",
