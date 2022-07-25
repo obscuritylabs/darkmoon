@@ -133,10 +133,11 @@ def get_hashes(path: Path) -> dict[str, str]:
     h_sha512 = hashlib.sha512()
 
     store_hash = [h_md5, h_sha1, h_sha256, h_sha512]
-    all_hashes = []
-    hash_dict: dict[str, str] = {}
+    hash_list: list[str] = []
+    all_hashes: dict[str, str] = {}
 
     with open(path, "rb") as file:
+
         # read file in chunks and update hash
         while True:
             data = file.read(1024)
@@ -146,15 +147,15 @@ def get_hashes(path: Path) -> dict[str, str]:
                 hash.update(data)
 
     for hash in store_hash:
-        all_hashes.append(hash.hexdigest())
+        hash_list.append(hash.hexdigest())
 
-    hash_dict["md5"] = all_hashes[0]
-    hash_dict["sha1"] = all_hashes[1]
-    hash_dict["sha256"] = all_hashes[2]
-    hash_dict["sha512"] = all_hashes[3]
+    all_hashes["md5"] = hash_list[0]
+    all_hashes["sha1"] = hash_list[1]
+    all_hashes["sha256"] = hash_list[2]
+    all_hashes["sha512"] = hash_list[3]
 
     # return the hex digest
-    return hash_dict
+    return all_hashes
 
 
 @app.command()
