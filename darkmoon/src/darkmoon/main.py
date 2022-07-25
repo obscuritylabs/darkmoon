@@ -28,12 +28,17 @@ app = FastAPI()
 
 
 @app.get("/metadata")
-async def list_metadata(file_name: Optional[str] = None, hash: Optional[str] = None) -> list[MetadataEntity]:
+async def list_metadata(
+    file_name: Optional[str] = None,
+    hash_type: Optional[str] = None,
+    hash: Optional[str] = None,
+) -> list[MetadataEntity]:
     """Return list of metadata that matches the parameters in the database.
 
     Parameters:
-        file_name (Optional[str]): The name of the file being searched. Is None by default
-        hash (Optional[str]): Hash of the file. Is None by default
+        file_name (Optional[str]): The name of the file being searched. Is None by default.
+        hash_type (Optional[str]): The type of hash. Is None by default.
+        hash (Optional[str]): Hash of the file. Is None by default.
     Returns:
         documents (list[MetadataEntity]): List of all documents that match parameters in the database
 
@@ -42,8 +47,13 @@ async def list_metadata(file_name: Optional[str] = None, hash: Optional[str] = N
     search = {}
     if file_name:
         search["name"] = file_name
-    if hash:
-        search["hashes"] = hash
+    if hash and hash_type:
+        hash_parameter = "hashes." + str(hash_type)
+        search[hash_parameter] = hash
+    elif hash_type:
+        raise HTTPException(status_code=404, detail="Enter hash")
+    elif hash:
+        raise HTTPException(status_code=404, detail="Enter hash type")
     async for doc in collection.find(search):
         doc["id"] = str(doc["_id"])
         documents.append(MetadataEntity(**doc))

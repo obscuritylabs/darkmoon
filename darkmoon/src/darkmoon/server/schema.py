@@ -7,22 +7,22 @@ from pydantic import BaseModel, Field
 class Hashes(BaseModel):
     """Holds the hash info and is called in MetaData and MetaDataEntity."""
 
-    md5: str = Field(
+    md5: Optional[str] = Field(
         description="The md5 hash",
         example="5d41402abc4b2a76b9719d911017c592",
     )
 
-    sha1: str = Field(
+    sha1: Optional[str] = Field(
         description="The sha1 hash",
         example="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
     )
 
-    sha256: str = Field(
+    sha256: Optional[str] = Field(
         description="The sha256 hash",
         example="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
     )
 
-    sha512: str = Field(
+    sha512: Optional[str] = Field(
         description="The sha512 hash",
         example="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
     )
@@ -57,7 +57,6 @@ class HeaderInfo(BaseModel):
 
     rich_header_hashes: Optional[Hashes] = Field(
         description="a dictionary of hashes from the hashes class",
-        example="",
     )
 
 
@@ -72,17 +71,12 @@ class Metadata(BaseModel):
         description="the extension of a file",
         example=".jpeg",
     )
-
     file_type: str = Field(
         description="the type of file",
         example="exe",
     )
-    hashes: list[str] = Field(
+    hashes: Hashes = Field(
         description="a hash",
-        example=[
-            "8743b52063cd84097a65d1633f5c74f5",
-            "8743b52063cd84097a65d1633f5c74f5",
-        ],
     )
 
     source_iso_name: str = Field(
@@ -123,12 +117,8 @@ class MetadataEntity(BaseModel):
         example="exe",
     )
 
-    hashes: list[str] = Field(
+    hashes: Hashes = Field(
         description="a hash",
-        example=[
-            "8743b52063cd84097a65d1633f5c74f5",
-            "8743b52063cd84097a65d1633f5c74f5",
-        ],
     )
     source_iso_name: str = Field(
         description="source ISO name",
