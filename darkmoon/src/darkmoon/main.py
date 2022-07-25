@@ -92,16 +92,37 @@ async def upload_metadata(file: Metadata) -> None:
     """
     file_metadata = file.dict()
 
-    dup_list = []
     duplicate_hashes = {
-        "hashes.md5": file_metadata["md5"],
-        "hashes.sha1": file_metadata["sha1"],
-        "hashes.sha256": file_metadata["sha256"],
-        "hashes.sha512": file_metadata["sha512"],
+        "hashes.md5": file_metadata["hashes"]["md5"],
+        "hashes.sha1": file_metadata["hashes"]["sha1"],
+        "hashes.sha256": file_metadata["hashes"]["sha256"],
+        "hashes.sha512": file_metadata["hashes"]["sha512"],
     }
-    async for hash_dup in await collection.find(duplicate_hashes):
-        dup_list.append(hash_dup)
+    doc = await collection.find_one(duplicate_hashes)
+    if doc:
+        doc["id"] = str(doc["_id"])
+        document = MetadataEntity(**doc)
+        name = document.name
+        name.append(file_metadata["name"][0])
+        file_extension = document.file_extension
+        file_extension.append(file_metadata["file_extension"][0])
+        file_type = document.file_type
+        file_type.append(file_metadata["file_type"][0])
+        source_iso_name = document.source_iso_name
+        source_iso_name.append(file_metadata["source_iso_name"][0])
+        operating_system = document.operating_system
+        operating_system.append(file_metadata["operating_system"][0])
+        change = {
+            "$set": {
+                "name": name,
+                "file_extension": file_extension,
+                "file_type": file_type,
+                "source_iso_name": source_iso_name,
+                "operating_system": operating_system,
+            },
+        }
+        updatedOne = await collection.update_one(duplicate_hashes, change)
+        print(updatedOne)
 
-    collection.insert_one(file_metadata)
-
-    print(duplicate_hashes)
+    else:
+        collection.insert_one(file_metadata)
