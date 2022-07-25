@@ -65,28 +65,28 @@ class Metadata(BaseModel):
 
     name: list[str] = Field(
         description="name of file",
-        example="['End_Of_The_World']",
+        example=["End_Of_The_World"],
     )
-    file_extension: str = Field(
+    file_extension: list[str] = Field(
         description="the extension of a file",
-        example=".jpeg",
+        example=[".jpeg"],
     )
-    file_type: str = Field(
+    file_type: list[str] = Field(
         description="the type of file",
-        example="exe",
+        example=["exe"],
     )
     hashes: Hashes = Field(
         description="a hash",
     )
 
-    source_iso_name: str = Field(
+    source_iso_name: list[str] = Field(
         description="source ISO name",
-        example="",
+        example=[""],
     )
 
-    operating_system: str = Field(
+    operating_system: list[str] = Field(
         description="The operating system of the computer where the file is coming from.",
-        example="WindowsXP",
+        example=["WindowsXP"],
     )
 
     # Only for .exe files
@@ -105,29 +105,29 @@ class MetadataEntity(BaseModel):
     )
     name: list[str] = Field(
         description="name of file",
-        example="['End_Of_The_World']",
+        example=["End_Of_The_World"],
     )
-    file_extension: str = Field(
+    file_extension: list[str] = Field(
         description="the extension of a file",
-        example=".jpeg",
+        example=[".jpeg"],
     )
 
-    file_type: str = Field(
+    file_type: list[str] = Field(
         description="the type of file",
-        example="exe",
+        example=["exe"],
     )
 
     hashes: Hashes = Field(
         description="a hash",
     )
-    source_iso_name: str = Field(
+    source_iso_name: list[str] = Field(
         description="source ISO name",
-        example="",
+        example=[""],
     )
 
-    operating_system: str = Field(
+    operating_system: list[str] = Field(
         description="The operating system of the computer where the file is coming from.",
-        example="WindowsXP",
+        example=["WindowsXP"],
     )
 
     header_info: Optional[HeaderInfo] = Field(

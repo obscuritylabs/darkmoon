@@ -91,4 +91,17 @@ async def upload_metadata(file: Metadata) -> None:
 
     """
     file_metadata = file.dict()
+
+    dup_list = []
+    duplicate_hashes = {
+        "hashes.md5": file_metadata["md5"],
+        "hashes.sha1": file_metadata["sha1"],
+        "hashes.sha256": file_metadata["sha256"],
+        "hashes.sha512": file_metadata["sha512"],
+    }
+    async for hash_dup in await collection.find(duplicate_hashes):
+        dup_list.append(hash_dup)
+
     collection.insert_one(file_metadata)
+
+    print(duplicate_hashes)
