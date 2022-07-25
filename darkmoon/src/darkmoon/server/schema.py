@@ -71,9 +71,14 @@ class Metadata(BaseModel):
         description="the extension of a file",
         example=".jpeg",
     )
-    hashes: Hashes = Field(
-        description="a dictionary of hashes from the hashes class",
+    file_type: str = Field(
+        description="the type of file",
+        example="exe",
     )
+    hashes: Hashes = Field(
+        description="a hash",
+    )
+
     source_iso_name: str = Field(
         description="source ISO name",
         example="",
@@ -106,7 +111,15 @@ class MetadataEntity(BaseModel):
         description="the extension of a file",
         example=".jpeg",
     )
-    hashes: Hashes = Field(description="a dictionary of hashes from the hashes class", example="")
+
+    file_type: str = Field(
+        description="the type of file",
+        example="exe",
+    )
+
+    hashes: Hashes = Field(
+        description="a hash",
+    )
     source_iso_name: str = Field(
         description="source ISO name",
         example="",
