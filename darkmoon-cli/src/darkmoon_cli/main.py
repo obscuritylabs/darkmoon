@@ -55,8 +55,8 @@ def get_metadata(path: Path, iso_name: str) -> None:
     file_type = magic.from_file(path)
 
     # Hashes of the file in list form
-    hash_list = get_hashes(path)
-    print("Hashes: " + str(hash_list))
+    all_hashes = get_hashes(path)
+    print("Hashes: " + str(all_hashes))
     # Operating System
     operating_system = str(platform.platform())
     print("os: " + operating_system)
@@ -71,7 +71,7 @@ def get_metadata(path: Path, iso_name: str) -> None:
         "name": curr_filename,
         "file_extension": extension,
         "file_type": file_type,
-        "hashes": list(hash_list),
+        "hashes": list(all_hashes),
         "source_ISO_name": source_iso_data,
         "header_info": {},
     }
@@ -116,7 +116,6 @@ def get_hashes(path: Path) -> dict[str, str]:
     h_sha512 = hashlib.sha512()
 
     store_hash = [h_md5, h_sha1, h_sha256, h_sha512]
-    hash_list: list[str] = []
     all_hashes: dict[str, str] = {}
 
     with open(path, "rb") as file:
@@ -129,13 +128,10 @@ def get_hashes(path: Path) -> dict[str, str]:
             for hash in store_hash:
                 hash.update(data)
 
-    for hash in store_hash:
-        hash_list.append(hash.hexdigest())
-
-    all_hashes["md5"] = hash_list[0]
-    all_hashes["sha1"] = hash_list[1]
-    all_hashes["sha256"] = hash_list[2]
-    all_hashes["sha512"] = hash_list[3]
+    all_hashes["md5"] = store_hash[0].hexdigest()
+    all_hashes["sha1"] = store_hash[1].hexdigest()
+    all_hashes["sha256"] = store_hash[2].hexdigest()
+    all_hashes["sha512"] = store_hash[3].hexdigest()
 
     # return the hex digest
     return all_hashes
