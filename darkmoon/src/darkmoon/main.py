@@ -49,7 +49,6 @@ async def list_metadata(
         search["name"] = file_name
     if hash and hash_type:
         hash_parameter = "hashes." + str(hash_type)
-        print(hash_parameter)
         search[hash_parameter] = hash
     elif hash_type:
         raise HTTPException(status_code=404, detail="Enter hash")
