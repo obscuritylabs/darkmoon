@@ -7,11 +7,12 @@
 from typing import Optional
 
 from bson.objectid import ObjectId
+from fastapi import FastAPI, HTTPException
+from motor.motor_asyncio import AsyncIOMotorClient
+
 from darkmoon.server.database import collection
 from darkmoon.server.schema import Metadata, MetadataEntity
 from darkmoon.settings import settings
-from fastapi import FastAPI, HTTPException
-from motor.motor_asyncio import AsyncIOMotorClient
 
 ####################
 # GLOBAL VARIABLES #
