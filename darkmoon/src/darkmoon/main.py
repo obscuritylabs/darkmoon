@@ -117,16 +117,18 @@ async def upload_metadata(file: Metadata) -> None:
     if doc:
         doc["id"] = str(doc["_id"])
         document = MetadataEntity(**doc)
-        name = document.name
-        file_extension = document.file_extension
-        file_type = document.file_type
-        source_iso_name = document.source_iso_name
-        operating_system = document.operating_system
 
-        data_type = [name, file_extension, source_iso_name, operating_system]
+        data_type = [
+            document.name,
+            document.file_extension,
+            document.file_type,
+            document.source_iso_name,
+            document.operating_system,
+        ]
         data_type_string = [
             "name",
             "file_extension",
+            "file_type",
             "source_iso_name",
             "operating_system",
         ]
@@ -136,11 +138,11 @@ async def upload_metadata(file: Metadata) -> None:
 
         change = {
             "$set": {
-                "name": name,
-                "file_extension": file_extension,
-                "file_type": file_type,
-                "source_iso_name": source_iso_name,
-                "operating_system": operating_system,
+                "name": data_type[0],
+                "file_extension": data_type[1],
+                "file_type": data_type[2],
+                "source_iso_name": data_type[3],
+                "operating_system": data_type[4],
             },
         }
         await collection.update_one(duplicate_hashes, change)
