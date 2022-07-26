@@ -125,6 +125,7 @@ exclude = '''
 '''
 include = '\.pyi?$'
 line-length = 120
+target-version = ['py310']
 
 [tool.flake8]
 docstring_style = "google"
