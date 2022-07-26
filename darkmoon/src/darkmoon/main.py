@@ -7,12 +7,11 @@
 from typing import Optional
 
 from bson.objectid import ObjectId
-from fastapi import FastAPI, HTTPException
-from motor.motor_asyncio import AsyncIOMotorClient
-
 from darkmoon.server.database import collection
 from darkmoon.server.schema import Metadata, MetadataEntity
 from darkmoon.settings import settings
+from fastapi import FastAPI, HTTPException
+from motor.motor_asyncio import AsyncIOMotorClient
 
 ####################
 # GLOBAL VARIABLES #
@@ -98,9 +97,25 @@ async def upload_metadata(file: Metadata) -> None:
         "hashes.sha256": file_metadata["hashes"]["sha256"],
         "hashes.sha512": file_metadata["hashes"]["sha512"],
     }
+    check_dup = {
+        "name": file_metadata["name"][0],
+        "file_extension": file_metadata["file_extension"][0],
+        "file_type": file_metadata["file_type"][0],
+        "hashes": file_metadata["hashes"],
+        "source_iso_name": file_metadata["source_iso_name"][0],
+        "operating_system": file_metadata["operating_system"][0],
+        "header_info": file_metadata["header_info"],
+    }
+
+    dup = await collection.find_one(check_dup)
+    if dup:
+        print("it is")
+        return
+
     doc = await collection.find_one(duplicate_hashes)
     if doc:
         doc["id"] = str(doc["_id"])
+
         document = MetadataEntity(**doc)
         name = document.name
         name.append(file_metadata["name"][0])
@@ -112,6 +127,7 @@ async def upload_metadata(file: Metadata) -> None:
         source_iso_name.append(file_metadata["source_iso_name"][0])
         operating_system = document.operating_system
         operating_system.append(file_metadata["operating_system"][0])
+
         change = {
             "$set": {
                 "name": name,
@@ -121,8 +137,7 @@ async def upload_metadata(file: Metadata) -> None:
                 "operating_system": operating_system,
             },
         }
-        updatedOne = await collection.update_one(duplicate_hashes, change)
-        print(updatedOne)
+        await collection.update_one(duplicate_hashes, change)
 
     else:
         collection.insert_one(file_metadata)
