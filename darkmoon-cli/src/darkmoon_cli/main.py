@@ -58,7 +58,7 @@ def get_metadata(path: Path, iso_name: str) -> None:
 
     # Hashes of the file in list form
     all_hashes = get_hashes(path)
-    print("Hashes: " + str(all_hashes))
+    print("hashes: " + str(all_hashes))
     # Operating System
     operating_system = [str(platform.platform())]
     print("os: " + operating_system[0])

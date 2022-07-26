@@ -109,24 +109,29 @@ async def upload_metadata(file: Metadata) -> None:
 
     dup = await collection.find_one(check_dup)
     if dup:
-        print("it is")
+
         return
 
     doc = await collection.find_one(duplicate_hashes)
     if doc:
         doc["id"] = str(doc["_id"])
-
         document = MetadataEntity(**doc)
         name = document.name
-        name.append(file_metadata["name"][0])
         file_extension = document.file_extension
-        file_extension.append(file_metadata["file_extension"][0])
         file_type = document.file_type
-        file_type.append(file_metadata["file_type"][0])
         source_iso_name = document.source_iso_name
-        source_iso_name.append(file_metadata["source_iso_name"][0])
         operating_system = document.operating_system
-        operating_system.append(file_metadata["operating_system"][0])
+
+        data_type = [name, file_extension, source_iso_name, operating_system]
+        data_type_string = [
+            "name",
+            "file_extension",
+            "source_iso_name",
+            "operating_system",
+        ]
+        for index in range(len(data_type)):
+            if file_metadata[data_type_string[index]][0] not in data_type[index]:
+                data_type[index].append(file_metadata[data_type_string[index]][0])
 
         change = {
             "$set": {
