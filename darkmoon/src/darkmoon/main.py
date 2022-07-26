@@ -91,4 +91,61 @@ async def upload_metadata(file: Metadata) -> None:
 
     """
     file_metadata = file.dict()
-    collection.insert_one(file_metadata)
+
+    duplicate_hashes = {
+        "hashes.md5": file_metadata["hashes"]["md5"],
+        "hashes.sha1": file_metadata["hashes"]["sha1"],
+        "hashes.sha256": file_metadata["hashes"]["sha256"],
+        "hashes.sha512": file_metadata["hashes"]["sha512"],
+    }
+    check_dup = {
+        "name": file_metadata["name"][0],
+        "file_extension": file_metadata["file_extension"][0],
+        "file_type": file_metadata["file_type"][0],
+        "hashes": file_metadata["hashes"],
+        "source_iso_name": file_metadata["source_iso_name"][0],
+        "operating_system": file_metadata["operating_system"][0],
+        "header_info": file_metadata["header_info"],
+    }
+
+    dup = await collection.find_one(check_dup)
+    if dup:
+
+        return
+
+    doc = await collection.find_one(duplicate_hashes)
+    if doc:
+        doc["id"] = str(doc["_id"])
+        document = MetadataEntity(**doc)
+
+        data_type = [
+            document.name,
+            document.file_extension,
+            document.file_type,
+            document.source_iso_name,
+            document.operating_system,
+        ]
+        data_type_string = [
+            "name",
+            "file_extension",
+            "file_type",
+            "source_iso_name",
+            "operating_system",
+        ]
+        for index in range(len(data_type)):
+            if file_metadata[data_type_string[index]][0] not in data_type[index]:
+                data_type[index].append(file_metadata[data_type_string[index]][0])
+
+        change = {
+            "$set": {
+                "name": data_type[0],
+                "file_extension": data_type[1],
+                "file_type": data_type[2],
+                "source_iso_name": data_type[3],
+                "operating_system": data_type[4],
+            },
+        }
+        await collection.update_one(duplicate_hashes, change)
+
+    else:
+        collection.insert_one(file_metadata)

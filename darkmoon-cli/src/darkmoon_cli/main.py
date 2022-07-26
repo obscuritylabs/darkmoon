@@ -45,42 +45,44 @@ def get_metadata(path: Path, iso_name: str) -> None:
 
     """
     # name of the file
-    curr_filename = path.name
-    print("Name: " + curr_filename)
+    curr_filename = [str(path.name)]
+    print("name: " + curr_filename[0])
 
     # file extension
-    extension = path.suffix
-    print(extension)
+    extension = [str(path.suffix)]
+    print("extension: " + extension[0])
 
     # file type
-    file_type = magic.from_file(path)
-    print(file_type)
+    file_type = [str(get_file_type(path))]
+    print("file_type: " + file_type[0])
 
     # Hashes of the file in list form
     all_hashes = get_hashes(path)
-    print("Hashes: " + str(all_hashes))
-
-    # Source ISO
-    source_iso = iso_name
-    print(source_iso)
+    print("hashes: " + str(all_hashes))
+    # Operating System
+    operating_system = [str(platform.platform())]
+    print("os: " + operating_system[0])
+    # Source iso
+    source_iso_data = [str(iso_name)]
+    print("source_iso_name: " + source_iso_data[0])
 
     # operating system
-    operating_system = str(platform.platform())
-    print("os: " + operating_system)
+    operating_system = [str(platform.platform())]
+    print("os: " + operating_system[0])
 
     data_fields = {
         "name": curr_filename,
         "file_extension": extension,
         "file_type": file_type,
         "hashes": all_hashes,
-        "source_iso_name": source_iso,
+        "source_iso_name": source_iso_data,
         "operating_system": operating_system,
         "header_info": {},
     }
 
     try:
 
-        if extension == ".exe" or extension == ".dll":
+        if extension[0] == ".exe" or extension[0] == ".dll":
             data_fields["header_info"] = get_all_exe_metadata(path)
 
     except (PEFormatError):
@@ -154,6 +156,23 @@ def get_source_iso() -> str:
 
 
 @app.command()
+def get_file_type(file: Path) -> str:
+    """
+    Get the file type of the file.
+
+    Uses magic library.
+
+        Parameters:
+            file (Path): Path to file.
+        Returns:
+            file_type_list[0]: first word of the returned string from the function
+    """
+    file_type_string = magic.from_file(file)
+    file_type_list = file_type_string.split(" ", 1)
+    return str(file_type_list[0])
+
+
+@app.command()
 def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
     """
     Obtain all exe specific metadata and returns in dictionary format.
@@ -189,7 +208,9 @@ def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
     file_header_list = file_header.split()
     timestamp = str(file_header_list[file_header_list.index("TimeDateStamp:") + 1])
     for num in range(2, 8):
-        timestamp += str(file_header_list[file_header_list.index("TimeDateStamp:") + num])
+        timestamp += str(
+            file_header_list[file_header_list.index("TimeDateStamp:") + num],
+        )
     print("PE_Timestamp: " + str(timestamp))
 
     # machine_type
