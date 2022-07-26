@@ -66,7 +66,9 @@ def get_metadata(path: Path, iso_name: str) -> None:
     source_iso_data = [str(iso_name)]
     print("source_iso_name: " + source_iso_data[0])
 
-    # print statements used for testing
+    # operating system
+    operating_system = [str(platform.platform())]
+    print("os: " + operating_system[0])
 
     data_fields = {
         "name": curr_filename,
