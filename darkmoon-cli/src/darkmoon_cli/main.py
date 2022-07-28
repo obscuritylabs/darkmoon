@@ -15,7 +15,8 @@ import pefile
 import requests
 import typer
 from pefile import PEFormatError
-from settings import settings
+
+from darkmoon_cli.settings import settings
 
 ####################
 # GLOBAL VARIABLES #
@@ -65,10 +66,6 @@ def get_metadata(path: Path, iso_name: str) -> None:
     # Source iso
     source_iso_data = [str(iso_name)]
     print("source_iso_name: " + source_iso_data[0])
-
-    # operating system
-    operating_system = [str(platform.platform())]
-    print("os: " + operating_system[0])
 
     data_fields = {
         "name": curr_filename,
@@ -168,7 +165,7 @@ def get_file_type(file: Path) -> str:
             file_type_list[0]: first word of the returned string from the function
     """
     file_type_string = magic.from_file(file)
-    file_type_list = file_type_string.split(" ", 1)
+    file_type_list = file_type_string.split(",")
     return str(file_type_list[0])
 
 
