@@ -4,11 +4,12 @@
 # IMPORTS #
 ###########
 
+import os
 from pathlib import Path
 
 import pytest
 
-from darkmoon_cli.main import get_all_exe_metadata, get_file_type, get_hashes, get_source_iso
+from darkmoon_cli.main import get_all_exe_metadata, get_file_type, get_hashes, get_metadata, get_source_iso, unzip_files
 
 ####################
 # GLOBAL VARIABLES #
@@ -20,28 +21,33 @@ from darkmoon_cli.main import get_all_exe_metadata, get_file_type, get_hashes, g
 
 
 @pytest.fixture()
-def dir_path() -> dict[str, str]:
+def dir_path() -> Path:
     """Fixture for testing path returns dictionary."""
-    folder = "/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing"
+    os.system("tar -xf testing3.tar.gz")
+    folder = "/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing3"
 
-    all_files = {
-        folder + "bootuwf.dll": "PE32 executable (DLL) Intel 80386",
-        folder + "company_research.pptx": "Microsoft PowerPoint 2007+",
-        folder + "EmbeddedBrowserWebView.dll": "PE32 executable (DLL) (console) Intel 80386",
-        folder + "faker.txt": "ASCII text",
-        folder + "igor.png": "PNG image data",
-    }
-
-    return all_files
+    return Path(folder)
 
 
 @pytest.fixture()
 def get_exe():
     """Fixture for testing exe file."""
-    return Path("/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing/memtest.exe")
+    os.system("tar -xf testing3.tar.gz")
+    folder = "/workspaces/darkmoon/darkmoon-cli/tests/testing3/"
+    yield Path(folder + "download-example.exe")
+    os.system("rm -r /workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/tests/testing3")
 
 
-def test_get_metadata():
+@pytest.fixture()
+def get_dll():
+    """Fixture for testing exe file."""
+    os.system("tar -xf testing3.tar.gz")
+    folder = "/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing3"
+    yield Path(folder + "/smalldll.dll")
+    os.system("rm -r /workspaces/darkmoon/darkmoon-cli/tests/testing3")
+
+
+def test_get_metadata(get_exe):
     """
     Filler function.
 
@@ -51,7 +57,38 @@ def test_get_metadata():
             None
 
     """
-    return "Hello"
+    sha512_first = "66bc96640b7eb5bf5b3108220639f01c2b0ffd50458414642263e923fcffabb1"
+    sha512_second = "f28a7b7fb6e1a1e76f4c60fff78c4e1f3463cc3b2e5c29df7e4b30b525258f52"
+    header_first = "46a0615c724ce72cb1174d4b8fe7f234586ffdc948a5177108c7ab7cc5204"
+    header_second = "089d253bd1c0b3306f756b79ba8354a5a6f61d38bd137a40d4390d32bb7df3476d8"
+
+    all_hashes = {
+        "md5": "ae46070abb66e057b9abd1c1c9f067cf",
+        "sha1": "cd44355ed101c6ae97f7999809042353018448e5",
+        "sha256": "956535c045d7c4c6fcbe5e71ca8abae4c0706ff28237311459fc6e022212dd08",
+        "sha512": sha512_first + sha512_second,
+    }
+    data_fields = {
+        "name": ["download-example.exe"],
+        "file_extension": [".exe"],
+        "file_type": ["PE32 executable (GUI) Intel 80386"],
+        "hashes": all_hashes,
+        "source_iso_name": ["unit-test"],
+        "operating_system": ["Linux-5.10.104-linuxkit-x86_64-with-glibc2.31"],
+        "header_info": {
+            "machine_type": "0x14C",
+            "timestamp": "0x4ABD129C[FriSep2518:57:322009UTC]",
+            "compile_time": "Time to compile file",
+            "signature": "0x4550",
+            "rich_header_hashes": {
+                "md5": "813ee6b4f254f41240e3d493b0153330",
+                "sha1": "7a2c09ff3da26cfd692d624de222d623c7593af8",
+                "sha256": "ba0fc8e8944cebce8d34d465df56373d056b316bd9b54329b9c77f070f6c9c62",
+                "sha512": header_first + header_second,
+            },
+        },
+    }
+    assert get_metadata(get_exe, "unit-test") == data_fields
 
 
 def test_get_hashes(get_exe):
@@ -64,13 +101,13 @@ def test_get_hashes(get_exe):
             None
 
     """
-    sha512_first = "58b43fdf3bfafb2197f6b781f536024df2b5b1a4b65501e94a6911b0b70a2"
-    sha512_second = "7f19023552709bcd297bb9ca3546343dc54e0aa1a8275c1262a2770913f492f701c"
+    sha512_first = "66bc96640b7eb5bf5b3108220639f01c2b0ffd50458414642263e923fcffabb1"
+    sha512_second = "f28a7b7fb6e1a1e76f4c60fff78c4e1f3463cc3b2e5c29df7e4b30b525258f52"
     hash_dict = get_hashes(get_exe)
     assert hash_dict == {
-        "md5": "d63b0535e6266211eb8a09f8579f24d2",
-        "sha1": "c5ea21645398208e78dc7c963b81563989343b47",
-        "sha256": "8fcb3b2e3f22aeae6c136bb6078d8ea4fa3c09062b582fac3f219e9cc535155f",
+        "md5": "ae46070abb66e057b9abd1c1c9f067cf",
+        "sha1": "cd44355ed101c6ae97f7999809042353018448e5",
+        "sha256": "956535c045d7c4c6fcbe5e71ca8abae4c0706ff28237311459fc6e022212dd08",
         "sha512": sha512_first + sha512_second,
     }
 
@@ -88,7 +125,7 @@ def test_get_source_iso():
     assert get_source_iso() == ""
 
 
-def test_get_file_type(dir_path):
+def test_get_file_type(get_exe):
     """
     Test the get_file_type function.
 
@@ -98,8 +135,7 @@ def test_get_file_type(dir_path):
             None
 
     """
-    for key in dir_path:
-        assert get_file_type(Path(key)) == dir_path[key]
+    assert get_file_type(Path(get_exe)) == "PE32 executable (GUI) Intel 80386"
 
 
 def test_get_all_exe_metadata(get_exe):
@@ -112,23 +148,23 @@ def test_get_all_exe_metadata(get_exe):
             None
 
     """
-    sha_first = "8c1ca4e749c07608fe553be855f8a655da2145ef6306090f8616a4c7148309fe"
-    sha_second = "4d59bf292b81045c1edad4c847eba02c1a6fbf4ca53d6c0e68508f4193b347bd"
+    sha_first = "46a0615c724ce72cb1174d4b8fe7f234586ffdc948a5177108c7ab7cc5204"
+    sha_second = "089d253bd1c0b3306f756b79ba8354a5a6f61d38bd137a40d4390d32bb7df3476d8"
     assert get_all_exe_metadata(get_exe) == {
         "machine_type": "0x14C",
-        "timestamp": "0x710AF9E0[TueFeb517:58:562030UTC]",
+        "timestamp": "0x4ABD129C[FriSep2518:57:322009UTC]",
         "compile_time": "Time to compile file",
         "signature": "0x4550",
         "rich_header_hashes": {
-            "md5": "2b95009155e0f42e197edab0bd27f937",
-            "sha1": "882ef7c2fbc3ab77cc8636889a3cc7dcfc1c6c2a",
-            "sha256": "e9a8bd4f02d99bc15df08323b0c8edcd5f2d464e656a9c6c53a1e5bf9411d2ef",
+            "md5": "813ee6b4f254f41240e3d493b0153330",
+            "sha1": "7a2c09ff3da26cfd692d624de222d623c7593af8",
+            "sha256": "ba0fc8e8944cebce8d34d465df56373d056b316bd9b54329b9c77f070f6c9c62",
             "sha512": sha_first + sha_second,
         },
     }
 
 
-def test_unzip_files():
+def test_unzip():
     """
     Filler function.
 
@@ -138,7 +174,26 @@ def test_unzip_files():
             None
 
     """
-    return "Hello"
+
+
+def test_unzip_files(capsys):
+    """
+    Filler function.
+
+        Parameters:
+            None
+        Returns:
+            None
+
+    """
+    os.system("touch testzip")
+    os.system("zip testzip")
+    folder = Path("/workspaces/darkmoon/darkmoon-cli/tests/" + "testzip")
+
+    unzip_files(folder, "unit-test")
+    captured = capsys.readouterr()
+    thing = captured.out.split()
+    print(thing)
 
 
 def test_iterate_unzip():
