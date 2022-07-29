@@ -31,7 +31,7 @@ def dir_path() -> Path:
 
 
 @pytest.fixture()
-def get_exe() -> Generator:
+def get_exe() -> Generator[Path, None, None]:
     """Fixture for testing exe file."""
     os.system("tar -xf testing3.tar.gz")
     yield Path(os.getcwd() + "/testing3/download-example.exe")
@@ -39,7 +39,7 @@ def get_exe() -> Generator:
 
 
 @pytest.fixture()
-def get_dll() -> Generator:
+def get_dll() -> Generator[Path, None, None]:
     """Fixture for testing exe file."""
     os.system("tar -xf testing3.tar.gz")
     yield Path(os.getcwd() + "/testing3/smalldll.dll")
