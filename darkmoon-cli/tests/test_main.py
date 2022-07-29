@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from darkmoon_cli.main import get_all_exe_metadata, get_file_type, get_hashes, get_metadata, get_source_iso, unzip_files
+from darkmoon_cli.main import get_all_exe_metadata, get_file_type, get_hashes, get_metadata, get_source_iso
 
 ####################
 # GLOBAL VARIABLES #
@@ -24,7 +24,7 @@ from darkmoon_cli.main import get_all_exe_metadata, get_file_type, get_hashes, g
 def dir_path() -> Path:
     """Fixture for testing path returns dictionary."""
     os.system("tar -xf testing3.tar.gz")
-    folder = "/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing3"
+    folder = os.getcwd() + "/testing3"
 
     return Path(folder)
 
@@ -33,18 +33,16 @@ def dir_path() -> Path:
 def get_exe():
     """Fixture for testing exe file."""
     os.system("tar -xf testing3.tar.gz")
-    folder = "/workspaces/darkmoon/darkmoon-cli/tests/testing3/"
-    yield Path(folder + "download-example.exe")
-    os.system("rm -r /workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/tests/testing3")
+    yield Path(os.getcwd() + "/testing3/download-example.exe")
+    os.system("rm -r " + os.getcwd() + "/testing3")
 
 
 @pytest.fixture()
 def get_dll():
     """Fixture for testing exe file."""
     os.system("tar -xf testing3.tar.gz")
-    folder = "/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/testing3"
-    yield Path(folder + "/smalldll.dll")
-    os.system("rm -r /workspaces/darkmoon/darkmoon-cli/tests/testing3")
+    yield Path(os.getcwd() + "/testing3/smalldll.dll")
+    os.system("rm -r " + os.getcwd() + "/testing3")
 
 
 def test_get_metadata(get_exe):
@@ -186,14 +184,7 @@ def test_unzip_files(capsys):
             None
 
     """
-    os.system("touch testzip")
-    os.system("zip testzip")
-    folder = Path("/workspaces/darkmoon/darkmoon-cli/tests/" + "testzip")
-
-    unzip_files(folder, "unit-test")
-    captured = capsys.readouterr()
-    thing = captured.out.split()
-    print(thing)
+    return "hello"
 
 
 def test_iterate_unzip():

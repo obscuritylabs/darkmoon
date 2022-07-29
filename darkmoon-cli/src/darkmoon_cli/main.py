@@ -32,7 +32,7 @@ app = typer.Typer()
 
 def call_api(data: dict[str, Any]) -> None:
     """
-    Call all of the metadata functions and send data to api endpoint.
+    Send data to api post endpoint.
 
         Parameters:
             data (dict): the dictionary that will be sent to the api during the request.
@@ -80,9 +80,11 @@ def get_metadata(path: Path, iso_name: str) -> dict[str, Any]:
     # Hashes of the file in list form
     all_hashes = get_hashes(path)
     print("hashes: " + str(all_hashes))
+
     # Operating System
     operating_system = [str(platform.platform())]
     print("os: " + operating_system[0])
+
     # Source iso
     source_iso_data = [str(iso_name)]
     print("source_iso_name: " + source_iso_data[0])
@@ -98,7 +100,6 @@ def get_metadata(path: Path, iso_name: str) -> dict[str, Any]:
     }
 
     try:
-
         if extension[0] == ".exe" or extension[0] == ".dll":
             data_fields["header_info"] = get_all_exe_metadata(path)
 
@@ -236,7 +237,7 @@ def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
     return exe_metadata
 
 
-def unzip(path) -> None:
+def unzip(path: Path) -> None:
     """
     Extract file.
 
@@ -251,7 +252,7 @@ def unzip(path) -> None:
     os.system(string_name)
 
 
-def delete_folder(path) -> None:
+def delete_folder(path: Path) -> None:
     """
     Delete folder.
 
@@ -261,7 +262,7 @@ def delete_folder(path) -> None:
             None
 
     """
-    os.system("rm -r " + path)
+    os.system("rm -r " + str(path))
 
 
 @app.command()
@@ -286,7 +287,7 @@ def unzip_files(path: Path, iso_name: str) -> None:
         os.system("rm " + str(path))
     iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")), iso_name)
 
-    delete_folder(str(os.getcwd() + "/unzippedvmdk"))
+    delete_folder(Path(str(os.getcwd() + "/unzippedvmdk")))
 
 
 @app.command()
