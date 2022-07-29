@@ -6,6 +6,7 @@
 
 import os
 from pathlib import Path
+from typing import Generator
 
 import pytest
 
@@ -30,7 +31,7 @@ def dir_path() -> Path:
 
 
 @pytest.fixture()
-def get_exe():
+def get_exe() -> Generator:
     """Fixture for testing exe file."""
     os.system("tar -xf testing3.tar.gz")
     yield Path(os.getcwd() + "/testing3/download-example.exe")
@@ -38,14 +39,14 @@ def get_exe():
 
 
 @pytest.fixture()
-def get_dll():
+def get_dll() -> Generator:
     """Fixture for testing exe file."""
     os.system("tar -xf testing3.tar.gz")
     yield Path(os.getcwd() + "/testing3/smalldll.dll")
     os.system("rm -r " + os.getcwd() + "/testing3")
 
 
-def test_get_metadata(get_exe):
+def test_get_metadata(get_exe: Path) -> None:
     """
     Filler function.
 
@@ -89,7 +90,7 @@ def test_get_metadata(get_exe):
     assert get_metadata(get_exe, "unit-test") == data_fields
 
 
-def test_get_hashes(get_exe):
+def test_get_hashes(get_exe: Path) -> None:
     """
     Test the get_hashes function.
 
@@ -110,7 +111,7 @@ def test_get_hashes(get_exe):
     }
 
 
-def test_get_source_iso():
+def test_get_source_iso() -> None:
     """
     Filler function.
 
@@ -123,7 +124,7 @@ def test_get_source_iso():
     assert get_source_iso() == ""
 
 
-def test_get_file_type(get_exe):
+def test_get_file_type(get_exe: Path) -> None:
     """
     Test the get_file_type function.
 
@@ -136,7 +137,7 @@ def test_get_file_type(get_exe):
     assert get_file_type(Path(get_exe)) == "PE32 executable (GUI) Intel 80386"
 
 
-def test_get_all_exe_metadata(get_exe):
+def test_get_all_exe_metadata(get_exe) -> None:
     """
     Test the get_all_exe_metadata function.
 
@@ -162,7 +163,7 @@ def test_get_all_exe_metadata(get_exe):
     }
 
 
-def test_unzip():
+def test_unzip() -> None:
     """
     Filler function.
 
@@ -174,7 +175,7 @@ def test_unzip():
     """
 
 
-def test_unzip_files(capsys):
+def test_unzip_files() -> None:
     """
     Filler function.
 
@@ -184,10 +185,9 @@ def test_unzip_files(capsys):
             None
 
     """
-    return "hello"
 
 
-def test_iterate_unzip():
+def test_iterate_unzip() -> None:
     """
     Filler function.
 
@@ -197,10 +197,9 @@ def test_iterate_unzip():
             None
 
     """
-    return "Hello"
 
 
-def test_iterate_files():
+def test_iterate_files() -> None:
     """
     Filler function.
 
@@ -210,4 +209,3 @@ def test_iterate_files():
             None
 
     """
-    return "Hello"
