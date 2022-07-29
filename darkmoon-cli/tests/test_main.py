@@ -137,7 +137,7 @@ def test_get_file_type(get_exe: Path) -> None:
     assert get_file_type(Path(get_exe)) == "PE32 executable (GUI) Intel 80386"
 
 
-def test_get_all_exe_metadata(get_exe) -> None:
+def test_get_all_exe_metadata(get_exe: Path) -> None:
     """
     Test the get_all_exe_metadata function.
 
