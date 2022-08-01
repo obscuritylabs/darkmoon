@@ -15,7 +15,8 @@ import pefile
 import requests
 import typer
 from pefile import PEFormatError
-from settings import settings
+
+from darkmoon_cli.settings import settings
 
 ####################
 # GLOBAL VARIABLES #
@@ -29,11 +30,31 @@ app = typer.Typer()
 #############
 
 
-# function to iterate over files using os
+def call_api(data: dict[str, Any]) -> None:
+    """
+    Send data to api post endpoint.
+
+        Parameters:
+            data (dict): the dictionary that will be sent to the api during the request.
+            iso_name (str): The source ISO.
+        Returns:
+            None
+
+    """
+    api_response = requests.post(settings.API_URL + "/metadata", json=data)
+    api_response.json()
+    status = api_response.status_code
+    if status == 200:
+        print("Working")
+    elif status == 404:
+        print("Server not found")
+    else:
+        print("Error: Not working")
+    print(status)
 
 
 @app.command()
-def get_metadata(path: Path, iso_name: str) -> None:
+def get_metadata(path: Path, iso_name: str) -> dict[str, Any]:
     """
     Call all of the metadata functions and send data to api endpoint.
 
@@ -41,7 +62,7 @@ def get_metadata(path: Path, iso_name: str) -> None:
             path (Path): The path of the file that metadata will be extracted from.
             iso_name (str): The source ISO.
         Returns:
-            None
+            data_fields (dict[str,str]): The dictionay with file metadata formatted for api post request.
 
     """
     # name of the file
@@ -59,16 +80,14 @@ def get_metadata(path: Path, iso_name: str) -> None:
     # Hashes of the file in list form
     all_hashes = get_hashes(path)
     print("hashes: " + str(all_hashes))
+
     # Operating System
     operating_system = [str(platform.platform())]
     print("os: " + operating_system[0])
+
     # Source iso
     source_iso_data = [str(iso_name)]
     print("source_iso_name: " + source_iso_data[0])
-
-    # operating system
-    operating_system = [str(platform.platform())]
-    print("os: " + operating_system[0])
 
     data_fields = {
         "name": curr_filename,
@@ -81,7 +100,6 @@ def get_metadata(path: Path, iso_name: str) -> None:
     }
 
     try:
-
         if extension[0] == ".exe" or extension[0] == ".dll":
             data_fields["header_info"] = get_all_exe_metadata(path)
 
@@ -89,16 +107,7 @@ def get_metadata(path: Path, iso_name: str) -> None:
         print("This program cannot read an NE file.")
     print("\n")
 
-    api_response = requests.post(settings.API_URL + "/metadata", json=data_fields)
-    api_response.json()
-    status = api_response.status_code
-    if status == 200:
-        print("Working")
-    elif status == 404:
-        print("Server not found")
-    else:
-        print("Error: Not working")
-    print(status)
+    return data_fields
 
 
 @app.command()
@@ -168,7 +177,7 @@ def get_file_type(file: Path) -> str:
             file_type_list[0]: first word of the returned string from the function
     """
     file_type_string = magic.from_file(file)
-    file_type_list = file_type_string.split(" ", 1)
+    file_type_list = file_type_string.split(",")
     return str(file_type_list[0])
 
 
@@ -228,6 +237,34 @@ def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
     return exe_metadata
 
 
+def unzip(path: Path) -> None:
+    """
+    Extract file.
+
+        Parameters:
+            path (Path): Absolute path of vmdk folder.
+        Returns:
+            None
+
+    """
+    os.system("mkdir -p unzippedvmdk")
+    string_name = "7z x " + str(path) + " -aoa -ounzippedvmdk"
+    os.system(string_name)
+
+
+def delete_folder(path: Path) -> None:
+    """
+    Delete folder.
+
+        Parameters:
+            path (Path): Absolute path of a folder.
+        Returns:
+            None
+
+    """
+    os.system("rm -r " + str(path))
+
+
 @app.command()
 def unzip_files(path: Path, iso_name: str) -> None:
     """
@@ -242,9 +279,7 @@ def unzip_files(path: Path, iso_name: str) -> None:
             None
 
     """
-    os.system("mkdir -p unzippedvmdk")
-    string_name = "7z x " + str(path) + " -aoa -ounzippedvmdk"
-    os.system(string_name)
+    unzip(path)
 
     print(Path(str(os.getcwd() + "/unzippedvmdk")))
 
@@ -252,7 +287,7 @@ def unzip_files(path: Path, iso_name: str) -> None:
         os.system("rm " + str(path))
     iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")), iso_name)
 
-    os.system("rm -r " + str(os.getcwd() + "/unzippedvmdk"))
+    delete_folder(Path(str(os.getcwd() + "/unzippedvmdk")))
 
 
 @app.command()
@@ -303,7 +338,7 @@ def iterate_files(path: Path, iso_name: str) -> None:
             if files.suffix == ".ntfs":
                 unzip_files(files, iso_name)
             if files.is_file():
-                get_metadata(files, iso_name)
+                call_api(get_metadata(files, iso_name))
             else:
                 queue.append(files)
 
