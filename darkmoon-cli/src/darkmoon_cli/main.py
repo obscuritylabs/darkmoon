@@ -6,7 +6,6 @@
 
 import hashlib
 import os
-import platform
 from pathlib import Path
 from typing import Any, Optional
 
@@ -78,7 +77,7 @@ def get_metadata(path: Path, iso_name: str, debug: Optional[bool] = False) -> di
     all_hashes = get_hashes(path)
 
     # Operating System
-    operating_system = [str(platform.platform())]
+    operating_system = [str(iso_name)]
 
     # Source iso
     source_iso_data = [str(iso_name)]
@@ -92,7 +91,7 @@ def get_metadata(path: Path, iso_name: str, debug: Optional[bool] = False) -> di
         "operating_system": operating_system,
         "header_info": {},
     }
-    if not debug:
+    if debug:
         print("name: " + curr_filename[0])
         print("extension: " + extension[0])
         print("file_type: " + file_type[0])
@@ -103,10 +102,11 @@ def get_metadata(path: Path, iso_name: str, debug: Optional[bool] = False) -> di
     try:
         if extension[0] == ".exe" or extension[0] == ".dll":
             data_fields["header_info"] = get_all_exe_metadata(path, debug)
+        else:
+            print("\n")
 
     except (PEFormatError):
         print("This program cannot read an NE file.")
-    print("\n")
 
     return data_fields
 
@@ -229,12 +229,13 @@ def get_all_exe_metadata(exe_file: Path, debug: Optional[bool] = False) -> dict[
         "signature": signature,
         "rich_header_hashes": all_header_hash,
     }
-    if not debug:
+    if debug:
         print("machine_type: " + str(machine))
         print("PE_Timestamp: " + str(timestamp))
         print("compile_time: " + compile_time)
         print("PE Signature: " + str(signature))
         print("rich_pe_header_hash: " + str(all_header_hash))
+        print("\n")
 
     return exe_metadata
 
@@ -283,11 +284,9 @@ def extract_files(path: Path, iso_name: str, debug: bool = typer.Option(False, i
     """
     unzip(path)
 
-    print(Path(str(os.getcwd() + "/extractedvmdk")))
-
     if path.suffix == ".ntfs":
         os.system("rm " + str(path))
-    iterate_files(Path(str(os.getcwd() + "/extractedvmdk")), iso_name)
+    iterate_files(Path(str(os.getcwd() + "/extractedvmdk")), iso_name, debug)
 
     delete_folder(Path(str(os.getcwd() + "/extractedvmdk")))
 
@@ -295,7 +294,7 @@ def extract_files(path: Path, iso_name: str, debug: bool = typer.Option(False, i
 @app.command()
 def iterate_extract(path: Path, debug: bool = typer.Option(False, is_flag=True)) -> None:
     """
-    Iterate over vmdk folder and call unzip files function for each vmdk.
+    Iterate over vmdk folder and extracts files of each vmdk.
 
     Uses Pathlib library to access files.
 
@@ -303,13 +302,11 @@ def iterate_extract(path: Path, debug: bool = typer.Option(False, is_flag=True))
             path (Path): Absolute path of vmdk folder.
         Returns:
             None
-
     """
     for vmdk in path.glob("*"):
-        print(vmdk)
         get_iso = vmdk.name.split(".")
         curr_iso = get_iso[0]
-        extract_files(vmdk, curr_iso, False)
+        extract_files(vmdk, curr_iso, debug)
 
 
 # function to iterate over files using pathlib
@@ -331,14 +328,13 @@ def iterate_files(path: Path, iso_name: str, debug: bool = typer.Option(False, i
 
     queue = []
     queue.append(root)
-
     while queue:
         curr_dir = queue.pop(0)
 
         for files in curr_dir.glob("*"):
             print(files)
             if files.suffix == ".ntfs":
-                extract_files(files, iso_name)
+                extract_files(files, iso_name, debug)
             if files.is_file():
                 metadata = get_metadata(files, iso_name, debug)
                 if not debug:
