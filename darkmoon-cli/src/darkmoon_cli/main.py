@@ -6,9 +6,8 @@
 
 import hashlib
 import os
-import platform
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import magic
 import pefile
@@ -54,7 +53,7 @@ def call_api(data: dict[str, Any]) -> None:
 
 
 @app.command()
-def get_metadata(path: Path, iso_name: str) -> dict[str, Any]:
+def get_metadata(path: Path, iso_name: str, debug: Optional[bool] = False) -> dict[str, Any]:
     """
     Call all of the metadata functions and send data to api endpoint.
 
@@ -67,27 +66,21 @@ def get_metadata(path: Path, iso_name: str) -> dict[str, Any]:
     """
     # name of the file
     curr_filename = [str(path.name)]
-    print("name: " + curr_filename[0])
 
     # file extension
     extension = [str(path.suffix)]
-    print("extension: " + extension[0])
 
     # file type
     file_type = [str(get_file_type(path))]
-    print("file_type: " + file_type[0])
 
     # Hashes of the file in list form
     all_hashes = get_hashes(path)
-    print("hashes: " + str(all_hashes))
 
     # Operating System
-    operating_system = [str(platform.platform())]
-    print("os: " + operating_system[0])
+    operating_system = [str(iso_name)]
 
     # Source iso
     source_iso_data = [str(iso_name)]
-    print("source_iso_name: " + source_iso_data[0])
 
     data_fields = {
         "name": curr_filename,
@@ -98,14 +91,22 @@ def get_metadata(path: Path, iso_name: str) -> dict[str, Any]:
         "operating_system": operating_system,
         "header_info": {},
     }
+    if debug:
+        print("name: " + curr_filename[0])
+        print("extension: " + extension[0])
+        print("file_type: " + file_type[0])
+        print("hashes: " + str(all_hashes))
+        print("os: " + operating_system[0])
+        print("source_iso_name: " + source_iso_data[0])
 
     try:
         if extension[0] == ".exe" or extension[0] == ".dll":
-            data_fields["header_info"] = get_all_exe_metadata(path)
+            data_fields["header_info"] = get_all_exe_metadata(path, debug)
+        else:
+            print("\n")
 
     except (PEFormatError):
         print("This program cannot read an NE file.")
-    print("\n")
 
     return data_fields
 
@@ -182,7 +183,7 @@ def get_file_type(file: Path) -> str:
 
 
 @app.command()
-def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
+def get_all_exe_metadata(exe_file: Path, debug: Optional[bool] = False) -> dict[str, Any]:
     """
     Obtain all exe specific metadata and returns in dictionary format.
 
@@ -200,17 +201,14 @@ def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
     binary_hash = ["md5", "sha1", "sha256", "sha512"]
     for hash in binary_hash:
         all_header_hash[hash] = pe_obj.get_rich_header_hash(algorithm=hash)
-    print("rich_pe_header_hash: " + str(all_header_hash))
 
     # header_signature
     sig = str(pe_obj.NT_HEADERS)
     sig_list = sig.split()
     signature = sig_list[sig_list.index("Signature:") + 1]
-    print("PE Signature: " + str(signature))
 
     # compile_time
     compile_time = "Time to compile file"
-    print("compile_time: " + compile_time)
 
     # timestamp
     file_header = str(pe_obj.FILE_HEADER)
@@ -220,11 +218,9 @@ def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
         timestamp += str(
             file_header_list[file_header_list.index("TimeDateStamp:") + num],
         )
-    print("PE_Timestamp: " + str(timestamp))
 
     # machine_type
     machine = file_header_list[file_header_list.index("Machine:") + 1]
-    print("machine_type: " + str(machine))
 
     exe_metadata = {
         "machine_type": machine,
@@ -233,6 +229,13 @@ def get_all_exe_metadata(exe_file: Path) -> dict[str, Any]:
         "signature": signature,
         "rich_header_hashes": all_header_hash,
     }
+    if debug:
+        print("machine_type: " + str(machine))
+        print("PE_Timestamp: " + str(timestamp))
+        print("compile_time: " + compile_time)
+        print("PE Signature: " + str(signature))
+        print("rich_pe_header_hash: " + str(all_header_hash))
+        print("\n")
 
     return exe_metadata
 
@@ -247,8 +250,8 @@ def unzip(path: Path) -> None:
             None
 
     """
-    os.system("mkdir -p unzippedvmdk")
-    string_name = "7z x " + str(path) + " -aoa -ounzippedvmdk"
+    os.system("mkdir -p extractedvmdk")
+    string_name = "7z x " + str(path) + " -aoa -oextractedvmdk"
     os.system(string_name)
 
 
@@ -266,9 +269,9 @@ def delete_folder(path: Path) -> None:
 
 
 @app.command()
-def unzip_files(path: Path, iso_name: str) -> None:
+def extract_files(path: Path, iso_name: str, debug: bool = typer.Option(False, is_flag=True)) -> None:
     """
-    Unzip vmdk and put in new folder.
+    Extract vmdk and put in new folder.
 
     Uses Pathlib library to access files.
 
@@ -281,19 +284,17 @@ def unzip_files(path: Path, iso_name: str) -> None:
     """
     unzip(path)
 
-    print(Path(str(os.getcwd() + "/unzippedvmdk")))
-
     if path.suffix == ".ntfs":
         os.system("rm " + str(path))
-    iterate_files(Path(str(os.getcwd() + "/unzippedvmdk")), iso_name)
+    iterate_files(Path(str(os.getcwd() + "/extractedvmdk")), iso_name, debug)
 
-    delete_folder(Path(str(os.getcwd() + "/unzippedvmdk")))
+    delete_folder(Path(str(os.getcwd() + "/extractedvmdk")))
 
 
 @app.command()
-def iterate_unzip(path: Path) -> None:
+def iterate_extract(path: Path, debug: bool = typer.Option(False, is_flag=True)) -> None:
     """
-    Iterate over vmdk folder and call unzip files function for each vmdk.
+    Iterate over vmdk folder and extracts files of each vmdk.
 
     Uses Pathlib library to access files.
 
@@ -301,18 +302,16 @@ def iterate_unzip(path: Path) -> None:
             path (Path): Absolute path of vmdk folder.
         Returns:
             None
-
     """
     for vmdk in path.glob("*"):
-        print(vmdk)
         get_iso = vmdk.name.split(".")
         curr_iso = get_iso[0]
-        unzip_files(vmdk, curr_iso)
+        extract_files(vmdk, curr_iso, debug)
 
 
 # function to iterate over files using pathlib
 @app.command()
-def iterate_files(path: Path, iso_name: str) -> None:
+def iterate_files(path: Path, iso_name: str, debug: bool = typer.Option(False, is_flag=True)) -> None:
     """
     Iterate over folder and call metadata function for each file.
 
@@ -329,16 +328,17 @@ def iterate_files(path: Path, iso_name: str) -> None:
 
     queue = []
     queue.append(root)
-
     while queue:
         curr_dir = queue.pop(0)
 
         for files in curr_dir.glob("*"):
             print(files)
             if files.suffix == ".ntfs":
-                unzip_files(files, iso_name)
+                extract_files(files, iso_name, debug)
             if files.is_file():
-                call_api(get_metadata(files, iso_name))
+                metadata = get_metadata(files, iso_name, debug)
+                if not debug:
+                    call_api(metadata)
             else:
                 queue.append(files)
 
