@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     """Settings class."""
 
     FILE_DIRECTORY: str = "/workspaces/darkmoon/darkmoon-cli/src/darkmoon_cli/win10vmdk"
-    API_URL: str = "http://127.0.0.1:8000"
+    API_URL: str = "http://172.16.5.3:8000"
 
     class Config:
         """Config class."""
