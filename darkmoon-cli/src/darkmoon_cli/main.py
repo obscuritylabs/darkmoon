@@ -327,7 +327,6 @@ def iterate_extract(
         extract_files(vmdk, curr_iso, debug)
 
 
-# function to iterate over files using pathlib
 @app.command()
 def iterate_files(
     path: Path,
