@@ -1,4 +1,4 @@
-"""Imports the modules/classes Field, BaseModel, and datetime."""
+"""Imports the modules/classes Field, BaseModel, and Optional."""
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -31,14 +31,10 @@ class Hashes(BaseModel):
 class HeaderInfo(BaseModel):
     """Holds HeaderInfo class properties for .exe files."""
 
-    # Known as 'PE Header' in darkmoon_cli/main.py
-
     machine_type: Optional[str] = Field(
         description="The machine type of the .exe file.",
         example="0x14c",
     )
-
-    # Called 'Last Modified' in darkmoon_cli/main.py.
 
     timestamp: Optional[str] = Field(
         description="timestap of file",
@@ -88,8 +84,6 @@ class Metadata(BaseModel):
         description="The operating system of the computer where the file is coming from.",
         example=["WindowsXP"],
     )
-
-    # Only for .exe files
 
     header_info: Optional[HeaderInfo] = Field(
         description="contains all the header information",

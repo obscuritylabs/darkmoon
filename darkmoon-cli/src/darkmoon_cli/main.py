@@ -13,6 +13,7 @@ import magic
 import pefile
 import requests
 import typer
+from magic import MagicException
 from pefile import PEFormatError
 
 from darkmoon_cli.settings import settings
@@ -53,7 +54,11 @@ def call_api(data: dict[str, Any]) -> None:
 
 
 @app.command()
-def get_metadata(path: Path, iso_name: str, debug: Optional[bool] = False) -> dict[str, Any]:
+def get_metadata(
+    path: Path,
+    iso_name: str,
+    debug: Optional[bool] = False,
+) -> dict[str, Any]:
     """
     Call all of the metadata functions and send data to api endpoint.
 
@@ -177,13 +182,19 @@ def get_file_type(file: Path) -> str:
         Returns:
             file_type_list[0]: first word of the returned string from the function
     """
-    file_type_string = magic.from_file(file)
-    file_type_list = file_type_string.split(",")
-    return str(file_type_list[0])
+    try:
+        file_type_string = magic.from_file(file)
+        file_type_list = file_type_string.split(",")
+        return str(file_type_list[0])
+    except (MagicException):
+        return ""
 
 
 @app.command()
-def get_all_exe_metadata(exe_file: Path, debug: Optional[bool] = False) -> dict[str, Any]:
+def get_all_exe_metadata(
+    exe_file: Path,
+    debug: Optional[bool] = False,
+) -> dict[str, Any]:
     """
     Obtain all exe specific metadata and returns in dictionary format.
 
@@ -269,7 +280,11 @@ def delete_folder(path: Path) -> None:
 
 
 @app.command()
-def extract_files(path: Path, iso_name: str, debug: bool = typer.Option(False, is_flag=True)) -> None:
+def extract_files(
+    path: Path,
+    iso_name: str,
+    debug: bool = typer.Option(False, is_flag=True),
+) -> None:
     """
     Extract vmdk and put in new folder.
 
@@ -292,7 +307,10 @@ def extract_files(path: Path, iso_name: str, debug: bool = typer.Option(False, i
 
 
 @app.command()
-def iterate_extract(path: Path, debug: bool = typer.Option(False, is_flag=True)) -> None:
+def iterate_extract(
+    path: Path,
+    debug: bool = typer.Option(False, is_flag=True),
+) -> None:
     """
     Iterate over vmdk folder and extracts files of each vmdk.
 
@@ -309,9 +327,12 @@ def iterate_extract(path: Path, debug: bool = typer.Option(False, is_flag=True))
         extract_files(vmdk, curr_iso, debug)
 
 
-# function to iterate over files using pathlib
 @app.command()
-def iterate_files(path: Path, iso_name: str, debug: bool = typer.Option(False, is_flag=True)) -> None:
+def iterate_files(
+    path: Path,
+    iso_name: str,
+    debug: bool = typer.Option(False, is_flag=True),
+) -> None:
     """
     Iterate over folder and call metadata function for each file.
 
