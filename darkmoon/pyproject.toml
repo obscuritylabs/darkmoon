@@ -32,17 +32,8 @@ motor = "^3.0.0"
 [tool.poetry.dev-dependencies]
 Faker = "^13.3.2"
 asgi-lifespan = "^1.0.1"
-autoflake = "^1.4"
 black = "^22.6.0"
 commitizen = "^2.20.4"
-flake8 = "^4.0.1"
-flake8-bugbear = "^22.3.20"
-flake8-commas = "^2.1.0"
-flake8-comprehensions = "^3.8.0"
-flake8-debugger = "^4.0.0"
-flake8-docstrings = "^1.6.0"
-flake8-eradicate = "^1.2.0"
-isort = "^5.10.1"
 mkdocs = "^1.2.3"
 mkdocs-awesome-pages-plugin = "^2.7.0"
 mkdocs-material = "^8.2.5"
@@ -55,6 +46,7 @@ pydantic-to-typescript = "^1.0.6"
 pytest = "^7.1.2"
 pytest-cov = "^2.11.1"
 pyupgrade = "^2.31.1"
+ruff = "^0.0.231"
 types-PyYAML = "^6.0.5"
 types-requests = "^2.27.14"
 
@@ -91,10 +83,6 @@ fail_under = 60
 show_missing = true
 skip_covered = true
 
-[tool.isort]
-line_length = 120
-profile = "black"
-
 [tool.mypy]
 allow_redefinition = true
 ignore_missing_imports = true
@@ -127,10 +115,34 @@ include = '\.pyi?$'
 line-length = 120
 target_versions = ['py310']
 
-[tool.flake8]
-docstring_style = "google"
-exclude = [".git", ".venv", "__pycache__", "build", "dist", "setup.py", "docs", "scripts"]
-extend-ignore = "E203,"
+[tool.ruff]
+select = ["E", "F", "S", "B", "COM", "D", "C4", "ERA", "DTZ", "I"]
+ignore = [
+  "B008",
+  "B904",
+  "B905",
+  "D100",
+  "D104",
+  "D107",
+  "D301",
+  "S106",
+  "S113",
+  "ERA001",
+]
+exclude = [
+  ".git",
+  ".venv",
+  "__pycache__",
+  "build",
+  "dist",
+  "setup.py",
+  "docs",
+  "scripts",
+]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.flake8-bugbear]
 extend-immutable-calls = [
   "fastapi.Depends",
   "fastapi.Header",
@@ -141,10 +153,19 @@ extend-immutable-calls = [
   "Body",
   "Header",
   "typer.Option",
-  "darkmoon.settings",
+  "pointbreak.settings",
   "settings",
 ]
-ignore = ["B506", "D100", "D104", "S101", "W504", "W503", "D301"]
+
+[tool.ruff.per-file-ignores]
+"tests/**/*.py" = ["D417", "S101"]
+
+[tool.ruff.mccabe]
 max-complexity = 10
-max_line_length = 120
-strictness = "full"
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.ruff.isort]
+force-wrap-aliases = false
+combine-as-imports = true

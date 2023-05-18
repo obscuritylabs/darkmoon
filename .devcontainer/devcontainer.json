@@ -26,9 +26,5 @@
 		"redhat.vscode-yaml",
 		"bungcip.better-toml"
 	],
-	"postCreateCommand": "make install",
-	"mounts": [
-		"type=volume,target=/workspaces/darkmoon/darkmoon/.venv",
-		"type=volume,target=/workspaces/darkmoon/darkmoon-cli/.venv"
-	]
+	"postCreateCommand": "make install"
 }
