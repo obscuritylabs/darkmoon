@@ -19,7 +19,7 @@ Calls all of the minor metadata-collecting functions in one place and formats it
 
 **Result:**
 
-+ Dictionary with the file metadata formatted for FastAPI POST request
++ Dictionary (string:Any) with the file metadata formatted for FastAPI POST request
 
 **Example:**
 
@@ -71,7 +71,7 @@ Obtains all the additional metadata needed for .exe and .dll files
 
 **Results:**
 
-+ A dictionary with all the metadata, including the unique types for .exe and .dll files, is returned
++ A dictionary (string:Any) with all the metadata, including the unique types for .exe and .dll files, is returned
 
 **Example:**
 
@@ -82,13 +82,26 @@ Gets the file type of a file
 
 **Arguments:**
 
-+ Path (Path)
++ File Path (Path)
 
 **Results:**
 
 + Returns the file type (the first word from the string returned by the function)
 
 **Example:**
+
+
+### get_hashes
+
+Gets the md5, sha1, sha256, and sha512 hashes from a file
+
+**Arguments:**
+
++ File Path (Path)
+
+**Results:**
+
++ Returns a dictionary (string:string) of the file's hashes.
 
 
 ### iterate_extract
