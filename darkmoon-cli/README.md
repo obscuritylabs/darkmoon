@@ -120,3 +120,58 @@ Iterates through a folder of operating systems and extracts their contents.
 **Example:**
 
 
+## Minor Functions
+
+These are functions that, although playing a part in the program, only serve as helper functions to the other two categories
+
+### delete_folder
+
+Deletes a folder. Used in-program to delete the folder containing the operating systems once all the files have been extracted and placed into another folder.
+
+**Arguments:**
+
++ File Path (Path)
+
+**Results:**
+
++ Returns "None"; deletes the specified folder
+
+**Example:**
+
+
+### extract_files
+
+Extracts the files from an operating system and places them in a new folder
+
+**Arguments:**
+
++ File Path (Path)
++ ISO Name (String)
++ Debug (Boolean) | OPTIONAL: Default is FALSE
+
+**Results:**
+
++ Returns "None"; the files are extracted from the operating system and placed in a new folder
+
+**Example:**
+
+
+### unzip
+
+Unzips the VMDK operating system files.
+
+**Arguments:**
+
++ File Path (Path)
+
+**Results:**
+
++ Returns "None"; unzips the operating system's VMDK file
+
+**Example:**
+
+
+
+
+
+
