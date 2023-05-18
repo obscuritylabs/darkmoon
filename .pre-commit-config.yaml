@@ -17,39 +17,24 @@ repos:
       - id: check-case-conflict
       - id: check-merge-conflict
 
-  - repo: https://github.com/myint/autoflake
-    rev: v1.4
-    hooks:
-      - id: autoflake
-        args:
-          [
-            "--in-place",
-            "--remove-unused-variables",
-            "--remove-all-unused-imports",
-          ]
+  # For when we add a frontend
+  # - repo: https://github.com/pre-commit/mirrors-prettier
+  #   rev: v3.0.0-alpha.0
+  #   hooks:
+  #     - id: prettier
+  #       name: prettier
+  #       types_or: [ts, tsx, javascript, jsx, json]
+  #       args:
+  #         [--config, frontend/.prettierrc, --ignore-path, frontend/.gitignore]
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.0.239"
     hooks:
-      - id: flake8
-        args: ["--config=darkmoon/.flake8"]
-        additional_dependencies:
-          - flake8-bugbear
-          - flake8-commas
-          - flake8-comprehensions
-          - flake8-debugger
-          - flake8-docstrings
-          - flake8-eradicate
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
-    hooks:
-      - id: isort
-        name: isort (python)
-        args: ["--profile", "black"]
+      - id: ruff
+        types: [python]
 
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.8.0
     hooks:
       - id: black
         args: ["-t", "py310"]

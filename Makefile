@@ -29,6 +29,11 @@ HELP_FUN = \
 help: ## Show all make targets.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
 
+.PHONY: clean
+clean: ##@clean Clean all dependencies for both projects.
+	@cd darkmoon && $(MAKE) clean
+	@cd darkmoon-cli && $(MAKE) clean
+
 
 # ================================================
 # Install
