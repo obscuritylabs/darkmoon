@@ -39,6 +39,7 @@ async def list_metadata(
         file_name (Optional[str]): The name of the file being searched. Is None by default.
         hash_type (Optional[str]): The type of hash. Is None by default.
         hash (Optional[str]): Hash of the file. Is None by default.
+
     Returns:
         documents (list[MetadataEntity]): List of all documents that match parameters in the database
 
@@ -86,6 +87,7 @@ async def upload_metadata(file: Metadata) -> None:
 
     Parameters:
         file (Metadata): The file that is uploaded to the database.
+
     Returns:
         None
 
