@@ -7,14 +7,6 @@
 .AppleDouble
 .LSOverride
 
-# static assets
-pointbreak/pointbreak/static/docs/*
-pointbreak/pointbreak/static/docs/.*
-!pointbreak/pointbreak/static/docs/.gitkeep
-pointbreak-*-openapi.json
-pointbreak-*-catalogRecord.json
-pointbreak-*-datasetRecord.json
-
 # Icon must end with two \r
 Icon
 
@@ -68,9 +60,6 @@ docker/ckan_*/**/*egg-info/*
 # Byte-compiled / optimized / DLL files
 __pycache__/*
 __pycache__/.*
-pointbreak/pointbreak/__pycache__/*
-pointbreak/pointbreak/__pycache__/.*
-pointbreak/pointbreak/__pycache__/__init__.cpython-39.pyc
 *.py[cod]
 *$py.class
 
@@ -188,7 +177,6 @@ ENV/
 env.bak/
 venv.bak/
 pythonenv*
-pointbreak/pointbreak/core/.env
 
 # Spyder project settings
 .spyderproject
