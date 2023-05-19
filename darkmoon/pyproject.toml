@@ -16,7 +16,7 @@ darkmoon = "darkmoon.main:cli_app"
 MarkupSafe = "2.0.0"
 aenum = "^3.1.11"
 asyncio = "^3.4.3"
-fastapi = {version = "^0.78.0", extras = ["all"]}
+fastapi = {version = "^0.95.0", extras = ["all"]}
 fastapi-mail = "^0.4.1"
 loguru = "^0.5.3"
 pydantic = {extras = ["dotenv"], version = "^1.8.2"}
@@ -153,7 +153,6 @@ extend-immutable-calls = [
   "Body",
   "Header",
   "typer.Option",
-  "pointbreak.settings",
   "settings",
 ]
 
