@@ -66,7 +66,8 @@ def get_metadata(
             path (Path): The path of the file that metadata will be extracted from.
             iso_name (str): The source ISO.
         Returns:
-            data_fields (dict[str,str]): The dictionay with file metadata formatted for api post request.
+            data_fields (dict[str,str]): The dictionary with
+                file metadata formatted for api post request.
 
     """
     # name of the file
@@ -154,20 +155,6 @@ def get_hashes(path: Path) -> dict[str, str]:
 
     # return the hex digest
     return all_hashes
-
-
-@app.command()
-def get_source_iso() -> str:
-    """
-    Extract source ISO metadata.
-
-        Parameters:
-            None
-        Returns:
-            String
-
-    """
-    return ""
 
 
 @app.command()
