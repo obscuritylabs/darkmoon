@@ -26,5 +26,5 @@
 		"redhat.vscode-yaml",
 		"bungcip.better-toml"
 	],
-	"postCreateCommand": "make install"
+	"postCreateCommand": "make install",
 }

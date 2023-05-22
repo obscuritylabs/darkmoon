@@ -11,6 +11,8 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100
 
+USER vscode
+
 FROM darkmoon-base AS darkmoon-builder
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc libffi-dev g++ libxml2-dev libxslt-dev python3-dev && \
