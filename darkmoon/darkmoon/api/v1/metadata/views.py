@@ -9,8 +9,8 @@ from typing import Optional
 from bson.objectid import ObjectId
 from fastapi import APIRouter, HTTPException
 
-from core.database import collection
 from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
+from darkmoon.core.database import collection
 
 ####################
 # GLOBAL VARIABLES #
