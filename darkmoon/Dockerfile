@@ -19,7 +19,7 @@ RUN pip install poetry
 COPY pyproject.toml poetry.lock ./
 RUN poetry export --without-hashes -f requirements.txt -o requirements.txt
 RUN pip install -r requirements.txt
-COPY src .
+COPY . .
 RUN poetry build && pip install dist/*.whl
 
 FROM darkmoon-base AS runner
