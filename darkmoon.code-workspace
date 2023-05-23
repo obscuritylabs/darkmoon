@@ -5,7 +5,7 @@
             "path": "."
         },
         {
-            "path": "./darkmoon"
+            "path": "./server"
         },
         {
             "path": "./darkmoon-cli"

@@ -31,7 +31,7 @@ help: ## Show all make targets.
 
 .PHONY: clean
 clean: ##@clean Clean all dependencies for both projects.
-	@cd darkmoon && $(MAKE) clean
+	@cd server && $(MAKE) clean
 	@cd darkmoon-cli && $(MAKE) clean
 
 
@@ -41,14 +41,14 @@ clean: ##@clean Clean all dependencies for both projects.
 
 .PHONY: install
 install: ##@install Install all dependencies for both projects and setup pre-commit.
-	@cd darkmoon && \
+	@cd server && \
 		$(MAKE) install && \
 		poetry run pre-commit install --install-hooks -t commit-msg  -t pre-commit
 	@cd darkmoon-cli && $(MAKE) install-dev
 
 .PHONY: install-dev
 install-dev: ##@install Install only dev dependencies for both projects and setup pre-commit.
-	@cd darkmoon && \
+	@cd server && \
 		$(MAKE) install-dev && \
 		poetry run pre-commit install --install-hooks -t commit-msg  -t pre-commit
 	@cd darkmoon-cli && $(MAKE) install-dev
@@ -59,5 +59,5 @@ install-dev: ##@install Install only dev dependencies for both projects and setu
 
 .PHONY: pre-commit
 pre-commit: ##@pre-commit Run pre-commit hooks on all files.
-	@cd darkmoon && poetry run pre-commit run --all-files
+	@cd server && poetry run pre-commit run --all-files
 	@cd darkmoon-cli && poetry run pre-commit run --all-files
