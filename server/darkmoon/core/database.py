@@ -12,7 +12,7 @@ from darkmoon.settings import settings
 # GLOBAL VARIABLES #
 ####################
 
-conn = settings.DATABASE_URL
+conn = settings.mongo_DSN()
 client = AsyncIOMotorClient(conn, serverSelectionTimeoutMS=5000)
 
 db = client.darkmoon
