@@ -8,7 +8,7 @@ version: "1.0"
 services:
   darkmoon:
     build:
-      context: ./darkmoon
+      context: ./server
       dockerfile: Dockerfile
       target: runner
     image: darkmoon:latest
@@ -18,7 +18,7 @@ services:
       - MONGO_HOST=mongodb
     volumes:
       - type: bind
-        source: ./darkmoon
+        source: ./server
         target: /opt/app
       - /opt/app/.venv
   mongodb:
