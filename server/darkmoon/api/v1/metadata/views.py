@@ -1,4 +1,4 @@
-"""This is the main.py file."""
+"""This is the router file."""
 
 ###########
 # IMPORTS #
@@ -7,27 +7,23 @@
 from typing import Optional
 
 from bson.objectid import ObjectId
-from fastapi import FastAPI, HTTPException
-from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi import APIRouter, HTTPException
 
-from darkmoon.server.database import collection
-from darkmoon.server.schema import Metadata, MetadataEntity
-from darkmoon.settings import settings
+from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
+from darkmoon.core.database import collection
 
 ####################
 # GLOBAL VARIABLES #
 ####################
 
-conn = settings.DATABASE_URL
-client = AsyncIOMotorClient(conn, serverSelectionTimeoutMS=5000)
-app = FastAPI()
+router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 #############
 # FUNCTIONS #
 #############
 
 
-@app.get("/metadata")
+@router.get("/")
 async def list_metadata(
     file_name: Optional[str] = None,
     hash_type: Optional[str] = None,
@@ -39,6 +35,7 @@ async def list_metadata(
         file_name (Optional[str]): The name of the file being searched. Is None by default.
         hash_type (Optional[str]): The type of hash. Is None by default.
         hash (Optional[str]): Hash of the file. Is None by default.
+
     Returns:
         documents (list[MetadataEntity]): List of all documents that match parameters in the database
 
@@ -60,7 +57,7 @@ async def list_metadata(
     return documents
 
 
-@app.get("/metadata/{id}")
+@router.get("/{id}")
 async def get_metadata_by_id(id: str) -> MetadataEntity:
     """Return file by ObjectID in MongoDB.
 
@@ -80,12 +77,13 @@ async def get_metadata_by_id(id: str) -> MetadataEntity:
     return document
 
 
-@app.post("/metadata")
+@router.post("/")
 async def upload_metadata(file: Metadata) -> None:
     """Fast API POST function for incoming files.
 
     Parameters:
         file (Metadata): The file that is uploaded to the database.
+
     Returns:
         None
 
