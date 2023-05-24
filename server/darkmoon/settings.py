@@ -4,10 +4,9 @@
 # IMPORTS #
 ###########
 
-import os
 
 from dotenv import load_dotenv
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 #############
 # FUNCTIONS #
@@ -23,11 +22,11 @@ load_dotenv()
 class Settings(BaseSettings):
     """Settings class."""
 
-    scheme = str(os.getenv("SCHEME"))
-    ipv4 = str(os.getenv("IP_ADDRESS"))
-    port = str(os.getenv("PORT"))
-    user = str(os.getenv("DATABASE_USERNAME"))
-    password = str(os.getenv("DATABASE_PASSWORD"))
+    scheme: str = Field(..., env="SCHEME")
+    ipv4: str = Field(..., env="IP_ADDRESS")
+    port: str = Field(..., env="PORT")
+    user: str = Field(..., env="DATABASE_USERNAME")
+    password: str = Field(..., env="DATABASE_PASSWORD")
 
     class Config:
         """Config class."""
