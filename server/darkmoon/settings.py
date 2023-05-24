@@ -6,7 +6,7 @@
 
 
 from dotenv import load_dotenv
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings
 
 #############
 # FUNCTIONS #
@@ -22,11 +22,11 @@ load_dotenv()
 class Settings(BaseSettings):
     """Settings class."""
 
-    scheme: str = Field(..., env="SCHEME")
-    ipv4: str = Field(..., env="IP_ADDRESS")
-    port: str = Field(..., env="PORT")
-    user: str = Field(..., env="DATABASE_USERNAME")
-    password: str = Field(..., env="DATABASE_PASSWORD")
+    SCHEME: str
+    IP_ADDRESS: str
+    PORT: str
+    USERNAME: str
+    PASSWORD: str
 
     class Config:
         """Config class."""
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     def mongo_DSN(self) -> str:
         """DSN_Model class."""
-        return f"{self.scheme}://{self.user}:{self.password}@{self.ipv4}:{self.port}/?authMechanism=DEFAULT"
+        return f"{self.SCHEME}://{self.USERNAME}:{self.PASSWORD}@{self.IP_ADDRESS}:{self.PORT}/?authMechanism=DEFAULT"
 
 
 #############
