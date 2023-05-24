@@ -5,6 +5,8 @@
 ###########
 
 
+from ipaddress import IPv4Address
+
 from dotenv import load_dotenv
 from pydantic import BaseSettings
 
@@ -23,8 +25,8 @@ class Settings(BaseSettings):
     """Settings class."""
 
     SCHEME: str
-    IP_ADDRESS: str
-    PORT: str
+    IP_ADDRESS: IPv4Address
+    PORT: int
     USERNAME: str
     PASSWORD: str
 
