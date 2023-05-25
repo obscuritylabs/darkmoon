@@ -1,17 +1,24 @@
 """Statement imports libraries."""
-from pydantic import BaseSettings
+
+###########
+# IMPORTS #
+###########
+
+from pydantic import BaseSettings, MongoDsn
+
+###########
+# CLASSES #
+###########
 
 
 class Settings(BaseSettings):
-    """Settings class."""
+    """The Settings class."""
 
-    DATABASE_URL: str = "mongodb://darkmoon:password@172.16.5.3/"
+    MONGODB_CONNECTION_STRING: MongoDsn
 
-    class Config:
-        """Config class."""
 
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
+#############
+# VARIABLES #
+#############
 
 settings = Settings()

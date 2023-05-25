@@ -16,6 +16,7 @@ services:
       - 8000:8000
     environment:
       - MONGO_HOST=mongodb
+      - MONGODB_CONNECTION_STRING=${MONGODB_URL}
     volumes:
       - type: bind
         source: ./server
