@@ -35,3 +35,6 @@ Temporary Items
 .vscode/configurationCache.log
 .vscode/dryrun.log
 .vscode/targets.log
+
+# Environments
+.env

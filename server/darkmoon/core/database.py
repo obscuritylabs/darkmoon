@@ -12,8 +12,7 @@ from darkmoon.settings import settings
 # GLOBAL VARIABLES #
 ####################
 
-conn = settings.mongo_DSN()
-client = AsyncIOMotorClient(conn, serverSelectionTimeoutMS=5000)
+client = AsyncIOMotorClient(settings.MONGODB_CONNECTION_STRING, serverSelectionTimeoutMS=5000)
 
 db = client.darkmoon
 collection = db.get_collection(name="FileMetadata")
