@@ -41,8 +41,8 @@ clean: ## Clean all development artifacts.
 
 .PHONY: install
 install: ##@install Install all dependencies.
-	@poetry install --no-interaction
-	@if [ ! -f .env ]; then cp TEMPLATE.env .env; fi
+	@poetry install --no-interaction && \
+	poetry run pre-commit install --install-hooks -t commit-msg  -t pre-commit
 
 .PHONY: install-dev
 install-dev: ##@install Install only dev dependencies.
