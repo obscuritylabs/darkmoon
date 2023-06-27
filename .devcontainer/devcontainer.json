@@ -17,5 +17,5 @@
 		"terminal.integrated.defaultProfile.linux": "zsh",
 		"remote.containers.copyGitConfig": true
 	},
-	"postCreateCommand": "make install",
+	"postCreateCommand": "make install"
 }

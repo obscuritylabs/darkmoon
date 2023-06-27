@@ -130,8 +130,8 @@ def get_hashes(path: Path) -> dict[str, str]:
         hash_dict (dict{str:str}): List of all hashes.
 
     """
-    h_md5 = hashlib.md5()
-    h_sha1 = hashlib.sha1()
+    h_md5 = hashlib.md5()  # noqa S324
+    h_sha1 = hashlib.sha1()  # noqa S324
     h_sha256 = hashlib.sha256()
     h_sha512 = hashlib.sha512()
 
