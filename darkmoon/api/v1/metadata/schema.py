@@ -97,6 +97,7 @@ class MetadataEntity(BaseModel):
     id: str = Field(
         description="ID",
         example="1",
+        alias="_id",
     )
     name: list[str] = Field(
         description="name of file",

@@ -8,7 +8,7 @@ from typing import Optional
 
 import bson
 from bson.objectid import ObjectId
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -36,6 +36,8 @@ async def list_metadata(
     file_name: Optional[str] = None,
     hash_type: Optional[str] = None,
     hash: Optional[str] = None,
+    page: int = Query(0, ge=0, description="The page to iterate to."),
+    length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
     """Return list of metadata that matches the parameters in the database.
 
@@ -50,7 +52,6 @@ async def list_metadata(
             parameters in the database
 
     """
-    documents = []
     search = {}
 
     try:
@@ -63,10 +64,8 @@ async def list_metadata(
             raise HTTPException(status_code=400, detail="Enter hash")
         elif hash:
             raise HTTPException(status_code=400, detail="Enter hash type")
-        async for doc in collection.find(search):
-            doc["id"] = str(doc["_id"])
-            documents.append(MetadataEntity(**doc))
-        return documents
+        data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
+        return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
         raise HTTPException(
@@ -95,7 +94,6 @@ async def get_metadata_by_id(
     try:
         doc = await collection.find_one({"_id": ObjectId(id)})
         if doc:
-            doc["id"] = str(doc["_id"])
             document = MetadataEntity(**doc)
         else:
             raise HTTPException(status_code=404, detail="Item not found")
@@ -110,7 +108,7 @@ async def get_metadata_by_id(
                 "Check the IP Address and the server name.",
             ),
         )
-    except bson.errors.InvalidId:
+    except bson.errors.InvalidId:  # type: ignore
         raise HTTPException(
             status_code=400,
             detail=(
@@ -160,7 +158,6 @@ async def upload_metadata(
 
         doc = await collection.find_one(duplicate_hashes)
         if doc:
-            doc["id"] = str(doc["_id"])
             document = MetadataEntity(**doc)
 
             data_type = [

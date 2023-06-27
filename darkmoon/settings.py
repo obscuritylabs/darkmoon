@@ -9,4 +9,4 @@ from pydantic import BaseSettings, Field, MongoDsn
 class Settings(BaseSettings):
     """The Settings class."""
 
-    MONGODB_CONN: MongoDsn = Field(default="mongodb://localhost:27017/")  # type: ignore
+    MONGODB_CONN: MongoDsn = Field(default="mongodb://darkmoon:password@localhost:27017/?authMechanism=DEFAULT")  # type: ignore  # noqa
