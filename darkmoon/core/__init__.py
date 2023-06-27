@@ -3,5 +3,4 @@
 # All rights reserved. No warranty, explicit or implicit, provided.
 # Proprietary and confidential.
 
-**/Dockerfile
-**/dist
+__version__ = 1

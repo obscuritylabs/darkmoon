@@ -1,0 +1,17 @@
+{
+    "recommendations": [
+        "ms-python.black-formatter",
+        "bungcip.better-toml",
+        "ms-vscode-remote.remote-containers",
+        "ms-azuretools.vscode-docker",
+        "mikestead.dotenv",
+        "ms-python.isort",
+        "ms-vscode.makefile-tools",
+        "ms-python.vscode-pylance",
+        "cameron.vscode-pytest",
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "redhat.vscode-yaml",
+        "streetsidesoftware.code-spell-checker"
+    ]
+}

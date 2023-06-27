@@ -17,14 +17,5 @@
 		"terminal.integrated.defaultProfile.linux": "zsh",
 		"remote.containers.copyGitConfig": true
 	},
-	"extensions": [
-		"ms-python.python",
-		"ms-python.vscode-pylance",
-		"ms-azuretools.vscode-docker",
-		"davidanson.vscode-markdownlint",
-		"dbaeumer.vscode-eslint",
-		"redhat.vscode-yaml",
-		"bungcip.better-toml"
-	],
 	"postCreateCommand": "make install",
 }

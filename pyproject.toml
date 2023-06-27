@@ -1,0 +1,170 @@
+[tool.poetry]
+name = "darkmoon"
+version = "0.0.2"
+authors = ["Obscurity Labs"]
+description = "Project DarkMoon - CLI tool"
+readme = "README.md"
+
+[tool.poetry.scripts]
+darkmoon = "darkmoon.main:cli_app"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = {version = "^0.95.0", extras = ["all"]}
+typer = {version = "^0.4.1", extras = ["all"]}
+types-requests = "^2.27.13"
+future = "^0.18.2"
+python-magic = "^0.4.27"
+requests = "^2.31.0"
+motor = "^3.0.0"
+httpx = "^0.24.1"
+uvicorn = "^0.22.0"
+pydantic = { extras = ["dotenv"], version = "^1.10.2" }
+pefile = "^2023.2.7"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.6.0"
+commitizen = "^2.20.4"
+mkdocs = "^1.2.3"
+mkdocs-awesome-pages-plugin = "^2.7.0"
+mkdocs-material = "^8.2.5"
+mkdocs-minify-plugin = "^0.5.0"
+mkdocstrings = "^0.18.1"
+mypy = "^0.982"
+pre-commit = "^2.17.0"
+pytest = "^7.1.2"
+pytest-cov = "^2.11.1"
+pytest-asyncio = "^0.21.0"
+pyupgrade = "^2.31.1"
+ruff = "^0.0.231"
+motor-types = "^1.0.0b2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::RuntimeWarning",
+]
+markers = [
+  "unit",
+  "integration",
+]
+testpaths = [
+  "tests",
+]
+pythonpath = [
+  ".",
+]
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "**/tests/**",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+]
+fail_under = 60
+show_missing = true
+skip_covered = true
+
+[tool.mypy]
+allow_redefinition = true
+ignore_missing_imports = true
+no_warn_unused_ignores = true
+strict = true
+strict_optional = false
+plugins = [
+  "pydantic.mypy"
+]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+[tool.black]
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | static
+    | docs
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
+include = '\.pyi?$'
+target_versions = ['py310']
+
+[tool.ruff]
+select = ["E", "F", "S", "B", "COM", "D", "C4", "ERA", "DTZ", "I"]
+ignore = [
+  "B008",
+  "B904",
+  "B905",
+  "D100",
+  "D104",
+  "D107",
+  "D301",
+  "S106",
+  "S113",
+  "S324",
+  "ERA001",
+]
+exclude = [
+  ".git",
+  ".venv",
+  "__pycache__",
+  "build",
+  "dist",
+  "setup.py",
+  "docs",
+  "scripts",
+]
+target-version = "py310"
+
+[tool.ruff.flake8-bugbear]
+extend-immutable-calls = [
+  "fastapi.Depends",
+  "fastapi.Header",
+  "fastapi.Path",
+  "Depends",
+  "fastapi.params.Depends",
+  "Query",
+  "Body",
+  "Header",
+  "typer.Option",
+  "settings",
+]
+
+[tool.ruff.per-file-ignores]
+"tests/**/*.py" = ["D417", "S101"]
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.ruff.isort]
+force-wrap-aliases = false
+combine-as-imports = true

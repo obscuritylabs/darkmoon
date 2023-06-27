@@ -1,32 +1,19 @@
 {
-    "python.defaultInterpreterPath": "darkmoon/.venv/bin/python",
-    "python.terminal.activateEnvInCurrentTerminal": true,
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Path": "darkmoon/.venv/bin/flake8",
     "python.linting.mypyEnabled": true,
-    "python.linting.mypyPath": "darkmoon/.venv/bin/mypy",
-    "python.linting.mypyArgs": [
-        "--cache-dir=.mypy_cache"
-    ],
     "python.analysis.typeCheckingMode": "basic",
     "python.formatting.provider": "black",
-    "python.sortImports.args": [
-        "--profile",
-        "black"
-    ],
-    "python.formatting.blackPath": "darkmoon/.venv/bin/black",
     "editor.formatOnSave": true,
     "[python]": {
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true
+            "source.fixAll": true
         }
     },
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.testing.pytestPath": "darkmoon/.venv/bin/pytest",
-    "python.testing.pytestArgs": [
-        "--rootdir="
+    "cSpell.words": [
+        "pefile"
     ]
+
 }

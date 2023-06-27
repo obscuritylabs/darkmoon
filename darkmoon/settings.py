@@ -3,5 +3,10 @@
 # All rights reserved. No warranty, explicit or implicit, provided.
 # Proprietary and confidential.
 
-**/Dockerfile
-**/dist
+from pydantic import BaseSettings, Field, MongoDsn
+
+
+class Settings(BaseSettings):
+    """The Settings class."""
+
+    MONGODB_CONN: MongoDsn = Field(default="mongodb://localhost:27017/")  # type: ignore

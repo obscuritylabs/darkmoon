@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
+# Copyright (C) 2023 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
 # Unauthorized copying of this file, via any medium is strictly prohibited.
 # All rights reserved. No warranty, explicit or implicit, provided.
 # Proprietary and confidential.
@@ -16,16 +16,6 @@ repos:
       - id: check-added-large-files
       - id: check-case-conflict
       - id: check-merge-conflict
-
-  # For when we add a frontend
-  # - repo: https://github.com/pre-commit/mirrors-prettier
-  #   rev: v3.0.0-alpha.0
-  #   hooks:
-  #     - id: prettier
-  #       name: prettier
-  #       types_or: [ts, tsx, javascript, jsx, json]
-  #       args:
-  #         [--config, frontend/.prettierrc, --ignore-path, frontend/.gitignore]
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: "v0.0.239"

@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
+# Copyright (C) 2023 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
 # Unauthorized copying of this file, via any medium is strictly prohibited.
 # All rights reserved. No warranty, explicit or implicit, provided.
 # Proprietary and confidential.
@@ -30,9 +30,9 @@ help: ## Show all make targets.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
 
 .PHONY: clean
-clean: ##@clean Clean all dependencies for both projects.
-	@cd server && $(MAKE) clean
-	@cd darkmoon-cli && $(MAKE) clean
+clean: ## Clean all development artifacts.
+	-find . -name "__pycache__" -type d -exec rm -rf {} \;
+	rm -rf .coverage .pytest_cache/ .venv/ coverage* .mypy_cache/
 
 
 # ================================================
@@ -40,18 +40,43 @@ clean: ##@clean Clean all dependencies for both projects.
 # ================================================
 
 .PHONY: install
-install: ##@install Install all dependencies for both projects and setup pre-commit.
-	@cd server && \
-		$(MAKE) install && \
-		poetry run pre-commit install --install-hooks -t commit-msg  -t pre-commit
-	@cd darkmoon-cli && $(MAKE) install-dev
+install: ##@install Install all dependencies.
+	@poetry install --no-interaction
+	@if [ ! -f .env ]; then cp TEMPLATE.env .env; fi
 
 .PHONY: install-dev
-install-dev: ##@install Install only dev dependencies for both projects and setup pre-commit.
-	@cd server && \
-		$(MAKE) install-dev && \
-		poetry run pre-commit install --install-hooks -t commit-msg  -t pre-commit
-	@cd darkmoon-cli && $(MAKE) install-dev
+install-dev: ##@install Install only dev dependencies.
+	@poetry install
+
+
+# ================================================
+# Check
+# ================================================
+
+.PHONY: check
+check: | check-lint check-format check-types ##@check Run all checks.
+
+.PHONY: check-lint
+check-lint: ##@check Check code linting (ruff).
+	@poetry run ruff .
+
+.PHONY: check-format
+check-format: ##@check Check code formatting (black).
+	@poetry run black --check .
+
+.PHONY: check-types
+check-types: ##@check Check code typing (mypy).
+	@poetry run mypy .
+
+
+# ================================================
+# Format
+# ================================================
+
+.PHONY: format
+format: ##@format Run auto-formatters against your code.
+	@poetry run ruff .
+
 
 # ================================================
 # Pre-commit
@@ -59,5 +84,22 @@ install-dev: ##@install Install only dev dependencies for both projects and setu
 
 .PHONY: pre-commit
 pre-commit: ##@pre-commit Run pre-commit hooks on all files.
-	@cd server && poetry run pre-commit run --all-files
-	@cd darkmoon-cli && poetry run pre-commit run --all-files
+	@poetry run pre-commit run --all-files
+
+
+# ================================================
+# Test
+# ================================================
+
+.PHONY: test
+test: ##@test Run unit tests.
+	@poetry run pytest -m unit --cov=darkmoon --cov-report=xml
+
+
+# ================================================
+# Run
+# ================================================
+
+.PHONY: run
+run: ##@run Run uvicorn application.
+	poetry run uvicorn darkmoon.app:app --reload --port 8000
