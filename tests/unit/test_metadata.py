@@ -4,10 +4,12 @@
 # IMPORTS #
 ###########
 
-import hashlib
 
 import pytest
+from faker import Faker
 from httpx import AsyncClient
+
+fake: Faker = Faker()
 
 #########
 # TESTS #
@@ -41,10 +43,10 @@ async def test_upload_metadata(client: AsyncClient) -> None:
         "file_extension": [".jpeg"],
         "file_type": ["exe"],
         "hashes": {
-            "md5": "5d41402abc4b2a76b9719d911017c592",
-            "sha1": "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
-            "sha256": hashlib.sha256(),
-            "sha512": hashlib.sha512(),
+            "md5": fake.md5(raw_output=False),
+            "sha1": fake.sha1(raw_output=False),
+            "sha256": fake.sha256(raw_output=False),
+            "sha512": fake.sha512(raw_output=False),
         },
         "source_iso_name": [""],
         "operating_system": ["WindowsXP"],

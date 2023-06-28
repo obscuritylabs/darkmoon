@@ -19,7 +19,7 @@ from darkmoon.settings import Settings
 
 
 @pytest.fixture
-async def client() -> AsyncGenerator[AsyncClient, None]:  # type: ignore
+async def client() -> AsyncGenerator[AsyncClient, None]:
     """Make the client."""
     app = get_app(Settings(MONGODB_CONN="mongodb://localhost:27017"))  # type: ignore
 
