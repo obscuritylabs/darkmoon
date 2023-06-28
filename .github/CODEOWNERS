@@ -6,7 +6,7 @@
 
 # https://github.com/probot/settings#security-implications
 
-.github/settings.yml p.maute
+.github/settings.yml @DoodlePooge
 
 # You can add other lines here to auto-assign reviewers
 
