@@ -659,7 +659,6 @@ optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
-python-dotenv = {version = ">=0.10.4", optional = true, markers = "extra == \"dotenv\""}
 typing-extensions = ">=4.2.0"
 
 [package.extras]
@@ -1116,7 +1115,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "66d5a57302897913429b1846a818cfa9440f027fee41016b0b8fd05289ad1f1e"
+content-hash = "6a5e9d64a3dda122c58b0bb084140245b09c35496724ff2ea0679b6356121731"
 
 [metadata.files]
 anyio = [
