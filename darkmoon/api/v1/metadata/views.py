@@ -4,10 +4,9 @@
 # IMPORTS #
 ###########
 
-from typing import Optional
 
 import bson
-from bson.objectid import ObjectId
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
@@ -33,9 +32,9 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 @router.get("/")
 async def list_metadata(
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-    file_name: Optional[str] = None,
-    hash_type: Optional[str] = None,
-    hash: Optional[str] = None,
+    file_name: str | None = None,
+    hash_type: str | None = None,
+    hash: str | None = None,
     page: int = Query(0, ge=0, description="The page to iterate to."),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
@@ -79,7 +78,7 @@ async def list_metadata(
 
 @router.get("/{id}")
 async def get_metadata_by_id(
-    id: str,
+    id: PydanticObjectId,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> MetadataEntity:
     """Return file by ObjectID in MongoDB.
@@ -92,7 +91,7 @@ async def get_metadata_by_id(
 
     """
     try:
-        doc = await collection.find_one({"_id": ObjectId(id)})
+        doc = await collection.find_one({"_id": id})
         if doc:
             document = MetadataEntity(**doc)
         else:
