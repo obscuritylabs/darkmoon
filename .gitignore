@@ -6,6 +6,5 @@ __pycache__/
 *.DS_Store
 
 
-#Environment
-.env
-.venv/
+#Coverage
+*coverage*
