@@ -4,6 +4,7 @@ version = "0.0.2"
 authors = ["Obscurity Labs"]
 description = "Project DarkMoon - CLI tool"
 readme = "README.md"
+license = "Proprietary"
 
 [tool.poetry.scripts]
 darkmoon = "darkmoon.main:cli_app"
