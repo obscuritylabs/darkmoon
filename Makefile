@@ -102,4 +102,4 @@ test: ##@test Run unit tests.
 
 .PHONY: run
 run: ##@run Run uvicorn application.
-	poetry run uvicorn darkmoon.app:app --reload --port 8000
+	poetry run uvicorn --factory darkmoon.app:get_app --reload --port 8000

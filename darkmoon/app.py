@@ -3,7 +3,6 @@
 # All rights reserved. No warranty, explicit or implicit, provided.
 # Proprietary and confidential.
 
-from typing import Optional
 
 from fastapi import FastAPI
 
@@ -12,7 +11,7 @@ from darkmoon.core.database import register_database
 from darkmoon.settings import Settings
 
 
-def get_app(settings: Optional[Settings] = None) -> FastAPI:
+def get_app(settings: Settings | None = None) -> FastAPI:
     """Return the FastAPI connection."""
     app_settings = settings or Settings()
 
@@ -22,6 +21,3 @@ def get_app(settings: Optional[Settings] = None) -> FastAPI:
 
     app.include_router(views.router)
     return app
-
-
-app = get_app()
