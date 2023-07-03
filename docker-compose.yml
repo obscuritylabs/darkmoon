@@ -1,28 +1,18 @@
-# Copyright (C) 2022 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
-# Unauthorized copying of this file, via any medium is strictly prohibited.
-# All rights reserved. No warranty, explicit or implicit, provided.
-# Proprietary and confidential.
-
-version: "1.0"
+version: "3"
 
 services:
   darkmoon:
     build:
-      context: ./darkmoon
-      dockerfile: Dockerfile
-      target: runner
-    image: darkmoon:latest
+      context: .
     ports:
       - 8000:8000
     environment:
-      - MONGO_HOST=mongodb
+      - MONGODB_CONN=mongodb://darkmoon:password@mongodb:27017/?authMechanism=DEFAULT
+      - UVICORN_RELOAD=true
     volumes:
-      - type: bind
-        source: ./darkmoon
-        target: /opt/app
-      - /opt/app/.venv
+      - ./darkmoon:/opt/app/darkmoon/
   mongodb:
-    image: mongo
+    image: mongo:6
     restart: always
     ports:
       - 27017:27017
