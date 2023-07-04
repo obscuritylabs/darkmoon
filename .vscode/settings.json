@@ -14,7 +14,8 @@
   "python.testing.pytestEnabled": true,
   "cSpell.words": [
     "anyio",
-    "pefile"
+    "pefile",
+    "typer"
   ]
 
 }
