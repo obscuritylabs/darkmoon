@@ -7,7 +7,7 @@
 import hashlib
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import magic
 import pefile
@@ -57,7 +57,7 @@ def call_api(data: dict[str, Any]) -> None:
 def get_metadata(
     path: Path,
     iso_name: str,
-    debug: Optional[bool] = False,
+    debug: bool | None = False,
 ) -> dict[str, Any]:
     """Call all of the metadata functions and send data to api endpoint.
 
@@ -192,7 +192,7 @@ def get_file_type(file: Path) -> str:
 @app.command()
 def get_all_exe_metadata(
     exe_file: Path,
-    debug: Optional[bool] = False,
+    debug: bool | None = False,
 ) -> dict[str, Any]:
     """Obtain all exe specific metadata and returns in dictionary format.
 

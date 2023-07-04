@@ -4,7 +4,7 @@
 # IMPORTS #
 ###########
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import pytest
 from asgi_lifespan import LifespanManager
