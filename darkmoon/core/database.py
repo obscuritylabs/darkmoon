@@ -3,7 +3,8 @@
 # All rights reserved. No warranty, explicit or implicit, provided.
 # Proprietary and confidential.
 
-from typing import Any, Callable, Coroutine
+from collections.abc import Callable, Coroutine
+from typing import Any
 
 from fastapi import FastAPI, Request
 from motor.motor_asyncio import (
