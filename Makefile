@@ -93,7 +93,7 @@ pre-commit: ##@pre-commit Run pre-commit hooks on all files.
 
 .PHONY: test
 test: ##@test Run unit tests.
-	@poetry run pytest -m unit --cov=darkmoon
+	@poetry run pytest -m unit
 
 
 # ================================================
