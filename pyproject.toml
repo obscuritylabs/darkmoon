@@ -93,7 +93,7 @@ include = '\.pyi?$'
 target_versions = ['py310']
 
 [tool.ruff]
-select = ["E", "F", "S", "B", "COM", "D", "C4", "ERA", "DTZ", "I", "UP"]
+select = ["E", "F", "S", "B", "COM", "D", "C4", "ERA", "DTZ", "I", "T20", "UP"]
 ignore = [
   "B008",
   "B904",
