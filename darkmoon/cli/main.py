@@ -1,9 +1,5 @@
 """This is the main.py file."""
 
-###########
-# IMPORTS #
-###########
-
 import hashlib
 import os
 from pathlib import Path
@@ -18,16 +14,7 @@ from pefile import PEFormatError
 
 from darkmoon.cli.settings import settings
 
-####################
-# GLOBAL VARIABLES #
-####################
-
 app = typer.Typer()
-
-
-#############
-# FUNCTIONS #
-#############
 
 
 def call_api(data: dict[str, Any]) -> None:
@@ -57,7 +44,7 @@ def call_api(data: dict[str, Any]) -> None:
 def get_metadata(
     path: Path,
     iso_name: str,
-    debug: bool | None = False,
+    debug: bool = False,
 ) -> dict[str, Any]:
     """Call all of the metadata functions and send data to api endpoint.
 
@@ -179,7 +166,7 @@ def get_file_type(file: Path) -> str:
 @app.command()
 def get_all_exe_metadata(
     exe_file: Path,
-    debug: bool | None = False,
+    debug: bool = False,
 ) -> dict[str, Any]:
     """Obtain all exe specific metadata and returns in dictionary format.
 
@@ -268,7 +255,7 @@ def delete_folder(path: Path) -> None:
 def extract_files(
     path: Path,
     iso_name: str,
-    debug: bool = typer.Option(False, is_flag=True),
+    debug: bool = False,
 ) -> None:
     """Extract vmdk and put in new folder.
 
@@ -294,7 +281,7 @@ def extract_files(
 @app.command()
 def iterate_extract(
     path: Path,
-    debug: bool = typer.Option(False, is_flag=True),
+    debug: bool = False,
 ) -> None:
     """Iterate over vmdk folder and extracts files of each vmdk.
 
@@ -316,7 +303,7 @@ def iterate_extract(
 def iterate_files(
     path: Path,
     iso_name: str,
-    debug: bool = typer.Option(False, is_flag=True),
+    debug: bool = False,
 ) -> None:
     """Iterate over folder and call metadata function for each file.
 

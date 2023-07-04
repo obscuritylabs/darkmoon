@@ -7,7 +7,7 @@ readme = "README.md"
 license = "Proprietary"
 
 [tool.poetry.scripts]
-darkmoon = "darkmoon.main:cli_app"
+darkmoon = "darkmoon.cli.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
