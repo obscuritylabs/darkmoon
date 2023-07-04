@@ -3,7 +3,7 @@
 import hashlib
 import os
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import magic
 import pefile
@@ -11,6 +11,7 @@ import requests
 import typer
 from magic import MagicException
 from pefile import PEFormatError
+from rich import print_json
 
 from darkmoon.cli.settings import settings
 
@@ -32,76 +33,56 @@ def call_api(data: dict[str, Any]) -> None:
     api_response.json()
     status = api_response.status_code
     if status == 200:
-        print("Working")
+        typer.echo("Working")
     elif status == 404:
-        print("Server not found")
+        typer.echo("Server not found")
     else:
-        print("Error: Not working")
-    print(status)
+        typer.echo("Error: Not working")
+    typer.echo(status)
 
 
 @app.command()
 def get_metadata(
-    path: Path,
-    iso_name: str,
-    debug: bool = False,
-) -> dict[str, Any]:
-    """Call all of the metadata functions and send data to api endpoint.
-
-    Parameters:
-        path (Path): The path of the file that metadata will be extracted from.
-        iso_name (str): The source ISO.
-
-    Returns:
-        data_fields (dict[str,str]): The dictionary with
-            file metadata formatted for api post request.
-
-    """
-    # name of the file
-    curr_filename = [str(path.name)]
-
-    # file extension
-    extension = [str(path.suffix)]
-
-    # file type
-    file_type = [str(get_file_type(path))]
-
-    # Hashes of the file in list form
-    all_hashes = get_hashes(path)
-
-    # Operating System
-    operating_system = [str(iso_name)]
-
-    # Source iso
-    source_iso_data = [str(iso_name)]
-
+    file: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ],
+    source_iso: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ],
+) -> None:
+    """Call all of the metadata functions and send data to api endpoint."""
+    file_extension = str(file.suffix)
     data_fields = {
-        "name": curr_filename,
-        "file_extension": extension,
-        "file_type": file_type,
-        "hashes": all_hashes,
-        "source_iso_name": source_iso_data,
-        "operating_system": operating_system,
+        "name": [str(file.name)],
+        "file_extension": [file_extension],
+        "file_type": [str(get_file_type(file))],
+        "hashes": get_hashes(file),
+        "source_iso_name": [str(source_iso.name)],
+        "operating_system": [str(source_iso.name)],
         "header_info": {},
     }
-    if debug:
-        print("name: " + curr_filename[0])
-        print("extension: " + extension[0])
-        print("file_type: " + file_type[0])
-        print("hashes: " + str(all_hashes))
-        print("os: " + operating_system[0])
-        print("source_iso_name: " + source_iso_data[0])
-
-    try:
-        if extension[0] == ".exe" or extension[0] == ".dll":
-            data_fields["header_info"] = get_all_exe_metadata(path, debug)
-        else:
-            print("\n")
-
-    except PEFormatError:
-        print("This program cannot read an NE file.")
-
-    return data_fields
+    if file_extension == ".exe" or file_extension == ".dll":
+        try:
+            data_fields["header_info"] = get_all_exe_metadata(source_iso)
+        except PEFormatError:
+            pass
+    print_json(data=data_fields, highlight=False, indent=None)
 
 
 @app.command()
@@ -213,12 +194,12 @@ def get_all_exe_metadata(
         "rich_header_hashes": all_header_hash,
     }
     if debug:
-        print("machine_type: " + str(machine))
-        print("PE_Timestamp: " + str(timestamp))
-        print("compile_time: " + compile_time)
-        print("PE Signature: " + str(signature))
-        print("rich_pe_header_hash: " + str(all_header_hash))
-        print("\n")
+        typer.echo("machine_type: " + str(machine))
+        typer.echo("PE_Timestamp: " + str(timestamp))
+        typer.echo("compile_time: " + compile_time)
+        typer.echo("PE Signature: " + str(signature))
+        typer.echo("rich_pe_header_hash: " + str(all_header_hash))
+        typer.echo("\n")
 
     return exe_metadata
 
@@ -325,11 +306,11 @@ def iterate_files(
         curr_dir = queue.pop(0)
 
         for files in curr_dir.glob("*"):
-            print(files)
+            typer.echo(files)
             if files.suffix == ".ntfs":
                 extract_files(files, iso_name, debug)
             if files.is_file():
-                metadata = get_metadata(files, iso_name, debug)
+                metadata = get_metadata(files, Path(iso_name))
                 if not debug:
                     call_api(metadata)
             else:
