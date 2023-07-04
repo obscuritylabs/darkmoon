@@ -111,7 +111,7 @@ def get_metadata(
         else:
             print("\n")
 
-    except (PEFormatError):
+    except PEFormatError:
         print("This program cannot read an NE file.")
 
     return data_fields
@@ -139,7 +139,6 @@ def get_hashes(path: Path) -> dict[str, str]:
     all_hashes: dict[str, str] = {}
 
     with open(path, "rb") as file:
-
         # read file in chunks and update hash
         while True:
             data = file.read(65536)
@@ -158,18 +157,6 @@ def get_hashes(path: Path) -> dict[str, str]:
 
 
 @app.command()
-def get_source_iso() -> str:
-    """Extract source ISO metadata.
-
-    Parameters:
-        None
-    Returns:
-        String.
-    """
-    return ""
-
-
-@app.command()
 def get_file_type(file: Path) -> str:
     """Get the file type of the file.
 
@@ -185,7 +172,7 @@ def get_file_type(file: Path) -> str:
         file_type_string = magic.from_file(file)
         file_type_list = file_type_string.split(",")
         return str(file_type_list[0])
-    except (MagicException):
+    except MagicException:
         return ""
 
 
