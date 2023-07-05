@@ -20,7 +20,7 @@ def test_get_metadata_file_data(test_3_first_file: Path, test_3_tar_zip: Path) -
     )
     assert result.exit_code == 0
     data = json.loads(result.stdout)
-    assert "._smalldll.dll" in data["name"]
+    assert "download-example.exe" == data["name"][0]
 
 
 def test_get_hashes(test_3_first_file: Path) -> None:
@@ -35,7 +35,7 @@ def test_get_hashes(test_3_first_file: Path) -> None:
     assert result.exit_code == 0
     data = json.loads(result.stdout)
     assert (
-        "00737a3a56f0dc2008510640690fc3e3b20bd75790dcaeea76ffa88e0be94052"
+        "956535c045d7c4c6fcbe5e71ca8abae4c0706ff28237311459fc6e022212dd08"
         == data["sha256"]
     )
 
@@ -50,7 +50,7 @@ def test_get_file_type(test_3_first_file: Path) -> None:
         ],
     )
     assert result.exit_code == 0
-    assert "AppleDouble encoded Macintosh file" in result.stdout
+    assert "PE32 executable (GUI) Intel 80386" in result.stdout
 
 
 def test_get_all_exe_metadata(test_3_first_exe: Path) -> None:

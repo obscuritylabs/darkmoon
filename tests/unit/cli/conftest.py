@@ -21,7 +21,9 @@ def test_3_files(tmp_path: Path, test_3_tar_zip: Path) -> list[Path]:
     path.mkdir()
     with tarfile.open(test_3_tar_zip) as f:
         f.extractall(path)
-    return [i for i in path.rglob("*") if i.is_file()]
+    return sorted(
+        i for i in path.rglob("*") if i.is_file() and not i.name.startswith(".")
+    )
 
 
 @pytest.fixture()
@@ -37,10 +39,6 @@ def test_3_first_exe(test_3_files: list[Path]) -> Path:
     # so we skip all the files that start with a dot.
     return next(
         iter(
-            i
-            for i in test_3_files
-            if i.is_file()
-            and i.suffix.lower().endswith("exe")
-            and not i.name.startswith(".")
+            i for i in test_3_files if i.is_file() and i.suffix.lower().endswith("exe")
         ),
     )
