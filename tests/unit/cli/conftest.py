@@ -28,3 +28,19 @@ def test_3_files(tmp_path: Path, test_3_tar_zip: Path) -> list[Path]:
 def test_3_first_file(test_3_files: list[Path]) -> Path:
     """The first file from the test 3 tar zip fixture."""
     return next(iter(test_3_files))
+
+
+@pytest.fixture()
+def test_3_first_exe(test_3_files: list[Path]) -> Path:
+    """The first file from the test 3 tar zip fixture."""
+    # Note: The first exe isn't actually a PE
+    # so we skip all the files that start with a dot.
+    return next(
+        iter(
+            i
+            for i in test_3_files
+            if i.is_file()
+            and i.suffix.lower().endswith("exe")
+            and not i.name.startswith(".")
+        ),
+    )

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -7,8 +8,8 @@ from darkmoon.cli.main import app
 runner = CliRunner()
 
 
-def test_get_metadata_file(test_3_first_file: Path, test_3_tar_zip: Path) -> None:
-    """Test that the get-metadata command is able to."""
+def test_get_metadata_file_data(test_3_first_file: Path, test_3_tar_zip: Path) -> None:
+    """Test that the get-metadata command is able to scan individual files."""
     result = runner.invoke(
         app,
         [
@@ -18,8 +19,53 @@ def test_get_metadata_file(test_3_first_file: Path, test_3_tar_zip: Path) -> Non
         ],
     )
     assert result.exit_code == 0
-    assert '"name": ["._smalldll.dll"]' in result.stdout
+    data = json.loads(result.stdout)
+    assert "._smalldll.dll" in data["name"]
+
+
+def test_get_hashes(test_3_first_file: Path) -> None:
+    """Test that the get-hashes command is able to get the hash of a file."""
+    result = runner.invoke(
+        app,
+        [
+            "get-hashes",
+            str(test_3_first_file),
+        ],
+    )
+    assert result.exit_code == 0
+    data = json.loads(result.stdout)
     assert (
-        '"sha256": "00737a3a56f0dc2008510640690fc3e3b20bd75790dcaeea76ffa88e0be94052"'
-        in result.stdout
+        "00737a3a56f0dc2008510640690fc3e3b20bd75790dcaeea76ffa88e0be94052"
+        == data["sha256"]
+    )
+
+
+def test_get_file_type(test_3_first_file: Path) -> None:
+    """Test that the get-file-type command is able to get the filetype of a file."""
+    result = runner.invoke(
+        app,
+        [
+            "get-file-type",
+            str(test_3_first_file),
+        ],
+    )
+    assert result.exit_code == 0
+    assert "AppleDouble encoded Macintosh file" in result.stdout
+
+
+def test_get_all_exe_metadata(test_3_first_exe: Path) -> None:
+    """Test that the get-all-exe-metadata command is able to."""
+    result = runner.invoke(
+        app,
+        [
+            "get-all-exe-metadata",
+            str(test_3_first_exe),
+        ],
+    )
+    assert result.exit_code == 0
+    data = json.loads(result.stdout)
+
+    assert (
+        "ba0fc8e8944cebce8d34d465df56373d056b316bd9b54329b9c77f070f6c9c62"
+        == data["rich_header_hashes"]["sha256"]
     )
