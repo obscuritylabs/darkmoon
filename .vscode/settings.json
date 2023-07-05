@@ -10,11 +10,14 @@
       "source.fixAll": true
     }
   },
+  "ruff.args": [
+    "--unfixable=F401,T20"
+  ],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
   "cSpell.words": [
     "anyio",
-    "pefile"
+    "pefile",
+    "typer"
   ]
-
 }
