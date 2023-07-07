@@ -134,7 +134,7 @@ class MetadataEntity(BaseModel):
 
 
 class Response(BaseModel):
-    """temp."""
+    """Sets model for other reponse types to inherit from."""
 
     message: str = Field(
         description="Base response model",
@@ -143,7 +143,7 @@ class Response(BaseModel):
 
 
 class UploadResponse(Response):
-    """temp."""
+    """Sets upload response requirements."""
 
     object: Metadata = Field(
         description="The object inserted or updated on the database",
