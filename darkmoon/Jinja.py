@@ -1,0 +1,35 @@
+# Copyright (C) 2023 Obscurity Labs LLC. <admin@obscuritylabs.com> - All Rights Reserved
+# Unauthorized copying of this file, via any medium is strictly prohibited.
+# All rights reserved. No warranty, explicit or implicit, provided.
+# Proprietary and confidential.
+
+
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, Response
+from fastapi.templating import Jinja2Templates
+
+import darkmoon.api.v1.metadata.views as views
+from darkmoon.core.database import register_database
+from darkmoon.settings import Settings
+
+app = FastAPI()
+
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/items/{id}", response_class=HTMLResponse)
+async def read_item(request: Request, id: str) -> Response:
+    """Read the request for response."""
+    return templates.TemplateResponse("item.html", {"request": request, "id": id})
+
+
+def get_app(settings: Settings | None = None) -> FastAPI:
+    """Return the FastAPI connection."""
+    app_settings = settings or Settings()
+
+    app = FastAPI()
+
+    app.on_event("startup")(register_database(app, str(app_settings.MONGODB_CONN)))
+
+    app.include_router(views.router)
+    return app
