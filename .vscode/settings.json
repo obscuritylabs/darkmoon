@@ -17,7 +17,10 @@
   "python.testing.pytestEnabled": true,
   "cSpell.words": [
     "anyio",
+    "darkmoon",
+    "fastapi",
     "pefile",
+    "templating",
     "typer"
   ]
 }

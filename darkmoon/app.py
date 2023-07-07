@@ -4,11 +4,23 @@
 # Proprietary and confidential.
 
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, Response
+from fastapi.templating import Jinja2Templates
 
 import darkmoon.api.v1.metadata.views as views
 from darkmoon.core.database import register_database
 from darkmoon.settings import Settings
+
+app = FastAPI()
+
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/items/{id}", response_class=HTMLResponse)
+async def read_item(request: Request, id: str) -> Response:
+    """Read the request for response."""
+    return templates.TemplateResponse("item.html", {"request": request, "id": id})
 
 
 def get_app(settings: Settings | None = None) -> FastAPI:
