@@ -131,3 +131,20 @@ class MetadataEntity(BaseModel):
         description="contains all the header information",
         example="",
     )
+
+
+class Response(BaseModel):
+    """temp."""
+
+    message: str = Field(
+        description="Base response model",
+        example="",
+    )
+
+
+class UploadResponse(Response):
+    """temp."""
+
+    object: Metadata = Field(
+        description="The object inserted or updated on the database",
+    )
