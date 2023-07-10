@@ -1,4 +1,4 @@
-"""Imports the modules/classes Field, BaseModel, and Optional."""
+"""Imports the modules/classes Field, BaseModel, and PydanticObjectId."""
 
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
@@ -57,7 +57,7 @@ class HeaderInfo(BaseModel):
 
 
 class Metadata(BaseModel):
-    """Sets incoming file requirements."""
+    """Sets the requirements for incoming files."""
 
     name: list[str] = Field(
         description="name of file",
@@ -92,7 +92,7 @@ class Metadata(BaseModel):
 
 
 class MetadataEntity(BaseModel):
-    """Sets outgoing file requirements."""
+    """Sets requirements for outgoing files."""
 
     id: PydanticObjectId = Field(
         description="ID",

@@ -20,14 +20,6 @@ from darkmoon.core.database import get_file_metadata_collection
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
 
-###########
-# CLASSES #
-
-
-#############
-# FUNCTIONS #
-#############
-
 
 @router.get("/")
 async def list_metadata(
