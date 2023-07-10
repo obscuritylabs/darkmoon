@@ -3,6 +3,8 @@
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
 
+"""Import module/class PydanticObjectID, BaseModel, and Field"""
+
 
 class Hashes(BaseModel):
     """Holds the hash info and is called in MetaData and MetaDataEntity."""
