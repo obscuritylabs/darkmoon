@@ -22,6 +22,7 @@ uvicorn = { extras = ["standard"], version = "^0.22.0" }
 python-magic = "^0.4.27"
 beanie = "^1.19.2"
 typer = { extras = ["all"], version = "^0.9.0" }
+schemathesis = "^3.19.5"
 
 [tool.poetry.group.dev.dependencies]
 black = "22.8.0"
