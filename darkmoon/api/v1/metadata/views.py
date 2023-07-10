@@ -5,7 +5,7 @@
 ###########
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -38,7 +38,7 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 @router.get("/")
 async def list_metadata(
-    inputs: str | dict[str, str],
+    fullHash: str = Query(example="sha256:sdlkfjksldklsdjsdfklj"),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     # file_name: str | None = None,
     # hash_type: str | None = None,
@@ -64,14 +64,25 @@ async def list_metadata(
     file_name = ""
     hash = ""
     hash_type = ""
-
-    if isinstance(inputs, str):
-        file_name = inputs
-    elif isinstance(inputs, dict):
-        hash = inputs["hash"]
-        hash_type = inputs["hash_type"]
-    else:
-        raise ServerNotFoundException()
+    if ":" not in fullHash:
+        raise HTTPException(
+            400,
+            (
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    split = fullHash.split(":")
+    if len(split) != 2:
+        raise HTTPException(
+            400,
+            (
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    hash_type = str(split[0])
+    hash = str(split[1])
 
     try:
         if file_name:
