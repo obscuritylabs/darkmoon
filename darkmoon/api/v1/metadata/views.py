@@ -9,11 +9,11 @@ from pymongo import errors
 from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
 from darkmoon.core.database import get_file_metadata_collection
 
-"""The code imports various modules and dependencies such as bson, PydanticObjectId from
+"""Import various modules and dependencies such as bson, PydanticObjectId from
  beanie, APIRouter, Depends, HTTPException, Query from fastapi, AsyncIOMotorCollection
  from motor.motor_asyncio, and errors from pymongo."""
 
-"""The code also imports darkmoon.api.v1.metadata.schema from Metadata, MetadataEntity
+"""Import darkmoon.api.v1.metadata.schema from Metadata, MetadataEntity
 and darkmoon.core.database from get_file_metadata_collection."""
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
@@ -28,7 +28,7 @@ async def list_metadata(
     page: int = Query(0, ge=0, description="The page to iterate to."),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
-    """Return list of metadata that matches the parameters in the database.
+    """List of metadata that matches the parameters in the database.
 
     Parameters:
         file_name (Optional[str]): The name of the file being
@@ -71,7 +71,7 @@ async def get_metadata_by_id(
     id: PydanticObjectId,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> MetadataEntity:
-    """Return file by ObjectID in MongoDB.
+    """Find file by ObjectID in MongoDB.
 
     Parameters:
         id (str): Unique id of specific entry in MongoDB
@@ -112,7 +112,7 @@ async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> None:
-    """Fast API POST function for incoming files.
+    """Fast API post function for incoming files.
 
     Parameters:
         file (Metadata): The file that is uploaded to the database.
