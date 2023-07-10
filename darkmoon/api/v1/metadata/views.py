@@ -1,9 +1,4 @@
-"""This is the router file."""
-
-###########
-# IMPORTS #
-###########
-
+"""This is the views.py file."""
 
 import bson
 from beanie import PydanticObjectId
@@ -14,19 +9,14 @@ from pymongo import errors
 from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
 from darkmoon.core.database import get_file_metadata_collection
 
-####################
-# GLOBAL VARIABLES #
-####################
+"""The code imports various modules and dependencies such as bson, PydanticObjectId from
+ beanie, APIRouter, Depends, HTTPException, Query from fastapi, AsyncIOMotorCollection
+ from motor.motor_asyncio, and errors from pymongo."""
+
+"""The code also imports darkmoon.api.v1.metadata.schema from Metadata, MetadataEntity
+and darkmoon.core.database from get_file_metadata_collection."""
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
-
-###########
-# CLASSES #
-
-
-#############
-# FUNCTIONS #
-#############
 
 
 @router.get("/")

@@ -17,7 +17,12 @@
   "python.testing.pytestEnabled": true,
   "cSpell.words": [
     "anyio",
+    "bson",
+    "fastapi",
     "pefile",
+    "Pydantic",
+    "pymongo",
+    "templating",
     "typer"
   ]
 }
