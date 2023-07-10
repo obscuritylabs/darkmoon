@@ -5,7 +5,7 @@ html {
 
 ::placeholder {
     font-size: 1em;
-    color: #000000;
+    color: black;
     padding: 5px;
 }
 
@@ -23,14 +23,15 @@ input {
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #173F5F;
+    color: #9d9c9c;
+    background-color: #000000e3;
 }
 
 form {
     max-width: 400px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #20639B;
+    background-color: #000000;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
@@ -51,7 +52,7 @@ input[type="file"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #808080;
+    border: 2px solid #808080;
     border-radius: 4px;
 }
 
@@ -59,7 +60,7 @@ input[type="submit"] {
     display: block;
     width: 100%;
     padding: 10px;
-    background-color: #444444;
+    background-color: #ff0000;
     color: #fff;
     border: none;
     border-radius: 4px;
