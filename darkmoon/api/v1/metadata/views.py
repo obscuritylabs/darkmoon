@@ -186,11 +186,11 @@ async def upload_metadata(
                 },
             }
             await collection.update_one(duplicate_hashes, change)
-            return UploadResponse(message="Successfully Updated Object", object=file)
+            return UploadResponse(message="Successfully Updated Object", data=file)
 
         else:
             await collection.insert_one(file_metadata)
-            return UploadResponse(message="Successfully Inserted Object", object=file)
+            return UploadResponse(message="Successfully Inserted Object", data=file)
 
     except errors.ServerSelectionTimeoutError:
         raise HTTPException(

@@ -138,13 +138,12 @@ class Response(BaseModel):
 
     message: str = Field(
         description="Base response model",
-        example="",
     )
 
 
 class UploadResponse(Response):
     """Sets upload response requirements."""
 
-    object: Metadata = Field(
+    data: Metadata = Field(
         description="The object inserted or updated on the database",
     )
