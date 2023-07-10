@@ -3,7 +3,6 @@
 ###########
 # IMPORTS #
 ###########
-
 import bson
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query
@@ -39,10 +38,11 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 @router.get("/")
 async def list_metadata(
+    inputs: str | dict[str, str],
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-    file_name: str | None = None,
-    hash_type: str | None = None,
-    hash: str | None = None,
+    # file_name: str | None = None,
+    # hash_type: str | None = None,
+    # hash: str | None = None,
     page: int = Query(0, ge=0, description="The page to iterate to."),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
@@ -60,6 +60,18 @@ async def list_metadata(
 
     """
     search = {}
+
+    file_name = ""
+    hash = ""
+    hash_type = ""
+
+    if isinstance(inputs, str):
+        file_name = inputs
+    elif isinstance(inputs, dict):
+        hash = inputs["hash"]
+        hash_type = inputs["hash_type"]
+    else:
+        raise ServerNotFoundException()
 
     try:
         if file_name:
