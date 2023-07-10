@@ -30,7 +30,7 @@ def register_database(
 
 
 async def get_file_metadata_collection(request: Request) -> AsyncIOMotorCollection:
-    """Make collection."""
+    """Make collection of file metadata."""
     client: AsyncIOMotorClient = request.app.client
     db: AsyncIOMotorDatabase = client.get_database("darkmoon")
     return db.get_collection("FieldMetadata")

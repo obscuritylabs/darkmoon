@@ -92,7 +92,7 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
 
 
 def get_metadata(file: Path, source_iso: Path) -> dict[str, Any]:
-    """Call all of the metadata functions and send data to api endpoint."""
+    """Call all of the metadata functions, return a dictionary of the data fields."""
     file_extension = str(file.suffix)
     data_fields = {
         "name": [str(file.name)],

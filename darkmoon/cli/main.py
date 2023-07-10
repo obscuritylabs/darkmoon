@@ -39,7 +39,7 @@ def get_metadata(
         ),
     ],
 ) -> None:
-    """Call all of the metadata functions and send data to api endpoint."""
+    """Call the get metadata function from utils.py and send data to api endpoint."""
     data_fields = utils.get_metadata(file, source_iso)
     print_json(data=data_fields, highlight=False, indent=None)
 
@@ -58,7 +58,7 @@ def get_hashes(
         ),
     ],
 ) -> None:
-    """Create a list of hashes for files."""
+    """Print a list of hashes for files using the get hashes function from utils.py."""
     print_json(data=utils.get_hashes(file), highlight=False, indent=None)
 
 
@@ -76,7 +76,7 @@ def get_file_type(
         ),
     ],
 ) -> None:
-    """Get the file type of the file."""
+    """Get and print the file type of the file."""
     typer.echo(utils.get_file_type(file))
 
 
@@ -94,7 +94,7 @@ def get_all_exe_metadata(
         ),
     ],
 ) -> None:
-    """Obtain all exe specific metadata and returns in dictionary format."""
+    """Obtain and print all exe specific metadata."""
     print_json(data=utils.get_all_exe_metadata(file), highlight=False, indent=None)
 
 
@@ -124,7 +124,7 @@ def extract_files(
     ],
     darkmoon_server_url: Path,
 ) -> None:
-    """Extract vmdk and put in new folder."""
+    """Extract vmdk and put in new folder, iterates through files in vmdk."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         with tarfile.open(file) as f:
             f.extractall(tmpdirname)
@@ -177,7 +177,7 @@ def iterate_files(
     ],
     darkmoon_server_url: Path,
 ) -> None:
-    """Iterate over folder and call metadata function for each file."""
+    """Iterate over folder and call metadata function for each file in the folder."""
     utils.iterate_files(path, source_iso, darkmoon_server_url)
 
 
