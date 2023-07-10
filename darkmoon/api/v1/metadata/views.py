@@ -11,12 +11,12 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
 from darkmoon.api.v1.metadata.Exception_Response import (
-    Duplicate_File_Exception,
-    Invalid_ID_Exception,
-    Item_Not_Found_Exception,
-    Missing_Hash_Exception,
-    Missing_Hash_Type_Exception,
-    Server_Not_Found_Exception,
+    DuplicateFileException,
+    InvalidIDException,
+    ItemNotFoundException,
+    MissingHashException,
+    MissingHashTypeException,
+    ServerNotFoundException,
 )
 from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
 from darkmoon.core.database import get_file_metadata_collection
@@ -68,14 +68,14 @@ async def list_metadata(
             hash_parameter = "hashes." + str(hash_type)
             search[hash_parameter] = hash
         elif hash_type:
-            raise Missing_Hash_Exception()
+            raise MissingHashException()
         elif hash:
-            raise Missing_Hash_Type_Exception()
+            raise MissingHashTypeException()
         data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
-        raise Server_Not_Found_Exception()
+        raise ServerNotFoundException()
 
 
 @router.get("/{id}")
@@ -97,15 +97,15 @@ async def get_metadata_by_id(
         if doc:
             document = MetadataEntity(**doc)
         else:
-            raise Item_Not_Found_Exception()
+            raise ItemNotFoundException()
 
         return document
 
     except errors.ServerSelectionTimeoutError:
-        raise Server_Not_Found_Exception()
+        raise ServerNotFoundException()
 
     except bson.errors.InvalidId:  # type: ignore
-        raise Invalid_ID_Exception()
+        raise InvalidIDException()
 
 
 @router.post("/")
@@ -143,7 +143,7 @@ async def upload_metadata(
     try:
         dup = await collection.find_one(check_dup)
         if dup:
-            raise Duplicate_File_Exception()
+            raise DuplicateFileException()
 
         doc = await collection.find_one(duplicate_hashes)
         if doc:
@@ -182,4 +182,4 @@ async def upload_metadata(
             await collection.insert_one(file_metadata)
 
     except errors.ServerSelectionTimeoutError:
-        raise Server_Not_Found_Exception()
+        raise ServerNotFoundException()

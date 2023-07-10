@@ -1,22 +1,22 @@
-class Missing_Hash_Exception(Exception):
+class MissingHashException(Exception):
     """Exception raised when a hash is missing."""
 
 
-class Missing_Hash_Type_Exception(Exception):
+class MissingHashTypeException(Exception):
     """Exception raised when a hash type is missing."""
 
 
-class Invalid_ID_Exception(Exception):
+class InvalidIDException(Exception):
     """Exception raised when an invalid ID is encountered."""
 
 
-class Server_Not_Found_Exception(Exception):
+class ServerNotFoundException(Exception):
     """Exception raised when the server is not found."""
 
 
-class Item_Not_Found_Exception(Exception):
+class ItemNotFoundException(Exception):
     """Exception raised when an item is not found."""
 
 
-class Duplicate_File_Exception(Exception):
+class DuplicateFileException(Exception):
     """Exception raised when a duplicate file is encountered."""
