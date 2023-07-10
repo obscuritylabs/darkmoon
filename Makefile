@@ -34,6 +34,11 @@ clean: ## Clean all development artifacts.
 	-find . -name "__pycache__" -type d -exec rm -rf {} \;
 	rm -rf .coverage .pytest_cache/ .venv/ coverage* .mypy_cache/
 
+.PHONY: docker-clean
+docker-clean: ## clean all docker cache and containers
+	@docker rm -f $(docker ps -a -q) && \
+	docker volume rm $(docker volume ls -q) && \
+	docker rmi -f $(docker images -aq)
 
 # ================================================
 # Install
