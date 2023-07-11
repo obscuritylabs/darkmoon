@@ -36,9 +36,9 @@ clean: ## Clean all development artifacts.
 
 .PHONY: docker-clean
 docker-clean: ## clean all docker cache and containers
-	@docker rm -f $(docker ps -a -q) && \
-	docker volume rm $(docker volume ls -q) && \
-	docker rmi -f $(docker images -aq)
+	@docker rm -f $$(docker ps -a -q)
+	@docker volume rm $$(docker volume ls -q)
+	@docker rmi -f $$(docker images -aq)
 
 # ================================================
 # Install
