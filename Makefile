@@ -97,7 +97,7 @@ pre-commit: ##@pre-commit Run pre-commit hooks on all files.
 # ================================================
 
 .PHONY: test
-test: ##@test Run unit tests.
+test: ##@test Run all tests.
 	@poetry run pytest
 
 
