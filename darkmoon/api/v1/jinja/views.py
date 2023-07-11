@@ -1,4 +1,4 @@
-from pathlib import Path
+import os
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, Response
@@ -6,11 +6,9 @@ from fastapi.templating import Jinja2Templates
 
 router = APIRouter(prefix="/webpages", tags=["webpages"])
 
-current_dir = Path(__file__).parent
-
-templates_dir = current_dir / "templates"
-
-templates = Jinja2Templates(directory=str(templates_dir))
+templates = Jinja2Templates(
+    directory=os.path.join(os.path.dirname(__file__), "templates"),
+)
 
 
 @router.get("/items/{id}", response_class=HTMLResponse)
