@@ -32,19 +32,16 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 @router.get("/")
 async def list_metadata(
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-    file_name: str | None = None,
-    hash_type: str | None = None,
-    hash: str | None = None,
+    fullHash: str = Query(example="sha256:sdlkfjksldklsdjsdfklj"),
     page: int = Query(0, ge=0, description="The page to iterate to."),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
     """Return list of metadata that matches the parameters in the database.
 
     Parameters:
-        file_name (Optional[str]): The name of the file being
-            searched. Is None by default.
-        hash_type (Optional[str]): The type of hash. Is None by default.
-        hash (Optional[str]): Hash of the file. Is None by default.
+        fullHash (Required[str]): The hash type and hash formatted like:
+            hashtype:hash
+            Ex: sha256:asdfasdkfjdslf
 
     Returns:
         documents (list[MetadataEntity]): List of all documents that match
@@ -53,9 +50,29 @@ async def list_metadata(
     """
     search = {}
 
+    hash = ""
+    hash_type = ""
+    if ":" not in fullHash:
+        raise HTTPException(
+            400,
+            (
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    split = fullHash.split(":")
+    if len(split) != 2:
+        raise HTTPException(
+            400,
+            (
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    hash_type = str(split[0])
+    hash = str(split[1])
+
     try:
-        if file_name:
-            search["name"] = file_name
         if hash and hash_type:
             hash_parameter = "hashes." + str(hash_type)
             search[hash_parameter] = hash
