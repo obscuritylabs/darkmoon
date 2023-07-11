@@ -3,12 +3,13 @@
   "python.linting.pylintEnabled": false,
   "python.linting.mypyEnabled": true,
   "python.analysis.typeCheckingMode": "basic",
-  "python.formatting.provider": "black",
+  "python.formatting.provider": "none",
   "editor.formatOnSave": true,
   "[python]": {
     "editor.codeActionsOnSave": {
       "source.fixAll": true
-    }
+    },
+    "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "ruff.args": [
     "--unfixable=F401,T20"

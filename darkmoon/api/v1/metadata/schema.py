@@ -1,8 +1,29 @@
 """Imports the modules/classes Field, BaseModel, Core Response model, and Optional."""
 from beanie import PydanticObjectId
+from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
 from darkmoon.core.schema import Response
+
+
+class ServerNotFoundException(HTTPException):
+    """Exception raised when the server is not found."""
+
+
+class ItemNotFoundException(HTTPException):
+    """Exception raised when an item is not found."""
+
+
+class DuplicateFileException(HTTPException):
+    """Exception raised when a duplicate file is encountered."""
+
+
+class IncorrectInputException(HTTPException):
+    """Exception raised when a input does not contain proper identifiers."""
+
+
+class InvalidIDException(HTTPException):
+    """Exception raised when an invalid ID is encountered."""
 
 
 class Hashes(BaseModel):
