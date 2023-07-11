@@ -18,7 +18,7 @@ from darkmoon.api.v1.metadata.Exception_Response import (
     MissingHashTypeException,
     ServerNotFoundException,
 )
-from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
+from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity, UploadResponse
 from darkmoon.core.database import get_file_metadata_collection
 
 ####################
@@ -112,7 +112,7 @@ async def get_metadata_by_id(
 async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
+) -> UploadResponse:
     """Fast API POST function for incoming files.
 
     Parameters:
@@ -177,9 +177,11 @@ async def upload_metadata(
                 },
             }
             await collection.update_one(duplicate_hashes, change)
+            return UploadResponse(message="Successfully Updated Object", data=file)
 
         else:
             await collection.insert_one(file_metadata)
+            return UploadResponse(message="Successfully Inserted Object", data=file)
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException()
