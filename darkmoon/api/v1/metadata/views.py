@@ -4,21 +4,28 @@
 # IMPORTS #
 ###########
 
-
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
 from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity, UploadResponse
 from darkmoon.core.database import get_file_metadata_collection
+from darkmoon.core.schema import (
+    DuplicateFileException,
+    IncorrectInputException,
+    InvalidIDException,
+    ItemNotFoundException,
+    ServerNotFoundException,
+)
 
 ####################
 # GLOBAL VARIABLES #
 ####################
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
+
 
 ###########
 # CLASSES #
@@ -60,20 +67,14 @@ async def list_metadata(
             hash_parameter = "hashes." + str(hash_type)
             search[hash_parameter] = hash
         elif hash_type:
-            raise HTTPException(status_code=400, detail="Enter hash")
+            raise IncorrectInputException(status_code=422, detail="Incorrect input.")
         elif hash:
-            raise HTTPException(status_code=400, detail="Enter hash type")
+            raise IncorrectInputException(status_code=422, detail="Incorrect input")
         data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
-        raise HTTPException(
-            status_code=408,
-            detail=(
-                "The computer can't find the server.",
-                "Check the IP Address and the server name.",
-            ),
-        )
+        raise ServerNotFoundException(status_code=504, detail="Server timed out")
 
 
 @router.get("/{id}")
@@ -95,26 +96,15 @@ async def get_metadata_by_id(
         if doc:
             document = MetadataEntity(**doc)
         else:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise ItemNotFoundException(status_code=404, detail="Item not found.")
 
         return document
 
     except errors.ServerSelectionTimeoutError:
-        raise HTTPException(
-            status_code=408,
-            detail=(
-                "The computer can't find the server.",
-                "Check the IP Address and the server name.",
-            ),
-        )
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
+
     except bson.errors.InvalidId:  # type: ignore
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "This is not a valid ID.",
-                "It must be a 12-byte input or a 24-character hex string.",
-            ),
-        )
+        raise InvalidIDException(status_code=400, detail="invalid ID")
 
 
 @router.post("/")
@@ -152,7 +142,7 @@ async def upload_metadata(
     try:
         dup = await collection.find_one(check_dup)
         if dup:
-            raise HTTPException(status_code=409, detail=("There is a duplicate file."))
+            raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
 
         doc = await collection.find_one(duplicate_hashes)
         if doc:
@@ -193,10 +183,4 @@ async def upload_metadata(
             return UploadResponse(message="Successfully Inserted Object", data=file)
 
     except errors.ServerSelectionTimeoutError:
-        raise HTTPException(
-            status_code=408,
-            detail=(
-                "The computer can't find the server.",
-                "Check the IP Address and the server name.",
-            ),
-        )
+        raise ServerNotFoundException(status_code=500, detail="Server not found.")
