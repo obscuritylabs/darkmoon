@@ -9,14 +9,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
-from darkmoon.api.v1.metadata.Exception_Response import (
-    DuplicateFileException,
-    InvalidIDException,
-    ItemNotFoundException,
-    MissingHashException,
-    MissingHashTypeException,
-    ServerNotFoundException,
-)
 from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
 from darkmoon.core.database import get_file_metadata_collection
 
@@ -91,14 +83,29 @@ async def list_metadata(
             hash_parameter = "hashes." + str(hash_type)
             search[hash_parameter] = hash
         elif hash_type:
-            raise MissingHashException()
+            raise HTTPException(
+                400,
+                (
+                    "Format hash information like this: ",
+                    "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+                ),
+            )
         elif hash:
-            raise MissingHashTypeException()
+            raise HTTPException(
+                400,
+                (
+                    "Format hash information like this: ",
+                    "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+                ),
+            )
         data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
-        raise ServerNotFoundException()
+        raise HTTPException(
+            504,
+            ("Server not found ",),
+        )
 
 
 @router.get("/{id}")
@@ -120,15 +127,33 @@ async def get_metadata_by_id(
         if doc:
             document = MetadataEntity(**doc)
         else:
-            raise ItemNotFoundException()
+            raise HTTPException(
+                400,
+                (
+                    "Format hash information like this: ",
+                    "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+                ),
+            )
 
         return document
 
     except errors.ServerSelectionTimeoutError:
-        raise ServerNotFoundException()
+        raise HTTPException(
+            400,
+            (
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
 
     except bson.errors.InvalidId:  # type: ignore
-        raise InvalidIDException()
+        raise HTTPException(
+            400,
+            (
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
 
 
 @router.post("/")
@@ -166,7 +191,13 @@ async def upload_metadata(
     try:
         dup = await collection.find_one(check_dup)
         if dup:
-            raise DuplicateFileException()
+            raise HTTPException(
+                400,
+                (
+                    "Format hash information like this: ",
+                    "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+                ),
+            )
 
         doc = await collection.find_one(duplicate_hashes)
         if doc:
@@ -205,4 +236,7 @@ async def upload_metadata(
             await collection.insert_one(file_metadata)
 
     except errors.ServerSelectionTimeoutError:
-        raise ServerNotFoundException()
+        raise HTTPException(
+            504,
+            ("Server not found",),
+        )
