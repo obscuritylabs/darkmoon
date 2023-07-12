@@ -133,30 +133,24 @@ async def upload_metadata(
 
     """
     file_metadata = file.dict()
-
-    duplicate_hashes = {
-        "hashes.md5": file_metadata["hashes"]["md5"],
-        "hashes.sha1": file_metadata["hashes"]["sha1"],
-        "hashes.sha256": file_metadata["hashes"]["sha256"],
-        "hashes.sha512": file_metadata["hashes"]["sha512"],
-    }
-
-    for hash_type in duplicate_hashes:
-        if duplicate_hashes[hash_type] is None:
-            raise HTTPException(
-                status_code=422,
-                detail=("Input is missing information"),
-            )
-
-    check_dup = {
-        "name": file_metadata["name"][0],
-        "file_extension": file_metadata["file_extension"][0],
-        "file_type": file_metadata["file_type"][0],
-        "hashes": file_metadata["hashes"],
-        "source_iso_name": file_metadata["source_iso_name"][0],
-        "operating_system": file_metadata["operating_system"][0],
-        "header_info": file_metadata["header_info"],
-    }
+    try:
+        duplicate_hashes = {
+            "hashes.md5": file_metadata["hashes"]["md5"],
+            "hashes.sha1": file_metadata["hashes"]["sha1"],
+            "hashes.sha256": file_metadata["hashes"]["sha256"],
+            "hashes.sha512": file_metadata["hashes"]["sha512"],
+        }
+        check_dup = {
+            "name": file_metadata["name"][0],
+            "file_extension": file_metadata["file_extension"][0],
+            "file_type": file_metadata["file_type"][0],
+            "hashes": file_metadata["hashes"],
+            "source_iso_name": file_metadata["source_iso_name"][0],
+            "operating_system": file_metadata["operating_system"][0],
+            "header_info": file_metadata["header_info"],
+        }
+    except IndexError:
+        raise HTTPException(status_code=422, detail=["Input missing"])
 
     try:
         dup = await collection.find_one(check_dup)
