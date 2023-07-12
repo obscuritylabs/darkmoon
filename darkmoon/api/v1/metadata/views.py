@@ -15,7 +15,6 @@ from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
     DuplicateFileException,
     IncorrectInputException,
-    InvalidIDException,
     ItemNotFoundException,
     ServerNotFoundException,
 )
@@ -74,7 +73,7 @@ async def list_metadata(
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
-        raise ServerNotFoundException(status_code=504, detail="Server timed out")
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
 
 @router.get("/{id}")
@@ -104,7 +103,7 @@ async def get_metadata_by_id(
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
     except bson.errors.InvalidId:  # type: ignore
-        raise InvalidIDException(status_code=404, detail="Invalid ID.")
+        raise ItemNotFoundException(status_code=404, detail="Item not found, check ID.")
 
 
 @router.post("/")
