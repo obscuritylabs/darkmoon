@@ -97,7 +97,7 @@ class Metadata(BaseModel):
         regex="^(?!\s*$).+",
     )
 
-    header_info: HeaderInfo | None = Field(
+    header_info: HeaderInfo = Field(
         description="contains all the header information",
     )
 
