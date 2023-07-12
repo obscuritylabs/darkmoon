@@ -104,7 +104,7 @@ async def get_metadata_by_id(
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
     except bson.errors.InvalidId:  # type: ignore
-        raise InvalidIDException(status_code=400, detail="Invalid ID")
+        raise InvalidIDException(status_code=404, detail="Invalid ID.")
 
 
 @router.post("/")
