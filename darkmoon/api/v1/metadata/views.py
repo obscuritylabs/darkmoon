@@ -67,9 +67,9 @@ async def list_metadata(
             hash_parameter = "hashes." + str(hash_type)
             search[hash_parameter] = hash
         elif hash_type:
-            raise IncorrectInputException(status_code=422, detail="Incorrect input.")
+            raise IncorrectInputException(status_code=422, detail="Enter hash.")
         elif hash:
-            raise IncorrectInputException(status_code=422, detail="Incorrect input")
+            raise IncorrectInputException(status_code=422, detail="Enter hash type.")
         data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
         return [MetadataEntity.parse_obj(item) for item in data]
 
@@ -104,7 +104,7 @@ async def get_metadata_by_id(
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
     except bson.errors.InvalidId:  # type: ignore
-        raise InvalidIDException(status_code=400, detail="invalid ID")
+        raise InvalidIDException(status_code=400, detail="Invalid ID")
 
 
 @router.post("/")
@@ -183,4 +183,4 @@ async def upload_metadata(
             return UploadResponse(message="Successfully Inserted Object", data=file)
 
     except errors.ServerSelectionTimeoutError:
-        raise ServerNotFoundException(status_code=500, detail="Server not found.")
+        raise ServerNotFoundException(status_code=500, detail="Server timed out.")
