@@ -6,7 +6,7 @@
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -38,11 +38,16 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 @router.get("/")
 async def list_metadata(
+    hash_type: str = Query(min_length=1),
+    hash: str = Query(min_length=1),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     file_name: str | None = None,
-    hash_type: str | None = None,
-    hash: str | None = None,
-    page: int = Query(0, ge=0, description="The page to iterate to."),
+    page: int = Query(
+        0,
+        ge=0,
+        le=18446744073709552,
+        description="The page to iterate to.",
+    ),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
     """Return list of metadata that matches the parameters in the database.
@@ -107,7 +112,7 @@ async def get_metadata_by_id(
         raise InvalidIDException(status_code=400, detail="invalid ID")
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
