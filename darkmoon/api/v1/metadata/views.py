@@ -128,7 +128,8 @@ async def upload_metadata(
         file (Metadata): The file that is uploaded to the database.
 
     Returns:
-        None
+        response (UploadResponse): return a copy of the uploaded file
+            or raise 404
 
     """
     file_metadata = file.dict()
@@ -139,6 +140,15 @@ async def upload_metadata(
         "hashes.sha256": file_metadata["hashes"]["sha256"],
         "hashes.sha512": file_metadata["hashes"]["sha512"],
     }
+
+    for hash_type in duplicate_hashes:
+        if duplicate_hashes[hash_type] is None:
+            raise HTTPException(
+                status_code=422,
+                detail=("Input is missing information"),
+            )
+
+    # try:
     check_dup = {
         "name": file_metadata["name"][0],
         "file_extension": file_metadata["file_extension"][0],
@@ -148,6 +158,8 @@ async def upload_metadata(
         "operating_system": file_metadata["operating_system"][0],
         "header_info": file_metadata["header_info"],
     }
+    # except IndexError:
+    #     raise HTTPException(status_code=422, detail="stuff went wrong, be better")
 
     try:
         dup = await collection.find_one(check_dup)
