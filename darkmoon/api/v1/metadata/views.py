@@ -112,17 +112,8 @@ async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> None:
-    """Fast API post function for incoming files.
-
-    Parameters:
-        file (Metadata): The file that is uploaded to the database.
-
-    Returns:
-        None
-
-    """
+    """Fast API post function for incoming files."""
     file_metadata = file.dict()
-
     duplicate_hashes = {
         "hashes.md5": file_metadata["hashes"]["md5"],
         "hashes.sha1": file_metadata["hashes"]["sha1"],
