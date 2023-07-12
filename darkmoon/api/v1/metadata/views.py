@@ -148,7 +148,6 @@ async def upload_metadata(
                 detail=("Input is missing information"),
             )
 
-    # try:
     check_dup = {
         "name": file_metadata["name"][0],
         "file_extension": file_metadata["file_extension"][0],
@@ -158,8 +157,6 @@ async def upload_metadata(
         "operating_system": file_metadata["operating_system"][0],
         "header_info": file_metadata["header_info"],
     }
-    # except IndexError:
-    #     raise HTTPException(status_code=422, detail="stuff went wrong, be better")
 
     try:
         dup = await collection.find_one(check_dup)

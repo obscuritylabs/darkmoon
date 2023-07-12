@@ -32,27 +32,27 @@ class Hashes(BaseModel):
 class HeaderInfo(BaseModel):
     """Holds HeaderInfo class properties for .exe files."""
 
-    machine_type: str | None = Field(
+    machine_type: str = Field(
         description="The machine type of the .exe file.",
         example="0x14c",
     )
 
-    timestamp: str | None = Field(
+    timestamp: str = Field(
         description="timestap of file",
         example="12/2/23 17:57:43",
     )
 
-    compile_time: str | None = Field(
+    compile_time: str = Field(
         description="compile time of the file",
         example="",
     )
 
-    signature: str | None = Field(
+    signature: str = Field(
         description="digital file signature",
         example="",
     )
 
-    rich_header_hashes: Hashes | None = Field(
+    rich_header_hashes: Hashes = Field(
         description="a dictionary of hashes from the hashes class",
     )
 
