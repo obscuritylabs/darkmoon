@@ -73,9 +73,8 @@ To run the project environment:
 ### MongoDB Compass
 
 The database that is used for this project is MongoDB. The file metadata is uploaded to the MongoDB database after the program is run. MongoDB allows for easier lookup and sorting of file metadata.
--[MongoDB](https://www.mongodb.com)
 
-Get your ideas to market faster with a developer data platform built on the leading modern database. MongoDB makes working with data easy.
+-[MongoDB](https://www.mongodb.com)
 
 To connect to the MongoDB database used by the API:
 1. Launch MongoDB Compass.
@@ -85,7 +84,7 @@ To connect to the MongoDB database used by the API:
 
 - DarkMoon Web API:
 
-1. Darkmoon WebAPI:
+```text
  uvicorn main:app
 ```
 
