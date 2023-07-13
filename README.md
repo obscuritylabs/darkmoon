@@ -6,9 +6,13 @@ This project will catalogue file metadata from multiple Windows operating system
 
 ### Command-Line Interface (CLI) Tool
 
-The command-line interface tool will be a Typer CLI based application (Python). This application will be able to crawl through multiple virtual hard disks (VHDs) created from Windows virtual machines and gather metadata from each file. The data will then use the backend to write to the database.
+The command-line interface tool will be a Typer CLI based application (Python). This application will be able to crawl through multiple virtual hard disks (VHDs) created from Windows virtual machines and gather the metadata of each file. The data will then use the backend to write to the database.
 
 -[Typer CLI](https://typer.tiangolo.com) -[Example metadata](https://www.virustotal.com/gui/file/79bd6ba26c844639a596241f6a92fb453409738998ca60b79718534f3b0f9e65/details)
+
+### MongoDB
+- The database that is used for this project is MongoDB. The file metadata is uploaded to the MongoDB database after the program is run.
+- MongoDB allows for easier lookup and sorting of file metadata.
 
 ## Web API Service
 
@@ -38,10 +42,10 @@ VSCode allows for development within a docker container. This project has an alr
 
 ### To Begin Development
 
-- After opening the project in VSCode, a window on the bottom right should pop up asking to "reopen in container", click it. If it does not, click the green button on the bottom left and once the window on top appears, click "reopen in container". This step may take several minutes to set everything up.
-- Once the project is opened in the container, click on the darkmoon.code-workspace file in the root directory and click "Open Workspace". This step may take a few minutes.
+- After opening the project in VSCode, a window on the bottom right should pop up asking to "reopen in container", click it. If it does not, click the green button on the bottom left and once the window on top appears, click "reopen in container". This step may take several minutes to set up.
+- Once the project is opened in the container, click on the darkmoon code-workspace file in the root directory and click "Open Workspace". This step may take a few minutes.
 
-Once both steps have been completed, and VSCode finishes setting up, development is ready to begin. All dependencies have been installed.
+Once both steps have been completed and VSCode finishes setting up, development is ready to begin. All dependencies have been installed.
 
 ### To Test The Applications
 
