@@ -1,8 +1,10 @@
 """Imports the modules/classes Field, BaseModel, Core Response model, and Optional."""
-from beanie import PydanticObjectId
-from pydantic import BaseModel, Field
+from typing import Any
 
-from darkmoon.core.schema import Response
+from beanie import PydanticObjectId
+from pydantic import BaseModel, Field, validator
+
+from darkmoon.core.schema import IncorrectInputException, Response
 
 
 class Hashes(BaseModel):
@@ -64,19 +66,19 @@ class Metadata(BaseModel):
         description="name of file",
         example=["End_Of_The_World"],
         min_items=1,
-        regex="^(?!\s*$).+",
+        regex="^(?!\\s*$).+",
     )
     file_extension: list[str] = Field(
         description="the extension of a file",
         example=[".jpeg"],
         min_items=1,
-        regex="^(?!\s*$).+",
+        regex="^(?!\\s*$).+",
     )
     file_type: list[str] = Field(
         description="the type of file",
         example=["exe"],
         min_items=1,
-        regex="^(?!\s*$).+",
+        regex="^(?!\\s*$).+",
     )
     hashes: Hashes = Field(
         description="a hash",
@@ -86,7 +88,7 @@ class Metadata(BaseModel):
         description="source ISO name",
         example=[""],
         min_items=1,
-        regex="^(?!\s*$).+",
+        regex="^(?!\\s*$).+",
     )
 
     operating_system: list[str] = Field(
@@ -94,12 +96,45 @@ class Metadata(BaseModel):
         " where the file is coming from.",
         example=["WindowsXP"],
         min_items=1,
-        regex="^(?!\s*$).+",
+        regex="^(?!\\s*$).+",
     )
 
     header_info: HeaderInfo = Field(
         description="contains all the header information",
     )
+
+    @validator(
+        "name",
+        "file_extension",
+        "file_type",
+        "hashes",
+        "source_iso_name",
+        "operating_system",
+        "header_info",
+    )
+    def validate_input(cls, input: dict[str, Any]) -> dict[str, Any]:
+        """Ensure all data in an uploaded file uses proper UTF-8 characters."""
+        for key in input:
+            if input[key] is str:
+                try:
+                    input[key].encode("UTF-8")
+                except UnicodeEncodeError:
+                    raise IncorrectInputException(
+                        status_code=422,
+                        detail=("Input contains invalid characters"),
+                    )
+            elif input[key] is dict:
+                if not cls.validate_input(input):
+                    raise IncorrectInputException(
+                        status_code=422,
+                        detail=("Input contains invalid characters"),
+                    )
+            else:
+                raise IncorrectInputException(
+                    status_code=422,
+                    detail=("Input contains invalid characters"),
+                )
+        return input
 
 
 class MetadataEntity(BaseModel):

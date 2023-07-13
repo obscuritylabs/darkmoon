@@ -44,8 +44,8 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
     },
 )
 async def list_metadata(
-    hash_type: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\s).\s?)+$"),
-    hash: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\s).\s?)+$"),
+    hash_type: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\\s).\\s?)+$"),
+    hash: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\\s).\\s?)+$"),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     file_name: str | None = None,
     page: int = Query(
@@ -66,7 +66,7 @@ async def list_metadata(
 
     Returns:
         documents (list[MetadataEntity]): List of all documents that match
-            parameters in the database
+            parameters in the database or raise 422 or 500 error.
 
     """
     search = {}
@@ -106,7 +106,7 @@ async def get_metadata_by_id(
         id (str): Unique id of specific entry in MongoDB
     Returns:
         document (MetadataEntity): Return the database entry with
-            matching id or raise 404 error
+            matching id or raise 400, 404, or 500 error.
 
     """
     try:
@@ -145,7 +145,7 @@ async def upload_metadata(
 
     Returns:
         response (UploadResponse): return a copy of the uploaded file
-            or raise 404
+            or raise 409, 422, or 500 error.
 
     """
     file_metadata = file.dict()
@@ -213,3 +213,8 @@ async def upload_metadata(
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=500, detail="Server not found.")
+    except UnicodeEncodeError:
+        raise IncorrectInputException(
+            status_code=422,
+            detail=("Input contains invalid characters"),
+        )

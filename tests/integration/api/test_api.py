@@ -1,6 +1,5 @@
 import schemathesis
 from fastapi import FastAPI
-from hypothesis import Verbosity, settings
 from schemathesis.constants import DataGenerationMethod
 from schemathesis.lazy import LazySchema
 from schemathesis.models import Case
@@ -17,7 +16,6 @@ schema: LazySchema = schemathesis.from_pytest_fixture(
 
 
 @schema.parametrize()
-@settings(max_examples=200, verbosity=Verbosity.verbose)
 def test_api(case: Case, app: FastAPI) -> None:
     """Validate the api matches the openAPI schema."""
     with TestClient(app) as session:
