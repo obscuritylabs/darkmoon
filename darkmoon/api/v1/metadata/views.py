@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
-from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
+from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity, UploadResponse
 from darkmoon.core.database import get_file_metadata_collection
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
@@ -116,8 +116,8 @@ async def get_metadata_by_id(
 async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
-    """Add metadata from files to the database.
+) -> UploadResponse:
+    """Fast API POST function for incoming files.
 
     Parameters:
         file (Metadata): The metadata of the file being uploaded.
@@ -145,7 +145,6 @@ async def upload_metadata(
     }
 
     try:
-
         dup = await collection.find_one(check_dup)
         if dup:
             raise HTTPException(status_code=409, detail=("There is a duplicate file."))
@@ -182,9 +181,11 @@ async def upload_metadata(
                 },
             }
             await collection.update_one(duplicate_hashes, change)
+            return UploadResponse(message="Successfully Updated Object", data=file)
 
         else:
             await collection.insert_one(file_metadata)
+            return UploadResponse(message="Successfully Inserted Object", data=file)
 
     except errors.ServerSelectionTimeoutError:
         raise HTTPException(
