@@ -1,9 +1,4 @@
-"""This is the router file."""
-
-###########
-# IMPORTS #
-###########
-
+"""Defines an API router for handling metadata related requests."""
 
 import bson
 from beanie import PydanticObjectId
@@ -11,22 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
-from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
+from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity, UploadResponse
 from darkmoon.core.database import get_file_metadata_collection
 
-####################
-# GLOBAL VARIABLES #
-####################
-
 router = APIRouter(prefix="/metadata", tags=["metadata"])
-
-###########
-# CLASSES #
-
-
-#############
-# FUNCTIONS #
-#############
 
 
 @router.get("/")
@@ -38,17 +21,23 @@ async def list_metadata(
     page: int = Query(0, ge=0, description="The page to iterate to."),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
-    """Return list of metadata that matches the parameters in the database.
+    """Get list of metadata that matches the parameters in the database.
 
     Parameters:
-        file_name (Optional[str]): The name of the file being
-            searched. Is None by default.
-        hash_type (Optional[str]): The type of hash. Is None by default.
-        hash (Optional[str]): Hash of the file. Is None by default.
+        collection (AsyncIOMotorCollection): The database collection to query.
+        file_name (str): The name of the file being searched.
+        hash (str): The hash of the file.
+        page (int): The page number to iterate to.
+        length (int): The number of items per page.
+
+
+    Raises:
+        HTTPException: If the hash or hash_type is missing.
+        errors.ServerSelectionTimeoutError: If the server is not found.
 
     Returns:
-        documents (list[MetadataEntity]): List of all documents that match
-            parameters in the database
+        List[MetadataEntity]: List of all documents that match parameters in the
+        database.
 
     """
     search = {}
@@ -81,10 +70,16 @@ async def get_metadata_by_id(
     id: PydanticObjectId,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> MetadataEntity:
-    """Return file by ObjectID in MongoDB.
+    """Find file by ObjectID in MongoDB.
 
     Parameters:
         id (str): Unique id of specific entry in MongoDB
+        collection (AsyncIOMotorCollection) : The database collection to query.
+
+    Raises:
+        errors.ServerSelectionTimeoutError: If the server is not found.
+        bson.errors.InvalidId: If the ID provided is invalid.
+
     Returns:
         document (MetadataEntity): Return the database entry with
             matching id or raise 404 error
@@ -121,18 +116,18 @@ async def get_metadata_by_id(
 async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
+) -> UploadResponse:
     """Fast API POST function for incoming files.
 
     Parameters:
-        file (Metadata): The file that is uploaded to the database.
+        file (Metadata): The metadata of the file being uploaded.
+        collection (AsyncIOMotorCollection): The database collection to insert the
+        metadata into.
 
-    Returns:
-        None
-
+    Raises:
+        errors.ServerSelectionTimeoutError: If the server is not found.
     """
     file_metadata = file.dict()
-
     duplicate_hashes = {
         "hashes.md5": file_metadata["hashes"]["md5"],
         "hashes.sha1": file_metadata["hashes"]["sha1"],
@@ -150,7 +145,6 @@ async def upload_metadata(
     }
 
     try:
-
         dup = await collection.find_one(check_dup)
         if dup:
             raise HTTPException(status_code=409, detail=("There is a duplicate file."))
@@ -187,9 +181,11 @@ async def upload_metadata(
                 },
             }
             await collection.update_one(duplicate_hashes, change)
+            return UploadResponse(message="Successfully Updated Object", data=file)
 
         else:
             await collection.insert_one(file_metadata)
+            return UploadResponse(message="Successfully Inserted Object", data=file)
 
     except errors.ServerSelectionTimeoutError:
         raise HTTPException(
