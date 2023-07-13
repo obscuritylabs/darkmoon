@@ -1,7 +1,8 @@
-"""Imports the modules/classes Field, BaseModel, and PydanticObjectId."""
-
+"""Imports the modules/classes Field, BaseModel, Core Response model, and Optional."""
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
+
+from darkmoon.core.schema import Response
 
 
 class Hashes(BaseModel):
@@ -130,4 +131,12 @@ class MetadataEntity(BaseModel):
     header_info: HeaderInfo | None = Field(
         description="contains all the header information",
         example="",
+    )
+
+
+class UploadResponse(Response):
+    """Sets upload response requirements."""
+
+    data: Metadata = Field(
+        description="The object inserted or updated on the database",
     )
