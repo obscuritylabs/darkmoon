@@ -19,12 +19,27 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/items/{id}", response_class=HTMLResponse)
 async def read_item(request: Request, id: str) -> Response:
-    """Return the FastAPI connection."""
+    """Define a GET request.
+
+    Parameters:
+        request (Request): The incoming request.
+        id (str): The ID of the item.
+
+    Returns:
+        Response: HTML response with the item.html template.
+    """
     return templates.TemplateResponse("item.html", {"request": request, "id": id})
 
 
 def get_app(settings: Settings | None = None) -> FastAPI:
-    """Return the FastAPI connection."""
+    """Return the FastAPI connection.
+
+    Parameters:
+        Settings (Optional): Settings object that defines the app settings.
+
+    Returns:
+        FastAPI: The FastAPI application.
+    """
     app_settings = settings or Settings()
 
     app.on_event("startup")(register_database(app, str(app_settings.MONGODB_CONN)))
