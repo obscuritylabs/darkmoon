@@ -1,4 +1,9 @@
-"""This is the main.py file."""
+"""Main.py file provides a CLI which will perform various operations to the files.
+
+Main.py defines the commands that will be executed from the command line.
+
+It extracts metadata, get file hashes, and determine file types.
+"""
 
 import tarfile
 import tempfile
