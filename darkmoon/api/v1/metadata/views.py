@@ -38,8 +38,8 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 @router.get("/")
 async def list_metadata(
-    hash_type: str = Query(min_length=1),
-    hash: str = Query(min_length=1),
+    hash_type: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\s).\s?)+$"),
+    hash: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\s).\s?)+$"),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     file_name: str | None = None,
     page: int = Query(
