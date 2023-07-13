@@ -1,4 +1,4 @@
-"""This is the views.py file."""
+"""Defines an API router for handling metadata related requests."""
 
 import bson
 from beanie import PydanticObjectId
@@ -8,13 +8,6 @@ from pymongo import errors
 
 from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity
 from darkmoon.core.database import get_file_metadata_collection
-
-"""Import various modules and dependencies such as bson, PydanticObjectId from
- beanie, APIRouter, Depends, HTTPException, Query from fastapi, AsyncIOMotorCollection
- from motor.motor_asyncio, and errors from pymongo."""
-
-"""Import darkmoon.api.v1.metadata.schema from Metadata, MetadataEntity
-and darkmoon.core.database from get_file_metadata_collection."""
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
 
@@ -28,17 +21,23 @@ async def list_metadata(
     page: int = Query(0, ge=0, description="The page to iterate to."),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
-    """List of metadata that matches the parameters in the database.
+    """Get list of metadata that matches the parameters in the database.
 
     Parameters:
-        file_name (Optional[str]): The name of the file being
-            searched. Is None by default.
-        hash_type (Optional[str]): The type of hash. Is None by default.
-        hash (Optional[str]): Hash of the file. Is None by default.
+        collection (AsyncIOMotorCollection): The database collection to query.
+        file_name (str): The name of the file being searched.
+        hash (str): The hash of the file.
+        page (int): The page number to iterate to.
+        length (int): The number of items per page.
+
+
+    Raises:
+        HTTPException: If the hash or hash_type is missing.
+        errors.ServerSelectionTimeoutError: If the server is not found.
 
     Returns:
-        documents (list[MetadataEntity]): List of all documents that match
-            parameters in the database
+        List[MetadataEntity]: List of all documents that match parameters in the
+        database.
 
     """
     search = {}
@@ -75,6 +74,12 @@ async def get_metadata_by_id(
 
     Parameters:
         id (str): Unique id of specific entry in MongoDB
+        collection (AsyncIOMotorCollection) : The database collection to query.
+
+    Raises:
+        errors.ServerSelectionTimeoutError: If the server is not found.
+        bson.errors.InvalidId: If the ID provided is invalid.
+
     Returns:
         document (MetadataEntity): Return the database entry with
             matching id or raise 404 error
@@ -112,7 +117,16 @@ async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> None:
-    """Fast API post function for incoming files."""
+    """Add metadata from files to the database.
+
+    Parameters:
+        file (Metadata): The metadata of the file being uploaded.
+        collection (AsyncIOMotorCollection): The database collection to insert the
+        metadata into.
+
+    Raises:
+        errors.ServerSelectionTimeoutError: If the server is not found.
+    """
     file_metadata = file.dict()
     duplicate_hashes = {
         "hashes.md5": file_metadata["hashes"]["md5"],

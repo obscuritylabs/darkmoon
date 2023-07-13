@@ -1,7 +1,7 @@
+"""Outlines the schema for the api."""
+
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
-
-"""Import module/class PydanticObjectID, BaseModel, and Field"""
 
 
 class Hashes(BaseModel):
