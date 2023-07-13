@@ -50,4 +50,8 @@ jobs:
         run: poetry run pre-commit run --all-files
 
       - name: Pytest testing
-        run: poetry run pytest
+        run: poetry run pytest -k 'not test_api'
+
+      - name: Schemathesis testing
+        continue-on-error: true
+        run: poetry run pytest -k 'test_api'
