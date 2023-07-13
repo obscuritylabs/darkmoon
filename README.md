@@ -11,8 +11,9 @@ The command-line interface tool will be a Typer CLI based application (Python). 
 -[Typer CLI](https://typer.tiangolo.com) -[Example metadata](https://www.virustotal.com/gui/file/79bd6ba26c844639a596241f6a92fb453409738998ca60b79718534f3b0f9e65/details)
 
 ### MongoDB
-- The database that is used for this project is MongoDB. The file metadata is uploaded to the MongoDB database after the program is run.
-- MongoDB allows for easier lookup and sorting of file metadata.
+The database that is used for this project is MongoDB. The file metadata is uploaded to the MongoDB database after the program is run. MongoDB allows for easier lookup and sorting of file metadata.
+
+-[MongoDB](https://www.mongodb.com)
 
 ## Web API Service
 
