@@ -44,8 +44,8 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
     },
 )
 async def list_metadata(
-    hash_type: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\\s).\\s?)+$"),
-    hash: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\\s).\\s?)+$"),
+    hash_type: str,
+    hash: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     file_name: str | None = None,
     page: int = Query(
@@ -69,6 +69,21 @@ async def list_metadata(
             parameters in the database or raise 422 or 500 error.
 
     """
+    try:
+        hash.encode("UTF-8")
+        hash_type.encode("UTF-8")
+    except UnicodeEncodeError:
+        raise IncorrectInputException(
+            status_code=422,
+            detail=("Input contains invalid characters"),
+        )
+
+    if "\x00" in hash or "\x00" in hash_type or hash.isspace() or hash_type.isspace():
+        raise IncorrectInputException(
+            status_code=422,
+            detail=("Input contains invalid characters"),
+        )
+
     search = {}
 
     try:
