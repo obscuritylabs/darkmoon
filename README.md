@@ -34,20 +34,58 @@ VSCode allows for development within a docker container. This project has an alr
 
 -[Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) -[Docker](https://www.docker.com/)
 
+
+### Prerequisites
+
+Make sure the following dependencies are installed on your system:
+- Poetry (1.5.1)
+- Visual Studio Code
+- Docker
+- MangoDB Compass
+- 1Password
+
 ## Getting Started
 
-### To Begin Development
+Follow these steps to set up the development environment after installing the prerequisites.
+1. Setting up GitHub SSH Auth and Signing Keys:
+    - Configure SSH authentication and add your SSh public key to your GitHub account.
+2. Cloning the Repository:
+    - clone the repository using SSH:
+        `git clone git@github.com:team/repository/.git`
 
-- After opening the project in VSCode, a window on the bottom right should pop up asking to "reopen in container", click it. If it does not, click the green button on the bottom left and once the window on top appears, click "reopen in container". This step may take several minutes to set everything up.
-- Once the project is opened in the container, click on the darkmoon.code-workspace file in the root directory and click "Open Workspace". This step may take a few minutes.
+### Local Development
 
-Once both steps have been completed, and VSCode finishes setting up, development is ready to begin. All dependencies have been installed.
+1. Install project dependencies
+    `make install`
+2. Run the development environment:
+    if using Visual Studio Code: click the "Reopen in Container" option in the bottom left conner. This will set up the development environment using Docker.
+
+### Running the Environment
+
+To run the project environment:
+1. For the API app:
+    `make run`
+2. Using Docker:
+    `docker -compose up --build`
+3. For the CLI commands:
+    `poetry run darkmoon --help`
+
+### MongoDB Compass
+
+The database that is used for this project is MongoDB. The file metadata is uploaded to the MongoDB database after the program is run. MongoDB allows for easier lookup and sorting of file metadata.
+-[MongoDB](https://www.mongodb.com)
+
+Get your ideas to market faster with a developer data platform built on the leading modern database. MongoDB makes working with data easy.
+
+To connect to the MongoDB database used by the API:
+1. Launch MongoDB Compass.
+2. Use the connection string specified in the `settings.py` file to connect to the database.
 
 ### To Test The Applications
 
 - DarkMoon Web API:
 
-```text
+1. Darkmoon WebAPI:
  uvicorn main:app
 ```
 
