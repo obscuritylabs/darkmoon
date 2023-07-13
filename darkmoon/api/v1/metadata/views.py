@@ -36,7 +36,13 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 #############
 
 
-@router.get("/")
+@router.get(
+    "/",
+    responses={
+        422: {"detail": "Input is missing information"},
+        504: {"detail": "Server timed out"},
+    },
+)
 async def list_metadata(
     hash_type: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\s).\s?)+$"),
     hash: str = Query(min_length=1, regex="^(?:(?!\\x00)(?!\s).\s?)+$"),
@@ -79,10 +85,17 @@ async def list_metadata(
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
-        raise ServerNotFoundException(status_code=504, detail="Server timed out")
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
 
-@router.get("/{id}")
+@router.get(
+    "/{id}",
+    responses={
+        400: {"detail": "Invalid ID."},
+        404: {"detail": "Item not found."},
+        500: {"detail": "Server timed out."},
+    },
+)
 async def get_metadata_by_id(
     id: PydanticObjectId,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
@@ -109,10 +122,18 @@ async def get_metadata_by_id(
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
     except bson.errors.InvalidId:  # type: ignore
-        raise InvalidIDException(status_code=400, detail="invalid ID")
+        raise InvalidIDException(status_code=400, detail="invalid ID.")
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        409: {"detail": "File is a duplicate."},
+        422: {"detail": "Input is missing information."},
+        500: {"detail": "Server not found."},
+    },
+)
 async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
@@ -184,11 +205,11 @@ async def upload_metadata(
                 },
             }
             await collection.update_one(duplicate_hashes, change)
-            return UploadResponse(message="Successfully Updated Object", data=file)
+            return UploadResponse(message="Successfully Updated Object.", data=file)
 
         else:
             await collection.insert_one(file_metadata)
-            return UploadResponse(message="Successfully Inserted Object", data=file)
+            return UploadResponse(message="Successfully Inserted Object.", data=file)
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=500, detail="Server not found.")
