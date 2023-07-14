@@ -29,7 +29,7 @@ def test_get(
         list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
     ],
 ) -> None:
-    """Test stuff."""
+    """Test GET /metadata/ endpoint correctly receives object from database."""
     with TestClient(populated_app) as app:
         # positive case, should get a copy of the MetaDataEntity fixture
         response = app.get(
@@ -64,3 +64,29 @@ def test_get(
                 },
             ],
         }
+
+
+def test_get_id(
+    populated_app: FastAPI,
+    test_metadata_entity: dict[
+        str,
+        list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
+    ],
+) -> None:
+    """Test stuff."""
+    with TestClient(populated_app) as app:
+        # positive case, should get a copy of the MetaDataEntity fixture
+        # remove extra data added by mongo db, reformat _id key value
+        del test_metadata_entity["id"]
+        test_metadata_entity["_id"] = str(test_metadata_entity["_id"])
+        response = app.get(
+            f"/metadata/{str(test_metadata_entity['_id'])}",
+        )
+        assert response.status_code == 200
+        assert response.json() == test_metadata_entity
+
+        # negative case, missing parameters
+        response = app.get(f"/metadata/{'0123456789ab0123456789ab'}")
+
+        assert response.status_code == 404
+        assert response.json() == {"detail": "Item not found."}
