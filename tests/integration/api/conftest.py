@@ -4,12 +4,14 @@ from typing import Any
 
 import pytest
 import schemathesis
+from beanie import PydanticObjectId
 from fastapi import FastAPI
 
 # from fastapi.testclient import TestClient
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
+from darkmoon.api.v1.metadata.schema import Hashes, HeaderInfo, MetadataEntity
 from darkmoon.app import get_app
 from darkmoon.settings import Settings
 
@@ -45,3 +47,60 @@ def app_schema(app: FastAPI) -> BaseOpenAPISchema:
     """Return the OpenAPI schema of the app."""
     schema: BaseOpenAPISchema = schemathesis.from_asgi("/openapi.json", app=app)
     return schema
+
+
+@pytest.fixture
+def test_metadata_entity() -> (
+    dict[str, list[str] | dict[str, str] | dict[str, str | dict[str, str]]]
+):
+    """Represent a test metadata object."""
+    file: dict[
+        str,
+        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
+    ] = MetadataEntity(
+        _id=PydanticObjectId(),
+        name=["Test Name"],
+        file_extension=[".jpeg"],
+        file_type=["exe"],
+        hashes=Hashes(
+            md5="5d41402abc4b2a76b9719d911017c592",
+            sha1="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
+            sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+            sha512="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
+        ),
+        source_iso_name=[],
+        operating_system=[],
+        header_info=HeaderInfo(
+            machine_type="",
+            timestamp="",
+            compile_time="",
+            signature="",
+            rich_header_hashes=Hashes(
+                md5="5d41402abc4b2a76b9719d911017c592",
+                sha1="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
+                sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+                sha512="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
+            ),
+        ),
+    ).dict()
+    return file
+
+
+@pytest.fixture
+def populated_database(
+    test_metadata_entity: dict[
+        str,
+        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
+    ],
+) -> Generator[str, Any, Any]:
+    """Represent a database with an object already inserted."""
+    with MongoDbContainer("mongo:6") as mongo:
+        db = mongo.get_connection_client().get_database("darkmoon")
+        db.get_collection("FieldMetadata").insert_one(test_metadata_entity)
+        yield mongo.get_connection_url()
+
+
+@pytest.fixture
+def populated_app(populated_database: str) -> FastAPI:
+    """Darkmoon app with populated database."""
+    return get_app(Settings.parse_obj({"MONGODB_CONN": populated_database}))

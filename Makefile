@@ -98,7 +98,7 @@ pre-commit: ##@pre-commit Run pre-commit hooks on all files.
 
 .PHONY: test
 test: ##@test Run all tests except schemathesis.
-	@poetry run pytest -k 'not test_api'
+	@poetry run pytest -k 'not test_api_schema'
 
 
 # ================================================
