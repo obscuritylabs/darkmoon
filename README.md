@@ -47,8 +47,21 @@ Make sure the following dependencies are installed on your system:
 ## Getting Started
 
 Follow these steps to set up the development environment after installing the prerequisites.
-1. Setting up GitHub SSH Auth and Signing Keys:
-    - Configure SSH authentication and add your SSh public key to your GitHub account.
+1. Setting up GitHub SSH Auth and Signing Keys and configure SSH authentication and add your SSh public key to your GitHub account.
+    - Open 1 pass, and in the right top corner click on new items.
+    - Then click on SSH keys, and then add private key.
+    - Then click on generate private key.Select an SSH Key > Generate New Key.
+    - Select SSH key type: Ed25529, then click generate
+    - Once, you got the key copy the public key and go to your github account.
+    - Go to settings, click on SSH and GPG keys and click on New SSH Keys.
+    - Once you pasted the key, click on key type and click on Authentication.
+    - Repeat the steps, and but instead of an Authentication key type, now click signing key.
+    - Open your SSH client configuration file (~/.ssh/config or C:\Users\YourUsername\.ssh\config).
+    - Then create your ~/.ssh folder or config file by using this command :
+       $ export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+    - Then add the IdentityAgent snippet to your ~/.ssh/config file:
+        - Host *
+            IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 2. Cloning the Repository:
     - clone the repository using SSH:
         `git clone git@github.com:team/repository/.git`
@@ -60,9 +73,9 @@ Follow these steps to set up the development environment after installing the pr
 2. Run the development environment:
     if using Visual Studio Code: click the "Reopen in Container" option in the bottom left conner. This will set up the development environment using Docker.
 
-### Running the Environment
+### Running the app in container:
 
-To run the project environment:
+To run the app in the container:
 1. For the API app:
     `make run`
 2. Using Docker:
@@ -251,7 +264,6 @@ Unzips the VMDK operating system files.
 + Returns "None"; unzips the operating system's VMDK file
 
 **Example:**
-
 
 ### To Test The Applications
 
