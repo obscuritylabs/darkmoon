@@ -48,6 +48,13 @@ Make sure the following dependencies are installed on your system:
 
 Follow these steps to set up the development environment after installing the prerequisites.
 1. Setting up GitHub SSH Auth and Signing Keys and configure SSH authentication and add your SSh public key to your GitHub account.
+    - OPne 1pass, go into setting and then click developer and the clock on the "use the SSH Gent", and the follow the direction it give you to complete the process.
+    Open your SSH client configuration file (~/.ssh/config or C:\Users\YourUsername\.ssh\config).
+        - If you don't have a SSH cline configuration file, then create one ~/.ssh folder or config file by using this command :
+       $ export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+    - Then add the IdentityAgent snippet to your ~/.ssh/config file:
+        - Host *
+            IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     - Open 1 pass, and in the right top corner click on new items.
     - Then click on SSH keys, and then add private key.
     - Then click on generate private key.Select an SSH Key > Generate New Key.
@@ -56,13 +63,9 @@ Follow these steps to set up the development environment after installing the pr
     - Go to settings, click on SSH and GPG keys and click on New SSH Keys.
     - Once you pasted the key, click on key type and click on Authentication.
     - Repeat the steps, and but instead of an Authentication key type, now click signing key.
-    - Open your SSH client configuration file (~/.ssh/config or C:\Users\YourUsername\.ssh\config).
-    - Then create your ~/.ssh folder or config file by using this command :
-       $ export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
-    - Then add the IdentityAgent snippet to your ~/.ssh/config file:
-        - Host *
-            IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    - now go into teh signing key, and click in the triple dot menu on eight corner, and then click configure commit signing. and then click edit automatically.
 2. Cloning the Repository:
+    - Copy the repository's remote URL from GitHub by navigating to the repository and clicking on the "Code" button. Then, click "Clone" and select "SSH" to get the URL in SSH format.
     - clone the repository using SSH:
         `git clone git@github.com:team/repository/.git`
 
@@ -152,7 +155,7 @@ Sends a dictionary to FastAPI. THIS COMMAND CAN _NOT_ BE CALLED IN THE CONSOLE!
 
 + Returns nothing; sends the data over to FastAPI
 
-**Example:**
+
 
 
 ### get_all_exe_metadata
