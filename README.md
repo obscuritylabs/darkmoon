@@ -1,12 +1,12 @@
 # Project DarkMoon
 
-This project will catalogue file metadata from multiple Windows operating systems. The data will be available for lookup based on file name or file hashes.
+This project will catalog file metadata from multiple Windows operating systems. The data will be available for lookup based on the file name or file hashes.
 
 ## Project Components
 
 ### Command-Line Interface (CLI) Tool
 
-The command-line interface tool will be a Typer CLI based application (Python). This application will be able to crawl through multiple virtual hard disks (VHDs) created from Windows virtual machines and gather metadata from each file. The data will then use the backend to write to the database.
+The command-line interface tool will be a Typer CLI-based application (Python). This application will be able to crawl through multiple virtual hard disks (VHDs) created from Windows virtual machines and gather metadata from each file. The data will then use the backend to write to the database.
 
 -[Typer CLI](https://typer.tiangolo.com) -[Example metadata](https://www.virustotal.com/gui/file/79bd6ba26c844639a596241f6a92fb453409738998ca60b79718534f3b0f9e65/details)
 
@@ -20,17 +20,17 @@ The Web API service will utilize FastAPI. This web service will be un-authentica
 
 ### Pre-Commit Hooks
 
-To ensure consistent and high-quality code that follows standard practices, this repository will use pre-commit hooks. These checks must be passed before code will be able to be pushed to the repository.
+To ensure consistent and high-quality code that follows standard practices, this repository will use pre-commit hooks. These checks must be passed before the code will be able to be pushed to the repository.
 
 ### Conventional Commits
 
-To keep a easily readable and clean commit history, conventional commits will be enforced.
+To keep an easily readable and clean commit history, conventional commits will be enforced.
 
 -[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ### Portable Development Containers
 
-VSCode allows for development within a docker container. This project has an already configured dev container that includes all needed dependencies, requirements and settings to begin development. There is also a docker compose file that will run the database and server.
+VSCode allows for development within a docker container. This project has an already configured dev container that includes all needed dependencies, requirements, and settings to begin development. There is also a docker-compose file that will run the database and server.
 
 -[Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) -[Docker](https://www.docker.com/)
 
@@ -41,14 +41,15 @@ Make sure the following dependencies are installed on your system:
 - Poetry (1.5.1)
 - Visual Studio Code
 - Docker
-- MangoDB Compass
+- MongoDB Compass
 - 1Password
+
 
 ## Getting Started
 
 Follow these steps to set up the development environment after installing the prerequisites.
 1. Setting up GitHub SSH Auth and Signing Keys and configure SSH authentication and add your SSh public key to your GitHub account.
-    - OPne 1pass, go into setting and then click developer and the clock on the "use the SSH Gent", and the follow the direction it give you to complete the process.
+    - Open 1pass, go into settings and then click developer and then click on "use the SSH agent", and then follow the direction it gives you to complete the process. Open your SSH client configuration file (~/.ssh/config or C:\Users\YourUsername.ssh\config).
     Open your SSH client configuration file (~/.ssh/config or C:\Users\YourUsername\.ssh\config).
         - If you don't have a SSH cline configuration file, then create one ~/.ssh folder or config file by using this command :
        $ export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
@@ -73,17 +74,23 @@ Follow these steps to set up the development environment after installing the pr
 
 1. Install project dependencies
     `make install`
-2. Run the development environment:
+
+### Setting up the dev-container:
+
+1. Run the development environment:
     if using Visual Studio Code: click the "Reopen in Container" option in the bottom left conner. This will set up the development environment using Docker.
 
-### Running the app in container:
+### Running the app:
 
-To run the app in the container:
-1. For the API app:
-    `make run`
-2. Using Docker:
+- To run the app in the container:
+Using Docker:
     `docker -compose up --build`
-3. For the CLI commands:
+
+- To run the app locally:
+For the API app:
+    `make run`
+
+- For the CLI commands:
     `poetry run darkmoon --help`
 
 ### MongoDB Compass
@@ -125,14 +132,7 @@ While you won't really be interacting directly with these functions, they play a
 
 ### To Test The Applications
 
-- DarkMoon Web API:
-
-```text
- uvicorn main:app
-```
-
-- DarkMoon CLI:
-
-```text
- python main.py (function)
-```
+- All the cli and the static api tests
+    `make test`
+- Runs all tests including schema tests
+    `make test-all`
