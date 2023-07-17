@@ -49,10 +49,10 @@ Make sure the following dependencies are installed on your system:
 
 Follow these steps to set up the development environment after installing the prerequisites.
 1. Setting up GitHub SSH Auth and Signing Keys and configure SSH authentication and add your SSh public key to your GitHub account.
-    - Open 1pass, go into settings and then click developer and then click on "use the SSH agent", and then follow the direction it gives you to complete the process. Open your SSH client configuration file '~/.ssh/config or C:\Users\YourUsername.ssh\config'.
-    Open your SSH client configuration file (~/.ssh/config or C:\Users\YourUsername\.ssh\config).
-        - If you don't have a SSH cline configuration file, then create one ~/.ssh folder or config file by using this command :
-       $ export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+    - Open 1pass, go into settings and then click developer and then click on "use the SSH agent", and then follow the direction it gives you to complete the process. Open your SSH client configuration file "~/.ssh/config or C:\Users\YourUsername.ssh\config".
+    Open your SSH client configuration file "~/.ssh/config or C:\Users\YourUsername\.ssh\config".
+        - If you don't have a SSH cline configuration file, then create one "~/.ssh folder or config file by using this command :
+       $ export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     - Then add the IdentityAgent snippet to your ~/.ssh/config file:
         - Host *
             IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
