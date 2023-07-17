@@ -39,8 +39,8 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 @router.get(
     "/",
     responses={
-        422: {"detail": "Input is missing information"},
-        504: {"detail": "Server timed out"},
+        422: {"Client Error Response": "Unprocessable Content"},
+        504: {"Server Error Response": "Gateway Timeout"},
     },
 )
 async def list_metadata(
@@ -66,7 +66,14 @@ async def list_metadata(
 
     Returns:
         documents (list[MetadataEntity]): List of all documents that match
-            parameters in the database or raise 422 or 500 error.
+            parameters in the database
+
+    Raises:
+        IncorrectInputException:
+            The input contains invalid UTF-8 characters
+            or is all white space
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
 
     """
     try:
@@ -106,9 +113,9 @@ async def list_metadata(
 @router.get(
     "/{id}",
     responses={
-        400: {"detail": "Invalid ID."},
-        404: {"detail": "Item not found."},
-        500: {"detail": "Server timed out."},
+        400: {"Client Error Response": "Bad Request"},
+        404: {"Client Error Response": "Not Found"},
+        500: {"Server Error Response": "Internal Server Error"},
     },
 )
 async def get_metadata_by_id(
@@ -119,9 +126,18 @@ async def get_metadata_by_id(
 
     Parameters:
         id (str): Unique id of specific entry in MongoDB
+
     Returns:
         document (MetadataEntity): Return the database entry with
             matching id or raise 400, 404, or 500 error.
+
+    Raises:
+        InvalidIDException:
+            Provided ID is invalid
+        ItemNotFoundException:
+            no item with the provided ID is in the database
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
 
     """
     try:
@@ -144,9 +160,9 @@ async def get_metadata_by_id(
     "/",
     status_code=status.HTTP_201_CREATED,
     responses={
-        409: {"detail": "File is a duplicate."},
-        422: {"detail": "Input is missing information."},
-        500: {"detail": "Server not found."},
+        409: {"Client Error Response": "Conflict"},
+        422: {"Client Error Response": "Unprocessable Content"},
+        500: {"Server Error Response": "Internal Server Error"},
     },
 )
 async def upload_metadata(
@@ -161,6 +177,15 @@ async def upload_metadata(
     Returns:
         response (UploadResponse): return a copy of the uploaded file
             or raise 409, 422, or 500 error.
+
+    Raises:
+        DuplicateFileException:
+            A file already exists in the database with this information
+        IncorrectInputException:
+            Provided document is missing information or
+            uses invalid characters
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
 
     """
     file_metadata = file.dict()
