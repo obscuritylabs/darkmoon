@@ -5,12 +5,18 @@
 ###########
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
 from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity, UploadResponse
 from darkmoon.core.database import get_file_metadata_collection
+from darkmoon.core.schema import (
+    DuplicateFileException,
+    IncorrectInputException,
+    ItemNotFoundException,
+    ServerNotFoundException,
+)
 
 ####################
 # GLOBAL VARIABLES #
@@ -57,18 +63,18 @@ async def list_metadata(
     hash = ""
     hash_type = ""
     if ":" not in fullHash:
-        raise HTTPException(
-            400,
-            (
+        raise IncorrectInputException(
+            status_code=400,
+            detail=(
                 "Format hash information like this: ",
                 "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
             ),
         )
     split = fullHash.split(":")
     if len(split) != 2:
-        raise HTTPException(
-            400,
-            (
+        raise IncorrectInputException(
+            status_code=400,
+            detail=(
                 "Format hash information like this: ",
                 "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
             ),
@@ -83,29 +89,15 @@ async def list_metadata(
             hash_parameter = "hashes." + str(hash_type)
             search[hash_parameter] = hash
         elif hash_type:
-            raise HTTPException(
-                400,
-                (
-                    "Format hash information like this: ",
-                    "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
-                ),
-            )
+            raise IncorrectInputException(status_code=422, detail="Enter hash.")
         elif hash:
-            raise HTTPException(
-                400,
-                (
-                    "Format hash information like this: ",
-                    "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
-                ),
-            )
+            raise IncorrectInputException(status_code=422, detail="Enter hash type.")
+
         data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
-        raise HTTPException(
-            504,
-            ("Server not found ",),
-        )
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
 
 @router.get("/{id}")
@@ -127,33 +119,15 @@ async def get_metadata_by_id(
         if doc:
             document = MetadataEntity(**doc)
         else:
-            raise HTTPException(
-                400,
-                (
-                    "Format hash information like this: ",
-                    "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
-                ),
-            )
+            raise ItemNotFoundException(status_code=404, detail="Item not found.")
 
         return document
 
     except errors.ServerSelectionTimeoutError:
-        raise HTTPException(
-            400,
-            (
-                "Format hash information like this: ",
-                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
-            ),
-        )
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
     except bson.errors.InvalidId:  # type: ignore
-        raise HTTPException(
-            400,
-            (
-                "Format hash information like this: ",
-                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
-            ),
-        )
+        raise ItemNotFoundException(status_code=404, detail="Item not found, check ID.")
 
 
 @router.post("/")
@@ -191,13 +165,7 @@ async def upload_metadata(
     try:
         dup = await collection.find_one(check_dup)
         if dup:
-            raise HTTPException(
-                400,
-                (
-                    "Format hash information like this: ",
-                    "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
-                ),
-            )
+            raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
 
         doc = await collection.find_one(duplicate_hashes)
         if doc:
@@ -238,7 +206,4 @@ async def upload_metadata(
             return UploadResponse(message="Successfully Inserted Object", data=file)
 
     except errors.ServerSelectionTimeoutError:
-        raise HTTPException(
-            504,
-            ("Server not found",),
-        )
+        raise ServerNotFoundException(status_code=500, detail="Server timed out.")
