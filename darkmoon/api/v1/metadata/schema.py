@@ -1,4 +1,3 @@
-
 """Imports the modules/classes Field, BaseModel, Core Response model, and Optional."""
 
 from beanie import PydanticObjectId
