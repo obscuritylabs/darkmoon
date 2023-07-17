@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
-from darkmoon.api.v1.metadata.schema import Hashes, HeaderInfo, MetadataEntity
+from darkmoon.api.v1.metadata.schema import Hashes, HeaderInfo, Metadata, MetadataEntity
 from darkmoon.app import get_app
 from darkmoon.settings import Settings
 
@@ -63,10 +63,10 @@ def test_metadata_entity() -> (
         file_extension=[".jpeg"],
         file_type=["exe"],
         hashes=Hashes(
-            md5="5d41402abc4b2a76b9719d911017c592",
-            sha1="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
-            sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
-            sha512="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
+            md5="0d41402abc4b2a76b9719d911017c591",
+            sha1="0af4c61ddcc5e8a2dabede0f3b482cd9aea9434a",
+            sha256="0cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9823",
+            sha512="05d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84979",
         ),
         source_iso_name=[],
         operating_system=[],
@@ -76,10 +76,10 @@ def test_metadata_entity() -> (
             compile_time="",
             signature="",
             rich_header_hashes=Hashes(
-                md5="5d41402abc4b2a76b9719d911017c592",
-                sha1="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
-                sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
-                sha512="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
+                md5="0d41402abc4b2a76b9719d911017c591",
+                sha1="0af4c61ddcc5e8a2dabede0f3b482cd9aea9434a",
+                sha256="0cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9823",
+                sha512="05d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84979",
             ),
         ),
     ).dict()
@@ -104,3 +104,44 @@ def populated_database(
 def populated_app(populated_database: str) -> FastAPI:
     """Darkmoon app with populated database."""
     return get_app(Settings.parse_obj({"MONGODB_CONN": populated_database}))
+
+
+@pytest.fixture
+def test_metadata() -> Metadata:
+    """Represent a test metadata object."""
+    file: Metadata = Metadata(
+        name=[
+            "End_Of_The_World",
+        ],
+        file_extension=[
+            ".jpeg",
+        ],
+        file_type=[
+            "exe",
+        ],
+        hashes=Hashes(
+            md5="5d41402abc4b2a76b9719d911017c592",
+            sha1="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
+            sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+            sha512="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
+        ),
+        source_iso_name=[
+            "Win_XP",
+        ],
+        operating_system=[
+            "WindowsXP",
+        ],
+        header_info=HeaderInfo(
+            machine_type="0x14c",
+            timestamp="12/2/23 17:57:43",
+            compile_time="15",
+            signature="example",
+            rich_header_hashes=Hashes(
+                md5="5d41402abc4b2a76b9719d911017c592",
+                sha1="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
+                sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+                sha512="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
+            ),
+        ),
+    )
+    return file

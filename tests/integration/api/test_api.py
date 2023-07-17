@@ -5,6 +5,8 @@ from schemathesis.lazy import LazySchema
 from schemathesis.models import Case
 from starlette_testclient import TestClient
 
+from darkmoon.api.v1.metadata.schema import Metadata
+
 schemathesis.fixups.install()
 schema: LazySchema = schemathesis.from_pytest_fixture(
     "app_schema",
@@ -36,7 +38,7 @@ def test_get(
             "/metadata/",
             params={
                 "hash_type": "md5",
-                "hash": "5d41402abc4b2a76b9719d911017c592",
+                "hash": "0d41402abc4b2a76b9719d911017c591",
             },
         )
         # remove extra data added by mongo db, reformat _id key value
@@ -73,7 +75,7 @@ def test_get_id(
         list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
     ],
 ) -> None:
-    """Test stuff."""
+    """Test GET /metadata/{id} endpoint correctly receives object from database."""
     with TestClient(populated_app) as app:
         # positive case, should get a copy of the MetaDataEntity fixture
         # remove extra data added by mongo db, reformat _id key value
@@ -85,8 +87,38 @@ def test_get_id(
         assert response.status_code == 200
         assert response.json() == test_metadata_entity
 
-        # negative case, missing parameters
+        # negative case, incorrect id
         response = app.get(f"/metadata/{'0123456789ab0123456789ab'}")
 
         assert response.status_code == 404
         assert response.json() == {"detail": "Item not found."}
+
+
+def test_post(
+    populated_app: FastAPI,
+    test_metadata: Metadata,
+) -> None:
+    """Test post endpoint with a variety of inputs."""
+    with TestClient(populated_app) as app:
+        response = app.post("/metadata/", data=test_metadata.json())
+        assert response.status_code == 201
+        assert response.json()["message"] == "Successfully Inserted Object."
+        assert response.json()["data"] == test_metadata.dict()
+
+        response = app.post("/metadata/", data=test_metadata.json())
+        assert response.status_code == 409
+        assert response.json()["detail"] == "File is a duplicate."
+
+        test_metadata.name = ["different name"]
+        response = app.post("/metadata/", data=test_metadata.json())
+        assert response.status_code == 201
+        assert response.json()["message"] == "Successfully Updated Object."
+        assert response.json()["data"] == test_metadata.dict()
+
+        test_metadata.name = [""]
+        response = app.post("/metadata/", data=test_metadata.json())
+        assert response.status_code == 422
+        assert (
+            response.json()["detail"][0]["msg"]
+            == 'string does not match regex "^(?!\\s*$).+"'
+        )

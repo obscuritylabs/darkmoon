@@ -1,6 +1,4 @@
 """Imports the modules/classes Field, BaseModel, Core Response model, and Optional."""
-from typing import Any
-
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field, validator
 
@@ -107,29 +105,15 @@ class Metadata(BaseModel):
         "name",
         "file_extension",
         "file_type",
-        "hashes",
         "source_iso_name",
         "operating_system",
-        "header_info",
     )
-    def validate_input(cls, input: dict[str, Any]) -> dict[str, Any]:
+    def validate_input(cls, input: list[str]) -> list[str]:
         """Ensure all data in an uploaded file uses proper UTF-8 characters."""
-        for key in input:
-            if input[key] is str:
-                try:
-                    input[key].encode("UTF-8")
-                except UnicodeEncodeError:
-                    raise IncorrectInputException(
-                        status_code=422,
-                        detail=("Input contains invalid characters"),
-                    )
-            elif input[key] is dict:
-                if not cls.validate_input(input):
-                    raise IncorrectInputException(
-                        status_code=422,
-                        detail=("Input contains invalid characters"),
-                    )
-            else:
+        for value in input:
+            try:
+                value.encode("UTF-8")
+            except UnicodeEncodeError:
                 raise IncorrectInputException(
                     status_code=422,
                     detail=("Input contains invalid characters"),
