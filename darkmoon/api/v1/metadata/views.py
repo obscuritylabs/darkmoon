@@ -38,9 +38,6 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 async def list_metadata(
     fullHash: str = Query(example="sha256:sdlkfjksldklsdjsdfklj"),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-    # file_name: str | None = None,
-    # hash_type: str | None = None,
-    # hash: str | None = None,
     page: int = Query(0, ge=0, description="The page to iterate to."),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
