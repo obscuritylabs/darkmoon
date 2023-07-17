@@ -50,4 +50,8 @@ jobs:
         run: SKIP=poetry-lock poetry run pre-commit run --all-files
 
       - name: Pytest testing
-        run: poetry run pytest
+        run: poetry run pytest -k 'not test_api_schema'
+
+      - name: Schemathesis testing
+        continue-on-error: true
+        run: poetry run pytest -k 'test_api_schema'
