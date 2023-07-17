@@ -17,5 +17,12 @@
 		"terminal.integrated.defaultProfile.linux": "zsh",
 		"remote.containers.copyGitConfig": true
 	},
+	"features": {
+		"docker-in-docker": {
+			"version": "latest",
+			"moby": true,
+			"dockerDashComposeVersion": "3"
+		}
+	},
 	"postCreateCommand": "make install"
 }
