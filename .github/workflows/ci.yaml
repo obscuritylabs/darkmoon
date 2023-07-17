@@ -54,4 +54,4 @@ jobs:
 
       - name: Schemathesis testing
         continue-on-error: true
-        run: poetry run pytest -k 'test_api'
+        run: poetry run pytest -k 'test_api_schema'
