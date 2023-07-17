@@ -206,7 +206,7 @@ async def upload_metadata(
             "header_info": file_metadata["header_info"],
         }
     except IndexError:
-        raise HTTPException(status_code=422, detail=["Input missing"])
+        raise IncorrectInputException(status_code=422, detail=["Input missing"])
 
     try:
         dup = await collection.find_one(check_dup)
