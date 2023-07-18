@@ -68,8 +68,8 @@ def test_metadata_entity() -> (
             sha256="0cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9823",
             sha512="05d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84979",
         ),
-        source_iso_name=[],
-        operating_system=[],
+        source_iso_name=["Win_XP"],
+        operating_system=["Windows XP"],
         header_info=HeaderInfo(
             machine_type="",
             timestamp="",
