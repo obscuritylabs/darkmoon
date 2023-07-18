@@ -3,7 +3,6 @@
 ###########
 # IMPORTS #
 ###########
-
 import bson
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query
@@ -37,10 +36,8 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 @router.get("/")
 async def list_metadata(
+    fullHash: str = Query(example="sha256:sdlkfjksldklsdjsdfklj"),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-    file_name: str | None = None,
-    hash_type: str | None = None,
-    hash: str | None = None,
     page: int = Query(0, ge=0, description="The page to iterate to."),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
@@ -59,6 +56,29 @@ async def list_metadata(
     """
     search = {}
 
+    file_name = ""
+    hash = ""
+    hash_type = ""
+    if ":" not in fullHash:
+        raise IncorrectInputException(
+            status_code=400,
+            detail=(
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    split = fullHash.split(":")
+    if len(split) != 2:
+        raise IncorrectInputException(
+            status_code=400,
+            detail=(
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    hash_type = str(split[0])
+    hash = str(split[1])
+
     try:
         if file_name:
             search["name"] = file_name
@@ -69,6 +89,7 @@ async def list_metadata(
             raise IncorrectInputException(status_code=422, detail="Enter hash.")
         elif hash:
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
+
         data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
         return [MetadataEntity.parse_obj(item) for item in data]
 
