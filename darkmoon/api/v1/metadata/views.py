@@ -16,6 +16,10 @@ from darkmoon.core.schema import (
     ServerNotFoundException,
 )
 
+####################
+# GLOBAL VARIABLES #
+####################
+
 router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 
@@ -65,6 +69,13 @@ async def list_metadata(
     Returns:
         List[MetadataEntity]: List of all documents that match parameters in the
         database.
+
+    Raises:
+        IncorrectInputException:
+            The input contains invalid UTF-8 characters
+            or is all white space
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
 
     Raises:
         IncorrectInputException:
@@ -185,9 +196,6 @@ async def upload_metadata(
             uses invalid characters
         ServerNotFoundException:
             Endpoint is unable to connect to mongoDB instance
-
-    Raises:
-        errors.ServerSelectionTimeoutError: If the server is not found.
     """
     file_metadata = file.dict()
     try:
