@@ -11,7 +11,7 @@ templates = Jinja2Templates(
 )
 
 
-@router.get("/items/{id}", response_class=HTMLResponse)
-async def read_item(request: Request, id: str) -> Response:
+@router.get("", response_class=HTMLResponse)
+async def read_item(request: Request) -> Response:
     """Read the request for response."""
-    return templates.TemplateResponse("index.html", {"request": request, "id": id})
+    return templates.TemplateResponse("index.html", {"request": request})
