@@ -36,9 +36,9 @@ clean: ## Clean all development artifacts.
 
 .PHONY: docker-clean
 docker-clean: ## clean all docker cache and containers
-	@docker rm -f $(docker ps -a -q) && \
-	docker volume rm $(docker volume ls -q) && \
-	docker rmi -f $(docker images -aq)
+	@docker rm -f $$(docker ps -a -q)
+	@docker volume rm $$(docker volume ls -q)
+	@docker rmi -f $$(docker images -aq)
 
 # ================================================
 # Install
@@ -97,8 +97,18 @@ pre-commit: ##@pre-commit Run pre-commit hooks on all files.
 # ================================================
 
 .PHONY: test
-test: ##@test Run unit tests.
+test: ##@test Run all tests except schemathesis.
+	@poetry run pytest -k 'not test_api_schema'
+
+
+# ================================================
+# Test-all
+# ================================================
+
+.PHONY: test-all
+test-all: ##@test Run all tests.
 	@poetry run pytest
+
 
 
 # ================================================
