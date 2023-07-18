@@ -16,7 +16,7 @@ types-requests = "^2.27.13"
 requests = "^2.31.0"
 motor = "^3.0.0"
 httpx = "^0.24.1"
-pydantic = "1.10.9"
+pydantic = "1.10.11"
 pefile = "^2023.2.7"
 uvicorn = { extras = ["standard"], version = "^0.22.0" }
 python-magic = "^0.4.27"
