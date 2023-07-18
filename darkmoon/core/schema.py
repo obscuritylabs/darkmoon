@@ -24,7 +24,3 @@ class DuplicateFileException(HTTPException):
 
 class IncorrectInputException(HTTPException):
     """Exception raised when a input does not contain proper identifiers."""
-
-
-class InvalidIDException(HTTPException):
-    """Exception raised when an invalid ID is encountered."""
