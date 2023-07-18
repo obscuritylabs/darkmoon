@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 """Defines an API router for handling metadata related requests."""
-=======
-"""This is the router file."""
-
-###########
-# IMPORTS #
-###########
->>>>>>> 6f45317 (56 throw an exception for the case that there is missing input ie missing hashes (#71))
 
 import bson
 from beanie import PydanticObjectId
@@ -26,8 +18,6 @@ from darkmoon.core.schema import (
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
 
-<<<<<<< HEAD
-=======
 
 ###########
 # CLASSES #
@@ -37,7 +27,6 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 # FUNCTIONS #
 #############
 
->>>>>>> 6f45317 (56 throw an exception for the case that there is missing input ie missing hashes (#71))
 
 @router.get(
     "/",
@@ -135,14 +124,7 @@ async def get_metadata_by_id(
 
     Parameters:
         id (str): Unique id of specific entry in MongoDB
-<<<<<<< HEAD
         collection (AsyncIOMotorCollection) : The database collection to query.
-
-    Raises:
-        errors.ServerSelectionTimeoutError: If the server is not found.
-        bson.errors.InvalidId: If the ID provided is invalid.
-=======
->>>>>>> 6f45317 (56 throw an exception for the case that there is missing input ie missing hashes (#71))
 
     Returns:
         document (MetadataEntity): Return the database entry with
@@ -189,11 +171,6 @@ async def upload_metadata(
     """Fast API POST function for incoming files.
 
     Parameters:
-<<<<<<< HEAD
-        file (Metadata): The metadata of the file being uploaded.
-        collection (AsyncIOMotorCollection): The database collection to insert the
-        metadata into.
-=======
         file (Metadata): The file that is uploaded to the database.
 
     Returns:
@@ -208,29 +185,11 @@ async def upload_metadata(
             uses invalid characters
         ServerNotFoundException:
             Endpoint is unable to connect to mongoDB instance
->>>>>>> 6f45317 (56 throw an exception for the case that there is missing input ie missing hashes (#71))
 
     Raises:
         errors.ServerSelectionTimeoutError: If the server is not found.
     """
     file_metadata = file.dict()
-<<<<<<< HEAD
-    duplicate_hashes = {
-        "hashes.md5": file_metadata["hashes"]["md5"],
-        "hashes.sha1": file_metadata["hashes"]["sha1"],
-        "hashes.sha256": file_metadata["hashes"]["sha256"],
-        "hashes.sha512": file_metadata["hashes"]["sha512"],
-    }
-    check_dup = {
-        "name": file_metadata["name"][0],
-        "file_extension": file_metadata["file_extension"][0],
-        "file_type": file_metadata["file_type"][0],
-        "hashes": file_metadata["hashes"],
-        "source_iso_name": file_metadata["source_iso_name"][0],
-        "operating_system": file_metadata["operating_system"][0],
-        "header_info": file_metadata["header_info"],
-    }
-=======
     try:
         duplicate_hashes = {
             "hashes.md5": file_metadata["hashes"]["md5"],
@@ -249,7 +208,6 @@ async def upload_metadata(
         }
     except IndexError:
         raise IncorrectInputException(status_code=422, detail=["Input missing"])
->>>>>>> 6f45317 (56 throw an exception for the case that there is missing input ie missing hashes (#71))
 
     try:
         dup = await collection.find_one(check_dup)
