@@ -3,9 +3,10 @@
 ###########
 # IMPORTS #
 ###########
+
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -34,11 +35,23 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 #############
 
 
-@router.get("/")
+@router.get(
+    "/",
+    responses={
+        422: {"Client Error Response": "Unprocessable Content"},
+        504: {"Server Error Response": "Gateway Timeout"},
+    },
+)
 async def list_metadata(
     fullHash: str = Query(example="sha256:sdlkfjksldklsdjsdfklj"),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-    page: int = Query(0, ge=0, description="The page to iterate to."),
+    file_name: str | None = None,
+    page: int = Query(
+        0,
+        ge=0,
+        le=18446744073709552,
+        description="The page to iterate to.",
+    ),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
     """Return list of metadata that matches the parameters in the database.
@@ -53,7 +66,40 @@ async def list_metadata(
         documents (list[MetadataEntity]): List of all documents that match
             parameters in the database
 
+    Raises:
+        IncorrectInputException:
+            The input contains invalid UTF-8 characters
+            or is all white space
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
+
     """
+    split = fullHash.split(":")
+    if len(split) != 2:
+        raise IncorrectInputException(
+            status_code=400,
+            detail=(
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    hash_type = str(split[0])
+    hash = str(split[1])
+    try:
+        hash.encode("UTF-8")
+        hash_type.encode("UTF-8")
+    except UnicodeEncodeError:
+        raise IncorrectInputException(
+            status_code=422,
+            detail=("Input contains invalid characters"),
+        )
+
+    if "\x00" in hash or "\x00" in hash_type or hash.isspace() or hash_type.isspace():
+        raise IncorrectInputException(
+            status_code=422,
+            detail=("Input contains invalid characters"),
+        )
+
     search = {}
 
     file_name = ""
@@ -97,7 +143,14 @@ async def list_metadata(
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
 
-@router.get("/{id}")
+@router.get(
+    "/{id}",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+        404: {"Client Error Response": "Not Found"},
+        500: {"Server Error Response": "Internal Server Error"},
+    },
+)
 async def get_metadata_by_id(
     id: PydanticObjectId,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
@@ -106,9 +159,18 @@ async def get_metadata_by_id(
 
     Parameters:
         id (str): Unique id of specific entry in MongoDB
+
     Returns:
         document (MetadataEntity): Return the database entry with
-            matching id or raise 404 error
+            matching id or raise 400, 404, or 500 error.
+
+    Raises:
+        InvalidIDException:
+            Provided ID is invalid
+        ItemNotFoundException:
+            no item with the provided ID is in the database
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
 
     """
     try:
@@ -127,7 +189,15 @@ async def get_metadata_by_id(
         raise ItemNotFoundException(status_code=404, detail="Item not found, check ID.")
 
 
-@router.post("/")
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        409: {"Client Error Response": "Conflict"},
+        422: {"Client Error Response": "Unprocessable Content"},
+        500: {"Server Error Response": "Internal Server Error"},
+    },
+)
 async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
@@ -138,26 +208,38 @@ async def upload_metadata(
         file (Metadata): The file that is uploaded to the database.
 
     Returns:
-        None
+        response (UploadResponse): return a copy of the uploaded file
+            or raise 409, 422, or 500 error.
+
+    Raises:
+        DuplicateFileException:
+            A file already exists in the database with this information
+        IncorrectInputException:
+            Provided document is missing information or
+            uses invalid characters
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
 
     """
     file_metadata = file.dict()
-
-    duplicate_hashes = {
-        "hashes.md5": file_metadata["hashes"]["md5"],
-        "hashes.sha1": file_metadata["hashes"]["sha1"],
-        "hashes.sha256": file_metadata["hashes"]["sha256"],
-        "hashes.sha512": file_metadata["hashes"]["sha512"],
-    }
-    check_dup = {
-        "name": file_metadata["name"][0],
-        "file_extension": file_metadata["file_extension"][0],
-        "file_type": file_metadata["file_type"][0],
-        "hashes": file_metadata["hashes"],
-        "source_iso_name": file_metadata["source_iso_name"][0],
-        "operating_system": file_metadata["operating_system"][0],
-        "header_info": file_metadata["header_info"],
-    }
+    try:
+        duplicate_hashes = {
+            "hashes.md5": file_metadata["hashes"]["md5"],
+            "hashes.sha1": file_metadata["hashes"]["sha1"],
+            "hashes.sha256": file_metadata["hashes"]["sha256"],
+            "hashes.sha512": file_metadata["hashes"]["sha512"],
+        }
+        check_dup = {
+            "name": file_metadata["name"][0],
+            "file_extension": file_metadata["file_extension"][0],
+            "file_type": file_metadata["file_type"][0],
+            "hashes": file_metadata["hashes"],
+            "source_iso_name": file_metadata["source_iso_name"][0],
+            "operating_system": file_metadata["operating_system"][0],
+            "header_info": file_metadata["header_info"],
+        }
+    except IndexError:
+        raise IncorrectInputException(status_code=422, detail=["Input missing"])
 
     try:
         dup = await collection.find_one(check_dup)
@@ -196,11 +278,16 @@ async def upload_metadata(
                 },
             }
             await collection.update_one(duplicate_hashes, change)
-            return UploadResponse(message="Successfully Updated Object", data=file)
+            return UploadResponse(message="Successfully Updated Object.", data=file)
 
         else:
             await collection.insert_one(file_metadata)
-            return UploadResponse(message="Successfully Inserted Object", data=file)
+            return UploadResponse(message="Successfully Inserted Object.", data=file)
 
     except errors.ServerSelectionTimeoutError:
-        raise ServerNotFoundException(status_code=500, detail="Server timed out.")
+        raise ServerNotFoundException(status_code=500, detail="Server not found.")
+    except UnicodeEncodeError:
+        raise IncorrectInputException(
+            status_code=422,
+            detail=("Input contains invalid characters"),
+        )
