@@ -1,14 +1,9 @@
-import os
-
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, Response
-from fastapi.templating import Jinja2Templates
+
+from darkmoon.settings import templates
 
 router = APIRouter(prefix="/webpages", tags=["webpages"])
-
-templates = Jinja2Templates(
-    directory=os.path.join(os.path.dirname(__file__), "templates"),
-)
 
 
 @router.get("", response_class=HTMLResponse)
