@@ -84,7 +84,7 @@ class Metadata(BaseModel):
 
     source_iso_name: list[str] = Field(
         description="source ISO name",
-        example=[""],
+        example=["Win_XP"],
         min_items=1,
         regex="^(?!\\s*$).+",
     )
@@ -148,7 +148,7 @@ class MetadataEntity(BaseModel):
     )
     source_iso_name: list[str] = Field(
         description="source ISO name",
-        example=[""],
+        example=["Win_XP"],
     )
 
     operating_system: list[str] = Field(
