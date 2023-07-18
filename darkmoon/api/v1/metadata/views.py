@@ -15,7 +15,6 @@ from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
     DuplicateFileException,
     IncorrectInputException,
-    InvalidIDException,
     ItemNotFoundException,
     ServerNotFoundException,
 )
@@ -44,8 +43,7 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
     },
 )
 async def list_metadata(
-    hash_type: str,
-    hash: str,
+    fullHash: str = Query(example="sha256:sdlkfjksldklsdjsdfklj"),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     file_name: str | None = None,
     page: int = Query(
@@ -76,6 +74,17 @@ async def list_metadata(
             Endpoint is unable to connect to mongoDB instance
 
     """
+    split = fullHash.split(":")
+    if len(split) != 2 or ":" not in fullHash:
+        raise IncorrectInputException(
+            status_code=422,
+            detail=(
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    hash_type = str(split[0])
+    hash = str(split[1])
     try:
         hash.encode("UTF-8")
         hash_type.encode("UTF-8")
@@ -93,6 +102,29 @@ async def list_metadata(
 
     search = {}
 
+    file_name = ""
+    hash = ""
+    hash_type = ""
+    if ":" not in fullHash:
+        raise IncorrectInputException(
+            status_code=422,
+            detail=(
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    split = fullHash.split(":")
+    if len(split) != 2:
+        raise IncorrectInputException(
+            status_code=422,
+            detail=(
+                "Format hash information like this: ",
+                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
+            ),
+        )
+    hash_type = str(split[0])
+    hash = str(split[1])
+
     try:
         if file_name:
             search["name"] = file_name
@@ -100,9 +132,10 @@ async def list_metadata(
             hash_parameter = "hashes." + str(hash_type)
             search[hash_parameter] = hash
         elif hash_type:
-            raise IncorrectInputException(status_code=422, detail="Incorrect input.")
+            raise IncorrectInputException(status_code=422, detail="Enter hash.")
         elif hash:
-            raise IncorrectInputException(status_code=422, detail="Incorrect input")
+            raise IncorrectInputException(status_code=422, detail="Enter hash type.")
+
         data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
         return [MetadataEntity.parse_obj(item) for item in data]
 
@@ -153,7 +186,7 @@ async def get_metadata_by_id(
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
     except bson.errors.InvalidId:  # type: ignore
-        raise InvalidIDException(status_code=400, detail="invalid ID.")
+        raise ItemNotFoundException(status_code=404, detail="Item not found, check ID.")
 
 
 @router.post(
