@@ -12,7 +12,14 @@ from darkmoon.settings import Settings
 
 
 def get_app(settings: Settings | None = None) -> FastAPI:
-    """Return the FastAPI connection."""
+    """Return the FastAPI connection.
+
+    Parameters:
+        Settings (Optional): Settings object that defines the app settings.
+
+    Returns:
+        FastAPI: The FastAPI application.
+    """
     app_settings = settings or Settings()
 
     app = FastAPI()
