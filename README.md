@@ -65,15 +65,12 @@ Follow these steps to set up the development environment after installing the pr
     - clone the repository using SSH:
         `git clone git@github.com:team/repository/.git`
 
-- After opening the project in VSCode, a window on the bottom right should pop up asking to "reopen in container", click it. If it does not, click the green button on the bottom left and once the window on top appears, click "reopen in container". This step may take several minutes to set everything up.
-- Once the project is opened in the container, click on the darkmoon.code-workspace file in the root directory and click "Open Workspace". This step may take a few minutes.
 ### Local Development
 
 Once both steps have been completed, and VSCode finishes setting up, development is ready to begin. All dependencies have been installed.
 1. Install project dependencies
     `make install`
 
-### To Test The Applications
 ### Setting up the dev-container:
 
 1. Run the development environment:
