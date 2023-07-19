@@ -10,14 +10,10 @@ The command-line interface tool will be a Typer CLI based application (Python). 
 
 -[Typer CLI](https://typer.tiangolo.com) -[Example metadata](https://www.virustotal.com/gui/file/79bd6ba26c844639a596241f6a92fb453409738998ca60b79718534f3b0f9e65/details)
 
-## Web API Service
-
+## Web API Services
 The Web API service will utilize FastAPI. This web service will be un-authenticated and allow for reading and writing. Lookups will be able to search by name or hashes (MD5, SHA1, SHA128, SHA256) utilizing two endpoints (hash or name). The hash endpoint will be able to search by multiple types of hashes. The CLI application will use the write endpoint to save to the database.
 
 -[FastAPI](https://fastapi.tiangolo.com)
-
-## Repository Components
-
 ### Pre-Commit Hooks
 To ensure consistent and high-quality code that follows standard practices, this repository will use pre-commit hooks. These checks must be passed before code will be able to be pushed to the repository.
 
@@ -31,10 +27,18 @@ VSCode allows for development within a docker container. This project has an alr
 
 -[Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) -[Docker](https://www.docker.com/)
 
+### Prerequisites
+
+Make sure the following dependencies are installed on your system:
+- Poetry (1.5.1)
+- Visual Studio Code
+- Docker
+- MongoDB Compass
+- 1Password
+
 ## Getting Started
 
 ### To Begin Development
-
 Follow these steps to set up the development environment after installing the prerequisites.
 1. Setting up GitHub SSH Auth and Signing Keys and configure SSH authentication and add your SSh public key to your GitHub account.
     - Open 1pass, go into settings and then click developer and then click on "use the SSH agent", and then follow the direction it gives you to complete the process. Open your SSH client configuration file \~/.ssh/config or C:\Users\YourUsername.ssh\config.
@@ -59,8 +63,6 @@ Follow these steps to set up the development environment after installing the pr
         `git clone git@github.com:team/repository/.git`
 
 ### Local Development
-
-
 
 Once both steps have been completed, and VSCode finishes setting up, development is ready to begin. All dependencies have been installed.
 1. Install project dependencies
@@ -97,7 +99,6 @@ To connect to the MongoDB database used by the API:
 
 # DarkMoon CLI
 
-```
 - DarkMoon CLI:
 The DarkMoon CLI subsection of the project scans operating systems, iterates through the files, and sends them through to MongoDB via FastAPI.
 
