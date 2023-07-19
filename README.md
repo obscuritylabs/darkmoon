@@ -1,33 +1,28 @@
 # Project DarkMoon
 
 This project will catalogue file metadata from multiple Windows operating systems. The data will be available for lookup based on file name or file hashes.
-This project will catalog file metadata from multiple Windows operating systems. The data will be available for lookup based on the file name or file hashes.
 
 ## Project Components
 
 ### Command-Line Interface (CLI) Tool
 
 The command-line interface tool will be a Typer CLI based application (Python). This application will be able to crawl through multiple virtual hard disks (VHDs) created from Windows virtual machines and gather metadata from each file. The data will then use the backend to write to the database.
-The command-line interface tool will be a Typer CLI-based application (Python). This application will be able to crawl through multiple virtual hard disks (VHDs) created from Windows virtual machines and gather metadata from each file. The data will then use the backend to write to the database.
 
 -[Typer CLI](https://typer.tiangolo.com) -[Example metadata](https://www.virustotal.com/gui/file/79bd6ba26c844639a596241f6a92fb453409738998ca60b79718534f3b0f9e65/details)
 
 ### Pre-Commit Hooks
 
 To ensure consistent and high-quality code that follows standard practices, this repository will use pre-commit hooks. These checks must be passed before code will be able to be pushed to the repository.
-To ensure consistent and high-quality code that follows standard practices, this repository will use pre-commit hooks. These checks must be passed before the code will be able to be pushed to the repository.
 
 ### Conventional Commits
 
 To keep a easily readable and clean commit history, conventional commits will be enforced.
-To keep an easily readable and clean commit history, conventional commits will be enforced.
 
 -[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ### Portable Development Containers
 
 VSCode allows for development within a docker container. This project has an already configured dev container that includes all needed dependencies, requirements and settings to begin development. There is also a docker compose file that will run the database and server.
-VSCode allows for development within a docker container. This project has an already configured dev container that includes all needed dependencies, requirements, and settings to begin development. There is also a docker-compose file that will run the database and server.
 
 -[Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) -[Docker](https://www.docker.com/)
 
