@@ -23,7 +23,7 @@ def register_database(
     async def darkmoon_client() -> None:
         app.client: AsyncIOMotorClient = AsyncIOMotorClient(  # type: ignore
             mongoDB_conn,
-            serverSelectionTimeoutMS=5000,
+            serverSelectionTimeoutMS=8000,
         )
 
     return darkmoon_client
