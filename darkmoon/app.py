@@ -12,9 +12,10 @@ import darkmoon.api.v1.metadata.views as views
 from darkmoon.core.database import register_database
 from darkmoon.settings import Settings
 
-app = FastAPI()
-
 templates = Jinja2Templates(directory="templates")
+
+
+app = FastAPI()
 
 
 @app.get("/items/{id}", response_class=HTMLResponse)
@@ -41,6 +42,8 @@ def get_app(settings: Settings | None = None) -> FastAPI:
         FastAPI: The FastAPI application.
     """
     app_settings = settings or Settings()
+
+    app = FastAPI()
 
     app.on_event("startup")(register_database(app, str(app_settings.MONGODB_CONN)))
 
