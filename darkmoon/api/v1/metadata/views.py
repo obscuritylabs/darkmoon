@@ -15,20 +15,7 @@ from darkmoon.core.schema import (
     ServerNotFoundException,
 )
 
-####################
-# GLOBAL VARIABLES #
-####################
-
 router = APIRouter(prefix="/metadata", tags=["metadata"])
-
-
-###########
-# CLASSES #
-
-
-#############
-# FUNCTIONS #
-#############
 
 
 @router.get(
@@ -55,20 +42,18 @@ async def list_metadata(
     Parameters:
         collection (AsyncIOMotorCollection): The database collection to query.
         file_name (str): The name of the file being searched.
-        hash (str): The hash of the file.
+        fullHash (str): The hash of the file.
         page (int): The page number to iterate to.
         length (int): The number of items per page.
 
-
-    Raises:
-        HTTPException: If the hash or hash_type is missing.
-        errors.ServerSelectionTimeoutError: If the server is not found.
-
-
     Returns:
         List[MetadataEntity]: List of all documents that match parameters in the
-        database.
+            database.
 
+    Raises:
+        ServerNotFoundException: Endpoint is unable to connect to mongoDB instance
+        IncorrectInputException: Provided document is missing information or
+            uses invalid characters
     """
     split = fullHash.split(":")
     if len(split) != 2 or ":" not in fullHash:
@@ -162,8 +147,6 @@ async def get_metadata_by_id(
             matching id or raise 400, 404, or 500 error.
 
     Raises:
-        InvalidIDException:
-            Provided ID is invalid
         ItemNotFoundException:
             no item with the provided ID is in the database
         ServerNotFoundException:
@@ -203,6 +186,7 @@ async def upload_metadata(
 
     Parameters:
         file (Metadata): The file that is uploaded to the database.
+        collection (AsyncIOMotorCollection) : The database collection to query.
 
     Returns:
         response (UploadResponse): return a copy of the uploaded file

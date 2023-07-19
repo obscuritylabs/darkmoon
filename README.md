@@ -15,10 +15,12 @@ The Web API service will utilize FastAPI. This web service will be un-authentica
 
 -[FastAPI](https://fastapi.tiangolo.com)
 ### Pre-Commit Hooks
+
 To ensure consistent and high-quality code that follows standard practices, this repository will use pre-commit hooks. These checks must be passed before code will be able to be pushed to the repository.
 
 ### Conventional Commits
 To keep a easily readable and clean commit history, conventional commits will be enforced.
+
 -[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ### Portable Development Containers
