@@ -63,24 +63,15 @@ async def list_metadata(
     Raises:
         HTTPException: If the hash or hash_type is missing.
         errors.ServerSelectionTimeoutError: If the server is not found.
+        IncorrectInputException:
+            The input contains invalid UTF-8 characters
+            or is all white space
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
 
     Returns:
         List[MetadataEntity]: List of all documents that match parameters in the
         database.
-
-    Raises:
-        IncorrectInputException:
-            The input contains invalid UTF-8 characters
-            or is all white space
-        ServerNotFoundException:
-            Endpoint is unable to connect to mongoDB instance
-
-    Raises:
-        IncorrectInputException:
-            The input contains invalid UTF-8 characters
-            or is all white space
-        ServerNotFoundException:
-            Endpoint is unable to connect to mongoDB instance
 
     """
     split = fullHash.split(":")
