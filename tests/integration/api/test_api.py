@@ -37,7 +37,8 @@ def test_get(
         response = app.get(
             "/metadata/",
             params={
-                "fullHash": "md5:0d41402abc4b2a76b9719d911017c591",
+                "hash_type": "md5",
+                "hash": "0d41402abc4b2a76b9719d911017c591",
             },
         )
         # remove extra data added by mongo db, reformat _id key value
@@ -54,7 +55,12 @@ def test_get(
         assert response.json() == {
             "detail": [
                 {
-                    "loc": ["query", "fullHash"],
+                    "loc": ["query", "hash_type"],
+                    "msg": "field required",
+                    "type": "value_error.missing",
+                },
+                {
+                    "loc": ["query", "hash"],
                     "msg": "field required",
                     "type": "value_error.missing",
                 },

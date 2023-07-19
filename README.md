@@ -10,14 +10,10 @@ The command-line interface tool will be a Typer CLI based application (Python). 
 
 -[Typer CLI](https://typer.tiangolo.com) -[Example metadata](https://www.virustotal.com/gui/file/79bd6ba26c844639a596241f6a92fb453409738998ca60b79718534f3b0f9e65/details)
 
-## Web API Service
+### Web API Services
+The Web API service will utilize FastAPI. This web service will be un-authenticated and allow for reading and writing. Lookups will be able to search by name or hashes (MD5, SHA1, SHA128, SHA256) utilizing two endpoints (hash or name). The hash endpoint will be able to search by multiple types of hashes. The CLI application will use the write endpoint to save to the database.
 
- The Web API service will utilize FastAPI. This web service will be un-authenticated and allow for reading and writing. Lookups will be able to search by name or hashes (MD5, SHA1, SHA128, SHA256) utilizing two endpoints (hash or name). The hash endpoint will be able to search by multiple types of hashes. The CLI application will use the write endpoint to save to the database.
-
- -[FastAPI](https://fastapi.tiangolo.com)
-
- ## Repository Components
-
+-[FastAPI](https://fastapi.tiangolo.com)
 ### Pre-Commit Hooks
 
 To ensure consistent and high-quality code that follows standard practices, this repository will use pre-commit hooks. These checks must be passed before code will be able to be pushed to the repository.
@@ -34,7 +30,6 @@ VSCode allows for development within a docker container. This project has an alr
 
 -[Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) -[Docker](https://www.docker.com/)
 
-
 ### Prerequisites
 
 Make sure the following dependencies are installed on your system:
@@ -43,7 +38,6 @@ Make sure the following dependencies are installed on your system:
 - Docker
 - MongoDB Compass
 - 1Password
-
 
 ## Getting Started
 
@@ -108,7 +102,6 @@ The database that is used for this project is MongoDB. The file metadata is uplo
 To connect to the MongoDB database used by the API:
 1. Launch MongoDB Compass.
 2. Use the connection string specified in the `settings.py` file to connect to the database.
-
 
 # DarkMoon CLI
 
