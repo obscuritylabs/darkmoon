@@ -2,10 +2,12 @@ from proxmoxer import ProxmoxAPI
 
 from darkmoon.settings import Settings
 
+settings = Settings()
+
 prox = ProxmoxAPI(
-    Settings.PROXMOX_HOST,
-    user=Settings.PROXMOX_USER,
-    password=Settings.PROXMOX_PASS,
+    settings.PROXMOX_HOST,
+    user=settings.PROXMOX_USER,
+    password=settings.PROXMOX_PASS,
     verify_ssl=False,
 )
 
