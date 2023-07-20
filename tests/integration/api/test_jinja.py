@@ -12,3 +12,4 @@ def test_jinja(populated_app: FastAPI) -> None:
             '<link href="http://testserver/static/styles.css" rel="stylesheet">'
             in response.content.decode("utf-8")
         )
+        assert response.status_code == 200
