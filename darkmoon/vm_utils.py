@@ -16,3 +16,9 @@ def upload_iso(node: str, storage: str, file_path: str) -> None:
         content="iso",
         filename=open(file_path, "rb"),
     )
+
+
+def display_node(node: str) -> str:
+    """Test me."""
+    res = prox.proxmox.nodes(node).get()
+    return str(res)
