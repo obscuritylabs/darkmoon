@@ -10,20 +10,17 @@ The command-line interface tool will be a Typer CLI based application (Python). 
 
 -[Typer CLI](https://typer.tiangolo.com) -[Example metadata](https://www.virustotal.com/gui/file/79bd6ba26c844639a596241f6a92fb453409738998ca60b79718534f3b0f9e65/details)
 
-## Web API Service
 
- The Web API service will utilize FastAPI. This web service will be un-authenticated and allow for reading and writing. Lookups will be able to search by name or hashes (MD5, SHA1, SHA128, SHA256) utilizing two endpoints (hash or name). The hash endpoint will be able to search by multiple types of hashes. The CLI application will use the write endpoint to save to the database.
+## Web API Services
+The Web API service will utilize FastAPI. This web service will be un-authenticated and allow for reading and writing. Lookups will be able to search by name or hashes (MD5, SHA1, SHA128, SHA256) utilizing two endpoints (hash or name). The hash endpoint will be able to search by multiple types of hashes. The CLI application will use the write endpoint to save to the database.
 
- -[FastAPI](https://fastapi.tiangolo.com)
-
- ## Repository Components
+-[FastAPI](https://fastapi.tiangolo.com)
 
 ### Pre-Commit Hooks
 
 To ensure consistent and high-quality code that follows standard practices, this repository will use pre-commit hooks. These checks must be passed before code will be able to be pushed to the repository.
 
 ### Conventional Commits
-
 To keep a easily readable and clean commit history, conventional commits will be enforced.
 
 -[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
@@ -71,15 +68,14 @@ Follow these steps to set up the development environment after installing the pr
     - clone the repository using SSH:
         `git clone git@github.com:team/repository/.git`
 
-- After opening the project in VSCode, a window on the bottom right should pop up asking to "reopen in container", click it. If it does not, click the green button on the bottom left and once the window on top appears, click "reopen in container". This step may take several minutes to set everything up.
-- Once the project is opened in the container, click on the darkmoon.code-workspace file in the root directory and click "Open Workspace". This step may take a few minutes.
+
 ### Local Development
 
 Once both steps have been completed, and VSCode finishes setting up, development is ready to begin. All dependencies have been installed.
 1. Install project dependencies
     `make install`
 
-### To Test The Applications
+
 ### Setting up the dev-container:
 
 1. Run the development environment:
