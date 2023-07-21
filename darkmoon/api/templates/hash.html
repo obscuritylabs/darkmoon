@@ -7,23 +7,38 @@
 
 </head>
 
+<form action="index.html">
+    <button>
+        Home Page
+    </button>
+</form>
+<form action="hash.html">
+    <button>
+        Hash Lookup
+    </button>
+</form>
+
 <body>
 
     </div>
 
     <h1>
 
-        <label for="Hashtype" class="HT" data-icon="u"></label>
+        <form action="/process_data" method="post" enctype="multipart/form-data">
 
-        <input id="HT" name="HashT" required="required" type="text" placeholder="Hash Type" />
+            <label for="hash_type" class=HT data-icon="u"> </label>
+            <select id="hash_type" name="hash_type" required="required" type="text" placeholder="Hash Type">
+                <option value="md5">MD5</option>
+                <option value="sha1">SHA-1</option>
+                <option value="sha256">SHA-256</option>
+                <option value="sha512">SHA-512</option>
 
-    </h1>
+                <label for="Hash" class="hash" data-icon="p"> </label>
 
-    <h1>
+                <input id="" name="password" required="required" type="text" placeholder="Hash" />
 
-        <label for="Hash" class="hash" data-icon="p"> </label>
-
-        <input id="" name="password" required="required" type="text" placeholder="Hash" />
+                <input type="submit" value="Submit" />
+        </form>
 
     </h1>
 
