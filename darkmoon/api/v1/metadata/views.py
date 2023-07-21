@@ -1,8 +1,9 @@
 """Defines an API router for handling metadata related requests."""
+import hashlib
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -271,3 +272,68 @@ async def upload_metadata(
             status_code=422,
             detail=("Input contains invalid characters"),
         )
+
+
+@router.post(
+    "/hashComparison",
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        409: {"Client Error Response": "Conflict"},
+        422: {"Client Error Response": "Unprocessable Content"},
+        500: {"Server Error Response": "Internal Server Error"},
+    },
+)
+async def hash_comparison(
+    fileInput: UploadFile,
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
+    page: int = Query(
+        0,
+        ge=0,
+        le=18446744073709552,
+        description="The page to iterate to.",
+    ),
+    length: int = Query(10, ge=1, le=500),
+) -> list[MetadataEntity]:
+    """Find closest match to a given file."""
+    try:
+        inputFileType = fileInput.content_type
+        inputFileName = fileInput.filename
+        # inputFileHeaders = fileInput.headers
+
+        data = fileInput.file.read()
+        hashes = []
+        h_md5 = hashlib.md5()  # noqa S324
+        h_sha1 = hashlib.sha1()  # noqa S324
+        h_sha256 = hashlib.sha256()
+        h_sha512 = hashlib.sha512()
+        h_md5.update(data)
+        h_sha1.update(data)
+        h_sha256.update(data)
+        h_sha512.update(data)
+        hashes.append(h_md5.hexdigest())
+        hashes.append(h_sha1.hexdigest())
+        hashes.append(h_sha256.hexdigest())
+        hashes.append(h_sha512.hexdigest())
+
+        # search_query = {
+        #     "$jsonSchema": MetadataEntity,
+        # }
+        search_query = {
+            "$or": [
+                {
+                    "name": inputFileName,
+                },
+                {
+                    "file_type": inputFileType,
+                },
+            ],
+        }
+
+        results = await collection.find(search_query).to_list(length=length)
+        li = []
+        for item in results:
+            li.append(MetadataEntity.parse_obj(item))
+        return li
+
+    except errors.ServerSelectionTimeoutError:
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
