@@ -32,7 +32,7 @@ help: ## Show all make targets.
 .PHONY: clean
 clean: ## Clean all development artifacts.
 	-find . -name "__pycache__" -type d -exec rm -rf {} \;
-	rm -rf .coverage .pytest_cache/ .venv/ coverage* .mypy_cache/
+	rm -rf .coverage .pytest_cache/ .venv/ coverage* .mypy_cache/ .ruff_cache/ .hypothesis/
 
 .PHONY: docker-clean
 docker-clean: ## clean all docker cache and containers
