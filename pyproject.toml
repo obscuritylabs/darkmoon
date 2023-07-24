@@ -11,7 +11,7 @@ darkmoon = "darkmoon.cli.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fastapi = "^0.95.0"
+fastapi = "^0.100.0"
 types-requests = "^2.27.13"
 requests = "^2.31.0"
 motor = "^3.0.0"
