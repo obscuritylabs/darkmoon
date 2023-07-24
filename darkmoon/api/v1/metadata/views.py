@@ -7,7 +7,13 @@ from fastapi import APIRouter, Depends, Query, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
-from darkmoon.api.v1.metadata.schema import Metadata, MetadataEntity, UploadResponse
+from darkmoon.api.v1.metadata.schema import (
+    Hashes,
+    Metadata,
+    MetadataEntity,
+    UploadResponse,
+    UploadResponse2,
+)
 from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
     DuplicateFileException,
@@ -293,15 +299,15 @@ async def hash_comparison(
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
-) -> list[MetadataEntity]:
+) -> UploadResponse2:
     """Find closest match to a given file."""
     try:
-        inputFileType = fileInput.content_type
-        inputFileName = fileInput.filename
+        inputFileType = str(fileInput.content_type)
+        inputFileName = str(fileInput.filename)
         # inputFileHeaders = fileInput.headers
 
         data = fileInput.file.read()
-        hashes = []
+        inputHashes = []
         h_md5 = hashlib.md5()  # noqa S324
         h_sha1 = hashlib.sha1()  # noqa S324
         h_sha256 = hashlib.sha256()
@@ -310,10 +316,10 @@ async def hash_comparison(
         h_sha1.update(data)
         h_sha256.update(data)
         h_sha512.update(data)
-        hashes.append(h_md5.hexdigest())
-        hashes.append(h_sha1.hexdigest())
-        hashes.append(h_sha256.hexdigest())
-        hashes.append(h_sha512.hexdigest())
+        inputHashes.append(h_md5.hexdigest())
+        inputHashes.append(h_sha1.hexdigest())
+        inputHashes.append(h_sha256.hexdigest())
+        inputHashes.append(h_sha512.hexdigest())
 
         # search_query = {
         #     "$jsonSchema": MetadataEntity,
@@ -333,7 +339,25 @@ async def hash_comparison(
         li = []
         for item in results:
             li.append(MetadataEntity.parse_obj(item))
-        return li
+        if len(li) == 0:
+            obj = MetadataEntity(
+                _id=PydanticObjectId(),
+                name=[inputFileName],
+                file_type=[inputFileType],
+                operating_system=[],
+                source_iso_name=[],
+                file_extension=[""],
+                hashes=Hashes(
+                    md5=inputHashes[0],
+                    sha1=inputHashes[1],
+                    sha256=inputHashes[2],
+                    sha512=inputHashes[3],
+                ),
+                header_info=None,
+            )
+            li.append(obj)
+            return UploadResponse2(message="No results found in database.", data=li)
+        return UploadResponse2(message="Database results available", data=li)
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")

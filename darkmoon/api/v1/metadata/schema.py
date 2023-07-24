@@ -169,3 +169,11 @@ class UploadResponse(Response):
     data: Metadata = Field(
         description="The object inserted or updated on the database",
     )
+
+
+class UploadResponse2(Response):
+    """Sets upload response requirements."""
+
+    data: list[MetadataEntity] = Field(
+        description="The object inserted or updated on the database",
+    )
