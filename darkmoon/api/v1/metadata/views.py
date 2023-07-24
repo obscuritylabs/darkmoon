@@ -1,8 +1,4 @@
-"""This is the router file."""
-
-###########
-# IMPORTS #
-###########
+"""Defines an API router for handling metadata related requests."""
 
 import bson
 from beanie import PydanticObjectId
@@ -19,20 +15,7 @@ from darkmoon.core.schema import (
     ServerNotFoundException,
 )
 
-####################
-# GLOBAL VARIABLES #
-####################
-
 router = APIRouter(prefix="/metadata", tags=["metadata"])
-
-
-###########
-# CLASSES #
-
-
-#############
-# FUNCTIONS #
-#############
 
 
 @router.get(
@@ -54,25 +37,23 @@ async def list_metadata(
     ),
     length: int = Query(10, ge=1, le=500),
 ) -> list[MetadataEntity]:
-    """Return list of metadata that matches the parameters in the database.
+    """Get list of metadata that matches the parameters in the database.
 
     Parameters:
-        file_name (Optional[str]): The name of the file being
-            searched. Is None by default.
-        hash_type (Optional[str]): The type of hash. Is None by default.
-        hash (Optional[str]): Hash of the file. Is None by default.
+        collection (AsyncIOMotorCollection): The database collection to query.
+        file_name (str): The name of the file being searched.
+        fullHash (str): The hash of the file.
+        page (int): The page number to iterate to.
+        length (int): The number of items per page.
 
     Returns:
-        documents (list[MetadataEntity]): List of all documents that match
-            parameters in the database
+        List[MetadataEntity]: List of all documents that match parameters in the
+            database.
 
     Raises:
-        IncorrectInputException:
-            The input contains invalid UTF-8 characters
-            or is all white space
-        ServerNotFoundException:
-            Endpoint is unable to connect to mongoDB instance
-
+        ServerNotFoundException: Endpoint is unable to connect to mongoDB instance
+        IncorrectInputException: Provided document is missing information or
+            uses invalid characters
     """
     split = fullHash.split(":")
     if len(split) != 2 or ":" not in fullHash:
@@ -155,18 +136,17 @@ async def get_metadata_by_id(
     id: PydanticObjectId,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> MetadataEntity:
-    """Return file by ObjectID in MongoDB.
+    """Find file by ObjectID in MongoDB.
 
     Parameters:
         id (str): Unique id of specific entry in MongoDB
+        collection (AsyncIOMotorCollection) : The database collection to query.
 
     Returns:
         document (MetadataEntity): Return the database entry with
             matching id or raise 400, 404, or 500 error.
 
     Raises:
-        InvalidIDException:
-            Provided ID is invalid
         ItemNotFoundException:
             no item with the provided ID is in the database
         ServerNotFoundException:
@@ -206,6 +186,7 @@ async def upload_metadata(
 
     Parameters:
         file (Metadata): The file that is uploaded to the database.
+        collection (AsyncIOMotorCollection) : The database collection to query.
 
     Returns:
         response (UploadResponse): return a copy of the uploaded file
@@ -219,7 +200,6 @@ async def upload_metadata(
             uses invalid characters
         ServerNotFoundException:
             Endpoint is unable to connect to mongoDB instance
-
     """
     file_metadata = file.dict()
     try:

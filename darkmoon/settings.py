@@ -4,6 +4,10 @@
 # Proprietary and confidential.
 
 
+from pathlib import Path
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseSettings, Field, MongoDsn
 
 
@@ -15,3 +19,10 @@ class Settings(BaseSettings):  # type: ignore
     PROXMOX_PASS: str = Field(default="")
     PROXMOX_USER: str = Field(default="")
     PROXMOX_HOST: str = Field(default="")
+
+
+HERE = Path(__file__).parent
+
+
+templates = Jinja2Templates(directory=HERE / "api" / "templates")
+static = StaticFiles(directory=HERE / "api" / "static")
