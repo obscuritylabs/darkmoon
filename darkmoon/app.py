@@ -31,4 +31,6 @@ def get_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(views.router)
 
+    app.include_router(webpages.router)
+
     return app

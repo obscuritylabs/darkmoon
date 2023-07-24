@@ -4,17 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
-
 </head>
 
-<form action="index.html">
+<form action="/webpages">
     <button>
         Home Page
-    </button>
-</form>
-<form action="hash.html">
-    <button>
-        Hash Lookup
     </button>
 </form>
 
@@ -25,7 +19,7 @@
     <h1>
 
         <form action="/process_data" method="post" enctype="multipart/form-data">
-
+            <h2> Hash and Hash Type </h2>
             <label for="hash_type" class=HT data-icon="u"> </label>
             <select id="hash_type" name="hash_type" required="required" type="text" placeholder="Hash Type">
                 <option value="md5">MD5</option>
