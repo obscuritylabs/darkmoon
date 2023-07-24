@@ -14,7 +14,7 @@ prox = ProxmoxAPI(
 
 def upload_iso(node: str, storage: str, file_path: str) -> None:
     """Upload a provided iso to a given node and storage."""
-    prox.proxmox.nodes(node).storage(storage).upload.post(
+    prox.nodes(node).storage(storage).upload.post(
         content="iso",
         filename=open(file_path, "rb"),
     )
@@ -22,5 +22,5 @@ def upload_iso(node: str, storage: str, file_path: str) -> None:
 
 def display_node(node: str) -> str:
     """Test me."""
-    res = prox.proxmox.nodes(node).get()
+    res = prox.nodes(node).get()
     return str(res)
