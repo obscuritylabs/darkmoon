@@ -17,7 +17,7 @@ from motor.motor_asyncio import (
 def register_database(
     app: FastAPI,
     mongoDB_conn: str,
-) -> (Callable[[], Coroutine[Any, Any, None]]):
+) -> Callable[[], Coroutine[Any, Any, None]]:
     """Make database client."""
 
     async def darkmoon_client() -> None:
