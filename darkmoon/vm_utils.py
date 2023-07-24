@@ -24,3 +24,6 @@ def display_node(node: str) -> str:
     """Test me."""
     res = prox.nodes(node).get()
     return str(res)
+
+
+upload_iso("pve2", "local", "~/ISOs/alpine.iso")
