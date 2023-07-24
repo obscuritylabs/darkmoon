@@ -90,29 +90,6 @@ async def list_metadata(
 
     search = {}
 
-    file_name = ""
-    hash = ""
-    hash_type = ""
-    if ":" not in fullHash:
-        raise IncorrectInputException(
-            status_code=422,
-            detail=(
-                "Format hash information like this: ",
-                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
-            ),
-        )
-    split = fullHash.split(":")
-    if len(split) != 2:
-        raise IncorrectInputException(
-            status_code=422,
-            detail=(
-                "Format hash information like this: ",
-                "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
-            ),
-        )
-    hash_type = str(split[0])
-    hash = str(split[1])
-
     try:
         if file_name:
             search["name"] = file_name
