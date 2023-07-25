@@ -7,9 +7,9 @@
 </head>
 
 <form action="/webpages/upload">
-    <button>
-        ISO Upload
-    </button>
+
+    <button>ISO Upload</button>
+
 </form>
 
 <body>
@@ -19,9 +19,13 @@
     <h1>
 
         <form action="/process_data" method="post" enctype="multipart/form-data">
+
             <h2> Hash and Hash Type </h2>
+
             <label for="hash_type" class=HT data-icon="u"> </label>
+
             <select id="hash_type" name="hash_type" required="required" type="text" placeholder="Hash Type">
+
                 <option value="md5">MD5</option>
                 <option value="sha1">SHA-1</option>
                 <option value="sha256">SHA-256</option>
@@ -37,13 +41,12 @@
     </h1>
 
     <form action>
+
         <h2> Upload File </h2>
         <input type="file" id="myFile" name="filename">
         <input type="submit">
+
     </form>
-
-
-
 
 </body>
 
