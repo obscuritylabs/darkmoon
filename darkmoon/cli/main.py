@@ -1,7 +1,5 @@
 """This is the main.py file."""
 
-import tarfile
-import tempfile
 from pathlib import Path
 from typing import Annotated
 
@@ -125,10 +123,7 @@ def extract_files(
     darkmoon_server_url: Path,
 ) -> None:
     """Extract vmdk and put in new folder."""
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        with tarfile.open(file) as f:
-            f.extractall(tmpdirname)
-        iterate_files(Path(tmpdirname), source_iso, darkmoon_server_url)
+    utils.extract_files(file, source_iso, darkmoon_server_url)
 
 
 @app.command()

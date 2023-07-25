@@ -1,5 +1,5 @@
 import hashlib
-import tarfile
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -115,8 +115,8 @@ def get_metadata(file: Path, source_iso: Path) -> dict[str, Any]:
 def extract_files(file: Path, source_iso: Path, url: Path) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        with tarfile.open(file) as f:
-            f.extractall(tmpdirname)
+        cmd = ["7z", "x", str(file), "-o" + tmpdirname]
+        subprocess.run(cmd, check=True)  # noqa: S603
         iterate_files(Path(tmpdirname), source_iso, url)
 
 
