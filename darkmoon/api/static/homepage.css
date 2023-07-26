@@ -1,14 +1,16 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     box-sizing: border-box;
 }
 
 body {
     background: rgb(116, 33, 212);
-    background: linear-gradient(90deg, rgba(116, 33, 212, 1) 0%, rgba(61, 49, 149, 1) 48%, rgba(64, 105, 201, 1) 100%);
-    font-family: Arial, sans-serif;
+    background: linear-gradient(114deg, rgba(116, 33, 212, 1) 0%, rgba(61, 49, 149, 1) 48%, rgba(64, 105, 201, 1) 100%);
+    background-image: url('Darkmoon.jpg');
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 22px;
     background-size: cover;
     background-position: center;
 }
@@ -21,6 +23,37 @@ header {
     align-items: center;
     padding: 30px 10%;
     background: rgba(0, 0, 0, 0.2);
+}
+
+section {
+    padding: 10px;
+    font-size: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    height: 80vh;
+}
+
+article {
+    float: left;
+    padding: 20px;
+    width: 70%;
+    height: 300px;
+    /* only for demonstration, should be removed */
+}
+
+section::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+footer {
+    padding: 10px;
+    text-align: center;
+    color: white;
+    width: 100%;
 }
 
 .logo {
@@ -47,7 +80,7 @@ button {
 }
 
 button {
-    background: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.0);
     border: 2px #045476;
     border-radius: 50px;
     padding: 9px 25px;
@@ -59,7 +92,7 @@ nav li a:hover {
 }
 
 button:hover {
-    background-color: #045476;
+    background-color: #4069C9;
     transition: all 0.4s ease 0s;
 }
 
@@ -85,7 +118,7 @@ button:hover {
 }
 
 .dropdown-content a:hover {
-    background-color: #ddd;
+    background-color: #4069C9;
 }
 
 .dropdown:hover .dropdown-content {
@@ -93,15 +126,68 @@ button:hover {
 }
 
 .dropdown:hover .dropbtn {
-    background-color: #eaeaea;
+    background-color: #4069C9;
 }
 
 #blackoutline {
     font-family: Arial, sans-serif;
-    font-size: 40px;
+    font-size: 35px;
     color: #ffffff;
 
     /* the first value is the width
     and the second value is the color */
-    -webkit-text-stroke: 2px #ffffff;
+    -webkit-text-stroke: 1px #ffffff;
+    <<<<<<< Updated upstream=======
+}
+
+.logo1 {
+    max-height: 100%;
+    width: 700px;
+    height: 700px;
+    background-size: cover;
+    background-image: url('File.png');
+    margin-top: 0em;
+    margin-left: -8em;
+    object-position: 100% 50%;
+    object-fit: none;
+}
+
+.box {
+    float: left;
+    width: 200px;
+    margin-left: 10px;
+    margin-top: 10px;
+    padding: 5px;
+    border: 2px solid blue;
+}
+
+#border {
+    --b: .5em;
+    /* border width */
+    --c: 3em;
+    /* corner size */
+    --r: 2em;
+    /* corner rounding */
+    position: relative;
+    margin: 1em auto;
+    border: solid var(--b) transparent;
+    padding: 1em;
+    max-width: 23em;
+    font: 1.25em ubuntu, sans-serif;
+
+    &::before {
+        position: absolute;
+        z-index: -1;
+        inset: calc(-1*var(--b));
+        border: inherit;
+        border-radius: var(--r);
+        background: linear-gradient(#4069c9, #4069c9, rgb(84, 7, 151)) border-box;
+        --corner:
+            conic-gradient(from -90deg at var(--c) var(--c), red 25%, #0000 0) 0 0/ calc(100% - var(--c)) calc(100% - var(--c)) border-box;
+        --inner: conic-gradient(red 0 0) padding-box;
+        -webkit-mask: var(--corner), var(--inner);
+        -webkit-mask-composite: source-out;
+        mask: var(--corner) subtract, var(--inner);
+        content: ''
+    }
 }
