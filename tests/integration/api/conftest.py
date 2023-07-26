@@ -152,7 +152,7 @@ HERE = Path(__file__).parent
 
 
 @pytest.fixture()
-def testHashComparisonFile() -> Path:
+def test_hash_comparison_file() -> Path:
     """Load the test file as a fixture."""
     file = HERE / "Test Name"
     assert file.exists()
@@ -160,7 +160,7 @@ def testHashComparisonFile() -> Path:
 
 
 @pytest.fixture()
-def testHashComparisonWithoutFile() -> Path:
+def test_hash_comparison_without_file() -> Path:
     """Load the test file as a fixture."""
     file = HERE / "test3.rtf"
     assert file.exists()
