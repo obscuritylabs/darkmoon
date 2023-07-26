@@ -21,72 +21,137 @@
     <nav>
 
         <ul>
-
-            <li><a href="/webpages">Home</a></li>
-
+            <button class="dropbtn"><a href="/webpages">Home</a></button>
             <div class="dropdown">
 
-                <button class="dropbtn">Tools</button>
+                <button class="button button1">Tools</button>
 
                 <div class="dropdown-content">
 
-
+                    <a href="/webpages/hash-lookup">Hash Lookup</a>
 
                     <a href="/webpages/upload">ISO Upload</a>
 
-                    <a href="/webpages/hash-lookup">Hash Lookup</a>
                 </div>
 
             </div>
-
-            <li><a href="">Credit</a></li>
-
+            <button class="dropbtn"><a href="#">Credit</a></button>
         </ul>
 
     </nav>
 
 </header>
-<h1> </h1>
-<h1> </h1>
 
 <body>
 
     </div>
-    <form>
-        <h1>
 
-            <form action="/process_data" method="post" enctype="multipart/form-data">
+    <form action>
 
-                <h2> Hash and Hash Type </h2>
+        <form action>
 
-                <label for="hash_type" class=HT data-icon="u"> </label>
+            <form action>
 
-                <select id="hash_type" name="hash_type" required="required" type="text" placeholder="Hash Type">
+                <h2> Hash </h2>
 
-                    <option value="md5">MD5</option>
-                    <option value="sha1">SHA-1</option>
-                    <option value="sha256">SHA-256</option>
-                    <option value="sha512">SHA-512</option>
 
-                    <label for="Hash" class="hash" data-icon="p"> </label>
+                <label for="Hash" class="hash" data-icon="p"> </label>
+                <input id="" name="password" required="required" type="text" placeholder="Hash" />
 
-                    <input id="" name="password" required="required" type="text" placeholder="Hash" />
+                <hr>
+
+                <h2>
+
+                </h2>
+
+                <h2>Hash Type</h2>
+
+                <input type="radio" id="MDS" name="hash_type" value="MDS">
+                <label for="MDS">MDS</label><br>
+
+                <input type="radio" id="SHA-1" name="hash_type" value="SHA-1">
+                <label for="SHA-1">SHA-1</SHA-1></label><br>
+
+                <input type="radio" id="SHA-256" name="hash_type" value="SHA-256">
+                <label for="SHA-256">SHA-256</label><br>
+
+                <input type="radio" id="SHA-512" name="hash_type" value="SHA-512">
+                <label for="SHA-512">SHA-512</label>
+
+                <h2>
+
+                </h2>
+
+                <input type="submit" value="Submit" />
+
+                <form>
+                    </h1>
+                    <form>
+                        <form action>
+
+                            <h2> Upload File </h2>
+                            <input type="file" id="myFile" name="filename">
+                            <input type="submit">
+
+                        </form>
+
+                    </form>
+
+                    =======
+                    <form action>
+
+                        <h2> Hash </h2>
+
+                        <label for="Hash" class="hash" data-icon="p"> </label>
+                        <input id="" name="password" required="required" type="text" placeholder="Hash" />
+
+                        <hr>
+
+                        <h2>
+
+                        </h2>
+
+                        <h2>Hash Type</h2>
+
+                        <input type="radio" id="MDS" name="hash_type" value="MDS">
+                        <label for="MDS">MDS</label><br>
+
+                        <input type="radio" id="SHA-1" name="hash_type" value="SHA-1">
+                        <label for="SHA-1">SHA-1</SHA-1></label><br>
+
+                        <input type="radio" id="SHA-256" name="hash_type" value="SHA-256">
+                        <label for="SHA-256">SHA-256</label><br>
+
+                        <input type="radio" id="SHA-512" name="hash_type" value="SHA-512">
+                        <label for="SHA-512">SHA-512</label>
+
+                        <h2>
+
+                        </h2>
+
+                        <input type="submit" value="Submit" />
+
+                    </form>
 
                     <input type="submit" value="Submit" />
 
-                    <form>
-        </h1>
-        <form>
-            <form action>
+                </form>
 
-                <h2> Upload File </h2>
-                <input type="file" id="myFile" name="filename">
-                <input type="submit">
+                <h2>
 
-            </form>
+                </h2>
 
-        </form>
+                <form>
 
+                    <form action>
+
+                        <h2> Upload File </h2>
+                        <input type="file" id="myFile" name="filename">
+                        <input type="submit">
+
+                    </form>
+
+                </form>
 
 </body>
 
