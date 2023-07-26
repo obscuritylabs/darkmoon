@@ -142,11 +142,10 @@ button:hover {
 
 .logo1 {
     max-height: 100%;
-    max-width: 100%;
     width: 700px;
     height: 700px;
     background-size: cover;
-    background-image: url('CPU.png');
+    background-image: url('File.png');
     margin-top: 0em;
     margin-left: -8em;
     object-position: 100% 50%;
