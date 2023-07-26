@@ -163,7 +163,7 @@ class MetadataEntity(BaseModel):
     )
 
 
-class UploadResponse(Response):
+class UploadMetadataResponse(Response):
     """Sets upload response requirements."""
 
     data: Metadata = Field(
@@ -171,7 +171,7 @@ class UploadResponse(Response):
     )
 
 
-class UploadResponse2(Response):
+class UploadListMetadataEntityResponse(Response):
     """Sets upload response requirements."""
 
     data: list[MetadataEntity] = Field(

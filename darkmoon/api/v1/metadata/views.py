@@ -3,7 +3,7 @@ import hashlib
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, UploadFile, status
+from fastapi import APIRouter, Depends, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -11,8 +11,8 @@ from darkmoon.api.v1.metadata.schema import (
     Hashes,
     Metadata,
     MetadataEntity,
-    UploadResponse,
-    UploadResponse2,
+    UploadListMetadataEntityResponse,
+    UploadMetadataResponse,
 )
 from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
@@ -165,7 +165,7 @@ async def get_metadata_by_id(
 async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> UploadResponse:
+) -> UploadMetadataResponse:
     """Fast API POST function for incoming files.
 
     Parameters:
@@ -242,11 +242,17 @@ async def upload_metadata(
                 },
             }
             await collection.update_one(duplicate_hashes, change)
-            return UploadResponse(message="Successfully Updated Object.", data=file)
+            return UploadMetadataResponse(
+                message="Successfully Updated Object.",
+                data=file,
+            )
 
         else:
             await collection.insert_one(file_metadata)
-            return UploadResponse(message="Successfully Inserted Object.", data=file)
+            return UploadMetadataResponse(
+                message="Successfully Inserted Object.",
+                data=file,
+            )
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=500, detail="Server not found.")
@@ -261,12 +267,13 @@ async def upload_metadata(
     "/hashComparison",
     status_code=status.HTTP_201_CREATED,
     responses={
-        409: {"Client Error Response": "Conflict"},
+        201: {"Client Error Response": "Conflict"},
         422: {"Client Error Response": "Unprocessable Content"},
         500: {"Server Error Response": "Internal Server Error"},
     },
 )
 async def hash_comparison(
+    response: Response,
     fileInput: UploadFile,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     page: int = Query(
@@ -276,7 +283,7 @@ async def hash_comparison(
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
-) -> UploadResponse2:
+) -> UploadListMetadataEntityResponse:
     """Find closest match to a given file."""
     try:
         inputFileType = str(fileInput.content_type)
@@ -333,8 +340,15 @@ async def hash_comparison(
                 header_info=None,
             )
             li.append(obj)
-            return UploadResponse2(message="No results found in database.", data=li)
-        return UploadResponse2(message="Database results available", data=li)
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return UploadListMetadataEntityResponse(
+                message="No results found in database.",
+                data=li,
+            )
+        return UploadListMetadataEntityResponse(
+            message="Database results available",
+            data=li,
+        )
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")

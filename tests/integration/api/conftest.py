@@ -4,6 +4,7 @@ from typing import Any
 
 import pytest
 import schemathesis
+from anyio import Path
 from beanie import PydanticObjectId
 from fastapi import FastAPI
 
@@ -144,4 +145,15 @@ def test_metadata() -> Metadata:
             ),
         ),
     )
+    return file
+
+
+HERE = Path(__file__).parent
+
+
+@pytest.fixture()
+def testHashComparisonFile() -> Path:
+    """Load the test file as a fixture."""
+    file = HERE / "test3.rtf"
+    assert file.exists()
     return file
