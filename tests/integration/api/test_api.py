@@ -24,13 +24,22 @@ def test_api_schema(case: Case, app: FastAPI) -> None:
         case.call_and_validate(session=session)
 
 
-def test_get_default_list_metadata(populated_app: FastAPI) -> None:
+def test_get_default_list_metadata(
+    populated_app: FastAPI,
+    test_metadata_entity: dict[
+        str,
+        list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
+    ],
+) -> None:
     """Test default GET /metadata."""
     with TestClient(populated_app) as app:
         response = app.get(
             "/metadata/",
         )
         assert response.status_code == 200
+        del test_metadata_entity["id"]
+        test_metadata_entity["_id"] = str(test_metadata_entity["_id"])
+        assert response.json()[0] == test_metadata_entity
 
 
 def test_get_list_metadata_by_hash(

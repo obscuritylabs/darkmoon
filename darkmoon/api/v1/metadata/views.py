@@ -94,7 +94,7 @@ async def list_metadata_by_hash(
         elif hash:
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
-        data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
+        data = await collection.find(search).skip(page * length).to_list(length=length)
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
@@ -133,7 +133,7 @@ async def list_metadata(
         ServerNotFoundException: Endpoint is unable to connect to mongoDB instance
     """
     try:
-        data = await collection.find({}).skip(page * length).to_list(length=length)  # type: ignore # noqa
+        data = await collection.find({}).skip(page * length).to_list(length=length)
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
