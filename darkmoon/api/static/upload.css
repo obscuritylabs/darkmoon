@@ -85,7 +85,7 @@ button:hover {
 }
 
 .dropdown-content a:hover {
-    background-color: #ddd;
+    background-color: #4069C9;
 }
 
 .dropdown:hover .dropdown-content {
@@ -93,7 +93,7 @@ button:hover {
 }
 
 .dropdown:hover .dropbtn {
-    background-color: #eaeaea;
+    background-color: #4069C9;
 }
 
 #blackoutline {
@@ -107,41 +107,45 @@ button:hover {
 }
 
 form {
-    max-width: 400px;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
-    background-color: rgb(46, 14, 116);
+    padding: 30px;
+    background-color: rgb(255, 255, 255);
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
+    color: rgb(0, 0, 0);
     font-size: 1px;
     margin-bottom: 10px;
-    display: flexbox;
 
 }
 
 h2 {
+    border-color: black;
     font-size: 18px;
     margin-bottom: 10px;
-    color: white;
+    color: #000000;
 }
 
 input[type="text"],
 input[type="file"] {
-    width: 100%;
+    width: 50%;
+    margin-left: 0px;
+    border: 2px solid #000000;
     padding: 10px;
     margin-bottom: 15px;
-    border: 2px solid #808080;
     border-radius: 4px;
 }
 
 input[type="submit"] {
     display: block;
-    width: 100%;
+    width: 30%;
     padding: 10px;
-    background-color: #170aa6;
+    margin-left: 0px;
+    margin-right: 50px;
+    background-color: #5d05bc;
     color: #fff;
     border: none;
     border-radius: 4px;

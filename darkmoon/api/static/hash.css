@@ -78,6 +78,7 @@ nav li a:hover {
 button:hover {
     background-color: #045476;
     transition: all 0.4s ease 0s;
+
 }
 
 .dropdown {
@@ -102,7 +103,7 @@ button:hover {
 }
 
 .dropdown-content a:hover {
-    background-color: #ddd;
+    background-color: #4069C9;
 }
 
 .dropdown:hover .dropdown-content {
@@ -110,7 +111,7 @@ button:hover {
 }
 
 .dropdown:hover .dropbtn {
-    background-color: #eaeaea;
+    background-color: #4069C9;
 }
 
 #blackoutline {
