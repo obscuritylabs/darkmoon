@@ -109,10 +109,10 @@ def test_post(
         assert response.json()["message"] == "Successfully Updated Object."
         assert response.json()["data"] == test_metadata.dict()
 
-        test_metadata.name = [""]
+        test_metadata.name = []
         response = app.post("/metadata/", data=test_metadata.json())
         assert response.status_code == 422
         assert (
             response.json()["detail"][0]["msg"]
-            == 'string does not match regex "^(?!\\s*$).+"'
+            == "ensure this value has at least 1 items"
         )
