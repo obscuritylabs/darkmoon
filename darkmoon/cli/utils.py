@@ -12,7 +12,7 @@ from pefile import PEFormatError
 
 def call_api(url: str, data: dict[str, Any]) -> bool:
     """Send data to api post endpoint."""
-    res = requests.post(str(url) + "/metadata", json=data)
+    res = requests.post(url + "/metadata", json=data)
     return res.ok
 
 
