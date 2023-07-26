@@ -32,27 +32,27 @@ class Hashes(BaseModel):
 class HeaderInfo(BaseModel):
     """Holds HeaderInfo class properties for .exe files."""
 
-    machine_type: str = Field(
+    machine_type: str | None = Field(
         description="The machine type of the .exe file.",
         example="0x14c",
     )
 
-    timestamp: str = Field(
+    timestamp: str | None = Field(
         description="timestap of file",
         example="12/2/23 17:57:43",
     )
 
-    compile_time: str = Field(
+    compile_time: str | None = Field(
         description="compile time of the file",
         example="",
     )
 
-    signature: str = Field(
+    signature: str | None = Field(
         description="digital file signature",
         example="",
     )
 
-    rich_header_hashes: Hashes = Field(
+    rich_header_hashes: Hashes | None = Field(
         description="a dictionary of hashes from the hashes class",
     )
 
@@ -64,19 +64,16 @@ class Metadata(BaseModel):
         description="name of file",
         example=["End_Of_The_World"],
         min_items=1,
-        regex="^(?!\\s*$).+",
     )
     file_extension: list[str] = Field(
         description="the extension of a file",
         example=[".jpeg"],
         min_items=1,
-        regex="^(?!\\s*$).+",
     )
     file_type: list[str] = Field(
         description="the type of file",
         example=["exe"],
         min_items=1,
-        regex="^(?!\\s*$).+",
     )
     hashes: Hashes = Field(
         description="a hash",
@@ -86,7 +83,6 @@ class Metadata(BaseModel):
         description="source ISO name",
         example=["Win_XP"],
         min_items=1,
-        regex="^(?!\\s*$).+",
     )
 
     operating_system: list[str] = Field(
@@ -94,7 +90,6 @@ class Metadata(BaseModel):
         " where the file is coming from.",
         example=["WindowsXP"],
         min_items=1,
-        regex="^(?!\\s*$).+",
     )
 
     header_info: HeaderInfo = Field(
