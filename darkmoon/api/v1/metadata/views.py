@@ -284,7 +284,20 @@ async def hash_comparison(
     ),
     length: int = Query(10, ge=1, le=500),
 ) -> UploadListMetadataEntityResponse:
-    """Find closest match to a given file."""
+    """Fast API POST function to search database with an input file.
+
+    Parameters:
+        file (UploadFile): The file that the use inputs.
+        collection (AsyncIOMotorCollection) : The database collection to query.
+
+    Returns:
+        response (UploadListMetadataEntityResponse): return a list[MetadataEntity] or
+        raise an exception.
+
+    Raises:
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
+    """
     try:
         inputFileType = str(fileInput.content_type)
         inputFileName = str(fileInput.filename)
