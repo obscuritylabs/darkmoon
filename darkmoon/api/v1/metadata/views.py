@@ -301,12 +301,11 @@ async def hash_comparison(
     try:
         inputFileType = str(fileInput.content_type)
         inputFileName = str(fileInput.filename)
-        # inputFileHeaders = fileInput.headers
 
         data = fileInput.file.read()
         inputHashes = []
         h_md5 = hashlib.md5()  # noqa S324
-        h_sha1 = hashlib.sha1()  # noqa S324
+        h_sha1 = hashlib.sha1()  # noqa: S324
         h_sha256 = hashlib.sha256()
         h_sha512 = hashlib.sha512()
         h_md5.update(data)
@@ -318,9 +317,6 @@ async def hash_comparison(
         inputHashes.append(h_sha256.hexdigest())
         inputHashes.append(h_sha512.hexdigest())
 
-        # search_query = {
-        #     "$jsonSchema": MetadataEntity,
-        # }
         search_query = {
             "$or": [
                 {
