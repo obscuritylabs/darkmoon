@@ -122,6 +122,10 @@ def test_post(
 def test_post_hash_comparison(
     populated_app: FastAPI,
     testHashComparisonFile: Path,
+    test_metadata_entity: dict[
+        str,
+        list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
+    ],
 ) -> None:
     """Returns fixture to test file."""
     with TestClient(populated_app) as app:
@@ -129,4 +133,17 @@ def test_post_hash_comparison(
             "/metadata/hashComparison",
             files={"fileInput": open(testHashComparisonFile, "rb")},
         )
-        assert response.status_code == 201 or response.status_code == 404
+        assert response.status_code == 200
+
+
+def test_post_hash_comparison_failure(
+    populated_app: FastAPI,
+    testHashComparisonWithoutFile: Path,
+) -> None:
+    """Returns fixture to test file."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/metadata/hashComparison",
+            files={"fileInput": open(testHashComparisonWithoutFile, "rb")},
+        )
+        assert response.status_code == 404

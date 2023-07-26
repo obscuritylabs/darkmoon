@@ -267,9 +267,9 @@ async def upload_metadata(
     "/hashComparison",
     status_code=status.HTTP_201_CREATED,
     responses={
-        201: {"Client Error Response": "Conflict"},
-        422: {"Client Error Response": "Unprocessable Content"},
-        500: {"Server Error Response": "Internal Server Error"},
+        200: {"Successful Request": "Results Available"},
+        404: {"Client Error Response": "No Results Found"},
+        504: {"Server Error Response": "Internal Server Error"},
     },
 )
 async def hash_comparison(
@@ -345,6 +345,7 @@ async def hash_comparison(
                 message="No results found in database.",
                 data=li,
             )
+        response.status_code = status.HTTP_200_OK
         return UploadListMetadataEntityResponse(
             message="Database results available",
             data=li,
