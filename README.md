@@ -46,23 +46,24 @@ Make sure the following dependencies are installed on your system:
 
 ### To Begin Development
 Follow these steps to set up the development environment after installing the prerequisites.
-1. Setting up GitHub SSH Auth and Signing Keys and configure SSH authentication and add your SSh public key to your GitHub account.
+1. Set up GitHub SSH Auth and Signing Keys, configure SSH authentication, and add your SSH public key to your GitHub account.
     - Open 1pass, go into settings and then click developer and then click on "use the SSH agent", and then follow the direction it gives you to complete the process. Open your SSH client configuration file \~/.ssh/config or C:\Users\YourUsername.ssh\config.
     Open your SSH client configuration file "~/.ssh/config or C:\Users\YourUsername\.ssh\config".
-        - If you don't have a SSH cline configuration file, then create one \~/.ssh folder or config file by using this command :
+        - If you don't have a SSH client configuration file, then create one \~/.ssh folder or config file by using this command :
        $ export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-    - Then add the IdentityAgent snippet to your ~/.ssh/config file:
+    - Add the IdentityAgent snippet to your ~/.ssh/config file:
         - Host *
             IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     - Open 1 pass, and in the right top corner click on new items.
-    - Then click on SSH keys, and then add private key.
-    - Then click on generate private key.Select an SSH Key > Generate New Key.
+    - Click on SSH keys, and then add private key.
+    - Click on generate private key.Select an SSH Key > Generate New Key.
     - Select SSH key type: Ed25529, then click generate
-    - Once, you got the key copy the public key and go to your github account.
+    - Copy the public key that was generated and go to your github account.
     - Go to settings, click on SSH and GPG keys and click on New SSH Keys.
     - Once you pasted the key, click on key type and click on Authentication.
     - Repeat the steps, and but instead of an Authentication key type, now click signing key.
-    - now go into teh signing key, and click in the triple dot menu on eight corner, and then click configure commit signing. and then click edit automatically.
+    - Go into the signing key and click on the triple dot menu on the right corner.
+    - Click configure commit signing and then click edit automatically.
 2. Cloning the Repository:
     - Copy the repository's remote URL from GitHub by navigating to the repository and clicking on the "Code" button. Then, click "Clone" and select "SSH" to get the URL in SSH format.
     - clone the repository using SSH:
@@ -71,7 +72,7 @@ Follow these steps to set up the development environment after installing the pr
 
 ### Local Development
 
-Once both steps have been completed, and VSCode finishes setting up, development is ready to begin. All dependencies have been installed.
+Once both steps have been completed and VSCode finishes setting up, development is ready to begin. All dependencies have been installed.
 1. Install project dependencies
     `make install`
 
