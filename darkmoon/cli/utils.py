@@ -10,9 +10,9 @@ import requests
 from pefile import PEFormatError
 
 
-def call_api(url: Path, data: dict[str, Any]) -> bool:
+def call_api(url: str, data: dict[str, Any]) -> bool:
     """Send data to api post endpoint."""
-    res = requests.post(str(url / "metadata"), json=data)
+    res = requests.post(str(url) + "/metadata", json=data)
     return res.ok
 
 
@@ -108,11 +108,10 @@ def get_metadata(file: Path, source_iso: Path) -> dict[str, Any]:
             data_fields["header_info"] = get_all_exe_metadata(source_iso)
         except PEFormatError:
             pass
-
     return data_fields
 
 
-def extract_files(file: Path, source_iso: Path, url: Path) -> None:
+def extract_files(file: Path, source_iso: Path, url: str) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
@@ -123,7 +122,7 @@ def extract_files(file: Path, source_iso: Path, url: Path) -> None:
 def iterate_files(
     path: Path,
     source_iso: Path,
-    url: Path,
+    url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
     queue = []

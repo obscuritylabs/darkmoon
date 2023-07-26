@@ -120,7 +120,7 @@ def extract_files(
             resolve_path=True,
         ),
     ],
-    darkmoon_server_url: Path,
+    darkmoon_server_url: str,
 ) -> None:
     """Extract vmdk and put in new folder."""
     utils.extract_files(file, source_iso, darkmoon_server_url)
@@ -139,7 +139,7 @@ def iterate_extract(
             resolve_path=True,
         ),
     ],
-    darkmoon_server_url: Path,
+    darkmoon_server_url: str,
 ) -> None:
     """Iterate over vmdk folder and extracts files of each vmdk."""
     for vmdk in track(path.glob("*"), description="Processing..."):
@@ -170,7 +170,7 @@ def iterate_files(
             resolve_path=True,
         ),
     ],
-    darkmoon_server_url: Path,
+    darkmoon_server_url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
     utils.iterate_files(path, source_iso, darkmoon_server_url)
