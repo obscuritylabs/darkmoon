@@ -3,52 +3,51 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/homepage.css') }}" rel="stylesheet">
 </head>
+
+<html>
 
 <body>
 
-    </div>
+    <header>
 
-    <h1>
+        <div class="logo">
 
-        <label for="Operating" class="opSystem" data-icon="u"></label>
+            <h1 id="blackoutline">
 
-        <input id="Operating" name="opSystem" required="required" type="text" placeholder="Operating System" />
+                <p>Darkmoon</p>
 
-    </h1>
+            </h1>
 
-    <h1>
+        </div>
 
-        <label for="version" class="vers" data-icon="p"> </label>
+        <nav>
 
-        <input id="version" name="password" required="required" type="text" placeholder="Version" />
+            <ul>
 
-    </h1>
-    <h1>
+                <li><a href="/webpages">Home</a></li>
 
-        <label for="build" class="bu" data-icon="u"> </label>
+                <div class="dropdown">
 
-        <input id="build" name="bu" required="required" type="text" placeholder="Build" />
-    </h1>
+                    <button class="dropbtn">Tools</button>
 
-    <form action>
-        <h2> .ISO Upload </h2>
-        <input type="file" id="myFile" name="filename">
-        <input type="submit">
-    </form>
+                    <div class="dropdown-content">
 
-    <form>
-        <h2> Packer Template Upload </h2>
-        <input type="file" id="myFile" name="filename">
-        <input type="submit">
-    </form>
+                        <a href="/webpages/hash-lookup">Hash Lookup</a>
+                        <a href="/webpages/upload">ISO Upload</a>
 
-    <form>
-        <h2> Answer File Upload </h2>
-        <input type="file" id="myFile" name="filename">
-        <input type="submit">
-    </form>
+                    </div>
+
+                </div>
+
+                <li><a href="">Credit</a></li>
+
+            </ul>
+
+        </nav>
+
+    </header>
 
 </body>
 
