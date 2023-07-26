@@ -19,7 +19,7 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 
 @router.get(
-    "/",
+    "/hashSearch",
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
@@ -102,7 +102,7 @@ async def list_metadata_by_hash(
 
 
 @router.get(
-    "/listMetadata",
+    "/",
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
