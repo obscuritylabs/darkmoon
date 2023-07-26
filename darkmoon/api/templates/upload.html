@@ -3,59 +3,99 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/upload.css') }}" rel="stylesheet">
 </head>
 
-<form action="/webpages/hash-lookup">
-    <button>
-        Hash Lookup
-    </button>
-</form>
+<header>
 
-<body>
+    <div class="logo">
+
+        <h1 id="blackoutline">
+
+            <p>Darkmoon</p>
+
+        </h1>
 
     </div>
 
-    <h1>
+    <nav>
 
-        <label for="Operating" class="opSystem" data-icon="u"></label>
+        <ul>
+            <button class="dropbtn"><a href="/webpages">Home</a></button>
+            <div class="dropdown">
 
-        <input id="Operating" name="opSystem" required="required" type="text" placeholder="Operating System" />
+                <button class="button button1">Tools</button>
 
-    </h1>
+                <div class="dropdown-content">
 
-    <h1>
+                    <a href="/webpages/hash-lookup">Hash Lookup</a>
 
-        <label for="version" class="vers" data-icon="p"> </label>
+                    <a href="/webpages/upload">ISO Upload</a>
 
-        <input id="version" name="password" required="required" type="text" placeholder="Version" />
+                </div>
 
-    </h1>
-    <h1>
+            </div>
+            <button class="dropbtn"><a href="#">Credit</a></button>
+        </ul>
 
-        <label for="build" class="bu" data-icon="u"> </label>
+    </nav>
 
-        <input id="build" name="bu" required="required" type="text" placeholder="Build" />
-    </h1>
+</header>
 
-    <form action>
-        <h2> .ISO Upload </h2>
-        <input type="file" id="myFile" name="filename">
-        <input type="submit">
-    </form>
+<body>
 
+
+    </div>
     <form>
-        <h2> Packer Template Upload </h2>
-        <input type="file" id="myFile" name="filename">
-        <input type="submit">
-    </form>
+        <h1>
 
-    <form>
-        <h2> Answer File Upload </h2>
-        <input type="file" id="myFile" name="filename">
-        <input type="submit">
-    </form>
+            <label for="Operating" class="opSystem" data-icon="u"></label>
 
+            <input id="Operating" name="opSystem" required="required" type="text" placeholder="Operating System" />
+
+        </h1>
+
+        <h1>
+
+            <label for="version" class="vers" data-icon="p"> </label>
+
+            <input id="version" name="password" required="required" type="text" placeholder="Version" />
+
+        </h1>
+
+        <h1>
+
+            <label for="build" class="bu" data-icon="u"> </label>
+
+            <input id="build" name="bu" required="required" type="text" placeholder="Build" />
+
+        </h1>
+
+        <form action>
+
+            <h2> .ISO Upload </h2>
+            <input type="file" id="myFile" name="filename">
+            <input type="submit">
+
+        </form>
+
+        <form>
+
+            <h2> Packer Template Upload </h2>
+            <input type="file" id="myFile" name="filename">
+            <input type="submit">
+
+        </form>
+
+        <form>
+
+            <h2> Answer File Upload </h2>
+            <input type="file" id="myFile" name="filename">
+            <input type="submit">
+
+        </form>
+
+    </form>
 
 </body>
 

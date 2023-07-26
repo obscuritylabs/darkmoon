@@ -1,7 +1,7 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     box-sizing: border-box;
 }
 
@@ -9,8 +9,7 @@ body {
     background: rgb(116, 33, 212);
     background: linear-gradient(114deg, rgba(116, 33, 212, 1) 0%, rgba(61, 49, 149, 1) 48%, rgba(64, 105, 201, 1) 100%);
     background-image: url('Darkmoon.jpg');
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 22px;
+    font-family: Arial, sans-serif;
     background-size: cover;
     background-position: center;
 }
@@ -131,13 +130,12 @@ button:hover {
 
 #blackoutline {
     font-family: Arial, sans-serif;
-    font-size: 35px;
+    font-size: 40px;
     color: #ffffff;
 
     /* the first value is the width
     and the second value is the color */
-    -webkit-text-stroke: 1px #ffffff;
-    <<<<<<< Updated upstream=======
+    -webkit-text-stroke: 2px #ffffff;
 }
 
 .logo1 {

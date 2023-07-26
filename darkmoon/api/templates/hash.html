@@ -3,47 +3,99 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/hash.css') }}" rel="stylesheet">
 </head>
 
-<form action="/webpages/upload">
-    <button>
-        ISO Upload
-    </button>
-</form>
+<header>
+
+    <div class="logo">
+
+        <h1 id="blackoutline">
+
+            <p>Darkmoon</p>
+
+        </h1>
+
+    </div>
+
+    <nav>
+
+        <ul>
+            <button class="dropbtn"><a href="/webpages">Home</a></button>
+            <div class="dropdown">
+
+                <button class="button button1">Tools</button>
+
+                <div class="dropdown-content">
+
+                    <a href="/webpages/hash-lookup">Hash Lookup</a>
+
+                    <a href="/webpages/upload">ISO Upload</a>
+
+                </div>
+
+            </div>
+            <button class="dropbtn"><a href="#">Credit</a></button>
+        </ul>
+
+    </nav>
+
+</header>
 
 <body>
 
     </div>
 
-    <h1>
-
-        <form action="/process_data" method="post" enctype="multipart/form-data">
-            <h2> Hash and Hash Type </h2>
-            <label for="hash_type" class=HT data-icon="u"> </label>
-            <select id="hash_type" name="hash_type" required="required" type="text" placeholder="Hash Type">
-                <option value="md5">MD5</option>
-                <option value="sha1">SHA-1</option>
-                <option value="sha256">SHA-256</option>
-                <option value="sha512">SHA-512</option>
-
-                <label for="Hash" class="hash" data-icon="p"> </label>
-
-                <input id="" name="password" required="required" type="text" placeholder="Hash" />
-
-                <input type="submit" value="Submit" />
-        </form>
-
-    </h1>
-
     <form action>
-        <h2> Upload File </h2>
-        <input type="file" id="myFile" name="filename">
-        <input type="submit">
+
+        <h2> Hash </h2>
+
+        <label for="Hash" class="hash" data-icon="p"> </label>
+        <input id="" name="password" required="required" type="text" placeholder="Hash" />
+
+        <hr>
+
+        <h2>
+
+        </h2>
+
+        <h2>Hash Type</h2>
+
+        <input type="radio" id="MDS" name="hash_type" value="MDS">
+        <label for="MDS">MDS</label><br>
+
+        <input type="radio" id="SHA-1" name="hash_type" value="SHA-1">
+        <label for="SHA-1">SHA-1</SHA-1></label><br>
+
+        <input type="radio" id="SHA-256" name="hash_type" value="SHA-256">
+        <label for="SHA-256">SHA-256</label><br>
+
+        <input type="radio" id="SHA-512" name="hash_type" value="SHA-512">
+        <label for="SHA-512">SHA-512</label>
+
+        <h2>
+
+        </h2>
+
+        <input type="submit" value="Submit" />
+
     </form>
 
+    <h2>
 
+    </h2>
 
+    <form>
+
+        <form action>
+
+            <h2> Upload File </h2>
+            <input type="file" id="myFile" name="filename">
+            <input type="submit">
+
+        </form>
+
+    </form>
 
 </body>
 
