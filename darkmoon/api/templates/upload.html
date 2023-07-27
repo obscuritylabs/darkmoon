@@ -7,6 +7,12 @@
     <link href="{{ url_for('static',path='/variables.css') }}" rel="stylesheet">
 </head>
 
+<script>
+    function submissionComplete() {
+        alert("Data Submitted");
+    }
+</script>
+
 <body>
     <header>
 
@@ -49,10 +55,10 @@
     </div>
     <h1></h1>
 
-    <form action>
+    <form action onsubmit="submissionComplete()">
 
         <h2> .ISO Upload </h2>
-        <input type="file" id="myFile" name="filename">
+        <input type="file" id="myFile" required="required" name="filename">
 
 
 
@@ -60,7 +66,7 @@
 
         <h1></h1>
         <h2> Packer Template Upload </h2>
-        <input type="file" id="myFile" name="filename">
+        <input type="file" id="myFile" required="required" name="filename">
 
 
 
@@ -68,7 +74,7 @@
 
         <h1></h1>
         <h2> Answer File Upload </h2>
-        <input type="file" id="myFile" name="filename">
+        <input type="file" id="myFile" required="required" name="filename">
 
 
         <h1>
@@ -94,7 +100,7 @@
 
             <input id="build" name="bu" required="required" type="text" placeholder="Build" />
             <h1></h1>
-            <input type="submit" value="Submit Form">
+            <input type="submit" value="Submit">
 
 
         </h1>

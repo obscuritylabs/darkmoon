@@ -7,6 +7,16 @@
     <link href="{{ url_for('static',path='/variables.css') }}" rel="stylesheet">
 </head>
 
+<script>
+    function hashSubmission() {
+        alert("Successfully Submitted");
+    }
+
+    function fileSubmission() {
+        alert("File Successfully Uploaded");
+    }
+</script>
+
 <body>
     <header>
 
@@ -46,64 +56,59 @@
 
     </div>
     <h1></h1>
-    <form action>
 
-        <form action>
-            <form action>
+    <form action onsubmit="hashSubmission()">
 
-                <h2> Hash </h2>
+        <h2> Hash </h2>
 
-                <label for="Hash" class="hash" data-icon="p"> </label>
-                <input id="" name="password" required="required" type="text" placeholder="Hash" />
+        <label for="Hash" class="hash" data-icon="p"> </label>
+        <input id="" name="password" required="required" type="text" placeholder="Hash" />
 
-                <hr>
-
-                <h2>
-
-                </h2>
-
-                <h2>Hash Type</h2>
-
-                <input type="radio" id="MDS" name="hash_type" value="MDS">
-                <label for="MDS">MDS</label><br>
-
-                <input type="radio" id="SHA-1" name="hash_type" value="SHA-1">
-                <label for="SHA-1">SHA-1</SHA-1></label><br>
-
-                <input type="radio" id="SHA-256" name="hash_type" value="SHA-256">
-                <label for="SHA-256">SHA-256</label><br>
-
-                <input type="radio" id="SHA-512" name="hash_type" value="SHA-512">
-                <label for="SHA-512">SHA-512</label>
-
-                <h2>
-
-                </h2>
-
-                <input type="submit" value="Submit" />
-
-            </form>
-
-
-        </form>
+        <hr>
 
         <h2>
 
         </h2>
 
-        <form>
+        <h2>Hash Type</h2>
 
-            <form action>
+        <input type="radio" id="MDS" required="required" name="hash_type" value="MDS">
+        <label for="MDS">MDS</label><br>
 
-                <h2> Upload File </h2>
-                <input type="file" id="myFile" name="filename">
-                <h1></h1>
-                <input type="submit" value="Submit Form">
+        <input type="radio" id="SHA-1" name="hash_type" value="SHA-1">
+        <label for="SHA-1">SHA-1</SHA-1></label><br>
+
+        <input type="radio" id="SHA-256" name="hash_type" value="SHA-256">
+        <label for="SHA-256">SHA-256</label><br>
+
+        <input type="radio" id="SHA-512" name="hash_type" value="SHA-512">
+        <label for="SHA-512">SHA-512</label>
+
+        <h2>
+
+        </h2>
+
+        <input type="submit" value="Submit" />
 
 
-            </form>
+    </form>
 
-        </form>
+    <h2>
+
+    </h2>
+
+
+    <form action onsubmit="fileSubmission()">
+
+        <h2> Upload File </h2>
+        <input type="file" id="myFile" required="required" name="filename">
+        <h1></h1>
+        <input type="submit" value="Submit">
+
+
+    </form>
+
+
 
 </body>
 
