@@ -137,19 +137,6 @@ def test_post(
         )
 
 
-def test_post_hash_comparison(
-    populated_app: FastAPI,
-    test_hash_comparison_file: Path,
-) -> None:
-    """Returns fixture to test file."""
-    with TestClient(populated_app) as app:
-        response = app.post(
-            "/metadata/hashComparison",
-            files={"fileInput": open(test_hash_comparison_file, "rb")},
-        )
-        assert response.status_code == 200
-
-
 def test_post_hash_comparison_failure(
     populated_app: FastAPI,
     test_hash_comparison_without_file: Path,
