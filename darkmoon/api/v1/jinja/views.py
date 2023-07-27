@@ -22,3 +22,9 @@ async def read_item_hash(request: Request) -> Response:
 async def read_item_upload(request: Request) -> Response:
     """Read the request from upload for response."""
     return templates.TemplateResponse("upload.html", {"request": request})
+
+
+@router.get("/results", response_class=HTMLResponse)
+async def read_item_results(request: Request) -> Response:
+    """Read the request from upload for response."""
+    return templates.TemplateResponse("results.html", {"request": request})
