@@ -7,7 +7,6 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
 from darkmoon.api.v1.metadata.schema import (
-    Hashes,
     Metadata,
     MetadataEntity,
     UploadResponse,
@@ -242,22 +241,6 @@ async def upload_metadata(
 
     except IndexError:
         raise IncorrectInputException(status_code=422, detail=["Input missing"])
-
-    for key in file_metadata["header_info"]:
-        if key == "rich_header_hashes":
-            if file_metadata["header_info"][key] is None:
-                file_metadata["header_info"][key] = Hashes(
-                    md5="",
-                    sha1="",
-                    sha256="",
-                    sha512="",
-                ).dict()
-            else:
-                for hash in file_metadata["header_info"][key]:
-                    if file_metadata["header_info"][key][hash] is None:
-                        file_metadata["header_info"][key][hash] = ""
-        elif file_metadata["header_info"][key] is None:
-            file_metadata["header_info"][key] = ""
 
     try:
         dup = await collection.find_one(check_dup)
