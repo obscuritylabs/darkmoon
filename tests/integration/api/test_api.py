@@ -1,4 +1,5 @@
 import schemathesis
+from anyio import Path
 from fastapi import FastAPI
 from schemathesis.constants import DataGenerationMethod
 from schemathesis.lazy import LazySchema
@@ -134,3 +135,16 @@ def test_post(
             response.json()["detail"][0]["msg"]
             == 'string does not match regex "^(?!\\s*$).+"'
         )
+
+
+def test_post_hash_comparison_failure(
+    populated_app: FastAPI,
+    test_hash_comparison_without_file: Path,
+) -> None:
+    """Returns fixture to test file."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/metadata/hashComparison",
+            files={"fileInput": open(test_hash_comparison_without_file, "rb")},
+        )
+        assert response.status_code == 404
