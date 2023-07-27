@@ -121,7 +121,7 @@ input[type="text"],
 input[type="file"] {
     width: 50%;
     margin-left: 0px;
-    border: 2px solid #000000;
+    border: 2px solid #88889a;
     padding: 10px;
     margin-bottom: 15px;
     border-radius: 4px;
