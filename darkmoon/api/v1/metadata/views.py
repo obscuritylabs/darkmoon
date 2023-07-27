@@ -342,7 +342,6 @@ async def hash_comparison(
         inputFileName = str(fileInput.filename)
 
         data = fileInput.file.read()
-        inputHashes = []
         h_md5 = hashlib.md5()  # noqa S324
         h_sha1 = hashlib.sha1()  # noqa: S324
         h_sha256 = hashlib.sha256()
@@ -351,10 +350,10 @@ async def hash_comparison(
         h_sha1.update(data)
         h_sha256.update(data)
         h_sha512.update(data)
-        inputHashes.append(h_md5.hexdigest())
-        inputHashes.append(h_sha1.hexdigest())
-        inputHashes.append(h_sha256.hexdigest())
-        inputHashes.append(h_sha512.hexdigest())
+        md5Hash = h_md5.hexdigest()
+        sha1Hash = h_sha1.hexdigest()
+        sha256Hash = h_sha256.hexdigest()
+        sha512Hash = h_sha512.hexdigest()
 
         search_query = {
             "$or": [
@@ -368,9 +367,7 @@ async def hash_comparison(
         }
 
         results = await collection.find(search_query).to_list(length=length)
-        li = []
-        for item in results:
-            li.append(MetadataEntity.parse_obj(item))
+        li = [MetadataEntity.parse_obj(item) for item in results]
         if len(li) == 0:
             obj = MetadataEntity(
                 _id=PydanticObjectId(),
@@ -380,10 +377,10 @@ async def hash_comparison(
                 source_iso_name=[],
                 file_extension=[""],
                 hashes=Hashes(
-                    md5=inputHashes[0],
-                    sha1=inputHashes[1],
-                    sha256=inputHashes[2],
-                    sha512=inputHashes[3],
+                    md5=md5Hash,
+                    sha1=sha1Hash,
+                    sha256=sha256Hash,
+                    sha512=sha512Hash,
                 ),
                 header_info=None,
             )
