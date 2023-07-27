@@ -26,13 +26,13 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 
 @router.get(
-    "/",
+    "/hashSearch",
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
     },
 )
-async def list_metadata(
+async def list_metadata_by_hash(
     fullHash: str = Query(example="sha256:sdlkfjksldklsdjsdfklj"),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     file_name: str | None = None,
@@ -101,7 +101,46 @@ async def list_metadata(
         elif hash:
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
-        data = await collection.find(search).skip(page * length).to_list(length=length)  # type: ignore # noqa
+        data = await collection.find(search).skip(page * length).to_list(length=length)
+        return [MetadataEntity.parse_obj(item) for item in data]
+
+    except errors.ServerSelectionTimeoutError:
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
+
+
+@router.get(
+    "/",
+    responses={
+        422: {"Client Error Response": "Unprocessable Content"},
+        504: {"Server Error Response": "Gateway Timeout"},
+    },
+)
+async def list_metadata(
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
+    page: int = Query(
+        0,
+        ge=0,
+        le=18446744073709552,
+        description="The page to iterate to.",
+    ),
+    length: int = Query(10, ge=1, le=500),
+) -> list[MetadataEntity]:
+    """Get list of metadata that matches the parameters in the database.
+
+    Parameters:
+        collection (AsyncIOMotorCollection): The database collection to query.
+        page (int): The page number to iterate to.
+        length (int): The number of items per page.
+
+    Returns:
+        List[MetadataEntity]: List of all documents that match parameters in the
+            database.
+
+    Raises:
+        ServerNotFoundException: Endpoint is unable to connect to mongoDB instance
+    """
+    try:
+        data = await collection.find({}).skip(page * length).to_list(length=length)
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
