@@ -95,7 +95,7 @@ button:hover {
 }
 
 form {
-    margin: 60px 350px auto;
+    margin: auto;
     max-width: 800px;
     padding: 30px;
     background-color: rgb(255, 255, 255);
