@@ -19,5 +19,5 @@ class Settings(BaseSettings):
 HERE = Path(__file__).parent
 
 
-templates = Jinja2Templates(directory=HERE / "api" / "templates")
+templates = Jinja2Templates(directory=Path(__file__).parent / "api" / "templates")
 static = StaticFiles(directory=HERE / "api" / "static")

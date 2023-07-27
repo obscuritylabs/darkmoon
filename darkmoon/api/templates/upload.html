@@ -42,13 +42,16 @@
 
     </h1>
 
-    <form action="/webpages/results">
-
+    <form hx-get="/upload/" hx-target="#results" enctype="multipart/form-data">
         <h2> .ISO Upload </h2>
         <input type="file" id="myFile" name="filename">
-        <input type="submit" onclick="location.href='../common/main.py';" value="submit" />
+        <button type="Submit">Submit</button>
     </form>
-
+    <div id="results">
+        <h2>Results:</h2>
+        <p hx-swap="outerHTML">
+        </p>
+    </div>
     <form>
 
         <h2> Packer Template Upload </h2>
@@ -56,7 +59,6 @@
         <input type="submit">
 
     </form>
-
     <form>
 
         <h2> Answer File Upload </h2>
