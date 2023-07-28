@@ -42,15 +42,16 @@
 
     </h1>
 
-    <form hx-get="/upload/" hx-target="#results" enctype="multipart/form-data">
-        <h2> .ISO Upload </h2>
-        <input type="file" id="myFile" name="filename">
-        <button type="Submit">Submit</button>
+    <form hx-get="/webpages/upload" hx-target="#results_section" enctype="multipart/form-data">
+        <h2>Upload VMDK File</h2>
+        <input type="file" id="myFile" name="file">
+        <input type="submit" value="Submit" hx-target="#results_section">
     </form>
-    <div id="results">
+    <div id="results_section">
+        {% if extracted_filename %}
         <h2>Results:</h2>
-        <p hx-swap="outerHTML">
-        </p>
+        <p>Extracted Filename: {{ extracted_filename }}</p>
+        {% endif %}
     </div>
     <form>
 

@@ -27,7 +27,7 @@ async def read_item_upload(request: Request) -> Response:
     return templates.TemplateResponse("upload.html", {"request": request})
 
 
-@router.get("/upload", response_class=HTMLResponse)
+@router.post("/upload", response_class=HTMLResponse)
 async def upload_vmdk(request: Request, file: UploadFile = File(...)) -> Response:
     """Handle VMDK file upload and processing."""
     file_path = f"{HERE}/{darkmoon.common.name}"
