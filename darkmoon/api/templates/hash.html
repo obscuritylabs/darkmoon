@@ -98,7 +98,8 @@
         </h2>
 
 
-        <form action onsubmit="fileSubmission()">
+        <form action="http://127.0.0.1:8000/metadata/hashComparison" onsubmit="fileSubmission()" method="post"
+            enctype="multipart/form-data">
 
             <h2> Upload File </h2>
             <input type="file" id="myFile" required="required" name="filename">

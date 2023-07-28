@@ -54,12 +54,10 @@
 
     <h1></h1>
     <div style="padding:40px;">
-        <form action onsubmit="submissionComplete()">
+        <form action="/upload" method="post" onsubmit="submissionComplete()" enctype="multipart/form-data">
 
             <h2> .ISO Upload </h2>
             <input type="file" id="myFile" required="required" name="filename">
-
-
 
             <hr>
 
@@ -67,14 +65,11 @@
             <h2> Packer Template Upload </h2>
             <input type="file" id="myFile" required="required" name="filename">
 
-
-
             <hr>
 
             <h1></h1>
             <h2> Answer File Upload </h2>
             <input type="file" id="myFile" required="required" name="filename">
-
 
             <h1>
 
