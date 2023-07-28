@@ -14,7 +14,10 @@ from darkmoon.api.v1.metadata.schema import (
     UploadListMetadataEntityResponse,
     UploadMetadataResponse,
 )
-from darkmoon.core.database import get_file_metadata_collection
+from darkmoon.core.database import (
+    get_file_metadata_collection,
+    get_suspicious_file_metadata_collection,
+)
 from darkmoon.core.schema import (
     DuplicateFileException,
     IncorrectInputException,
@@ -308,6 +311,7 @@ async def upload_metadata(
     responses={
         200: {"Successful Request": "Results Available"},
         404: {"Client Error Response": "No Results Found"},
+        406: {"Client Error Response": "Not Acceptable"},
         504: {"Server Error Response": "Internal Server Error"},
     },
 )
@@ -315,6 +319,9 @@ async def hash_comparison(
     response: Response,
     fileInput: UploadFile,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
+    susCollection: AsyncIOMotorCollection = Depends(
+        get_suspicious_file_metadata_collection,
+    ),
     page: int = Query(
         0,
         ge=0,
@@ -355,6 +362,51 @@ async def hash_comparison(
         sha256Hash = h_sha256.hexdigest()
         sha512Hash = h_sha512.hexdigest()
 
+        obj = MetadataEntity(
+            _id=PydanticObjectId(),
+            name=[inputFileName],
+            file_type=[inputFileType],
+            operating_system=[],
+            source_iso_name=[],
+            file_extension=[""],
+            hashes=Hashes(
+                md5=md5Hash,
+                sha1=sha1Hash,
+                sha256=sha256Hash,
+                sha512=sha512Hash,
+            ),
+            header_info=None,
+        )
+
+        # Check if hash is suspicious
+        sus_query = {
+            "$and": [
+                {
+                    "name": inputFileName,
+                },
+                {
+                    "file_type": inputFileType,
+                },
+            ],
+        }
+        susResults = await collection.find(sus_query).to_list(length=length)
+        susLi = [MetadataEntity.parse_obj(item) for item in susResults]
+        for metadata in susLi:
+            dbHashes = [
+                metadata.hashes.md5,
+                metadata.hashes.sha1,
+                metadata.hashes.sha256,
+                metadata.hashes.sha512,
+            ]
+            inputHashes = [md5Hash, sha1Hash, sha256Hash, sha512Hash]
+            if dbHashes != inputHashes:
+                await susCollection.insert_one(obj.dict())
+                response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+                return UploadListMetadataEntityResponse(
+                    message="The hash of your file did not match the hash of the \
+existing, file in the database. File placed in suspicious collection.",
+                    data=[obj],
+                )
         search_query = {
             "$or": [
                 {
@@ -369,21 +421,6 @@ async def hash_comparison(
         results = await collection.find(search_query).to_list(length=length)
         li = [MetadataEntity.parse_obj(item) for item in results]
         if len(li) == 0:
-            obj = MetadataEntity(
-                _id=PydanticObjectId(),
-                name=[inputFileName],
-                file_type=[inputFileType],
-                operating_system=[],
-                source_iso_name=[],
-                file_extension=[""],
-                hashes=Hashes(
-                    md5=md5Hash,
-                    sha1=sha1Hash,
-                    sha256=sha256Hash,
-                    sha512=sha512Hash,
-                ),
-                header_info=None,
-            )
             li.append(obj)
             response.status_code = status.HTTP_404_NOT_FOUND
             return UploadListMetadataEntityResponse(

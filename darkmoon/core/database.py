@@ -34,3 +34,12 @@ async def get_file_metadata_collection(request: Request) -> AsyncIOMotorCollecti
     client: AsyncIOMotorClient = request.app.client
     db: AsyncIOMotorDatabase = client.get_database("darkmoon")
     return db.get_collection("FieldMetadata")
+
+
+async def get_suspicious_file_metadata_collection(
+    request: Request,
+) -> AsyncIOMotorCollection:
+    """Make suspicious collection."""
+    client: AsyncIOMotorClient = request.app.client
+    db: AsyncIOMotorDatabase = client.get_database("darkmoon")
+    return db.get_collection("SuspiciousMetadata")
