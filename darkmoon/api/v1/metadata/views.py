@@ -112,6 +112,47 @@ async def list_metadata_by_hash(
 
 
 @router.get(
+    "/suspicious",
+    responses={
+        422: {"Client Error Response": "Unprocessable Content"},
+        504: {"Server Error Response": "Gateway Timeout"},
+    },
+)
+async def get_suspicious_metadata(
+    collection: AsyncIOMotorCollection = Depends(
+        get_suspicious_file_metadata_collection,
+    ),
+    page: int = Query(
+        0,
+        ge=0,
+        le=18446744073709552,
+        description="The page to iterate to.",
+    ),
+    length: int = Query(10, ge=1, le=500),
+) -> list[MetadataEntity]:
+    """Get list of suspicious metadata that matches the parameters in the database.
+
+    Parameters:
+        collection (AsyncIOMotorCollection): The database collection to query.
+        page (int): The page number to iterate to.
+        length (int): The number of items per page.
+
+    Returns:
+        List[MetadataEntity]: List of all documents that match parameters in the
+            database.
+
+    Raises:
+        ServerNotFoundException: Endpoint is unable to connect to mongoDB instance
+    """
+    try:
+        data = await collection.find({}).skip(page * length).to_list(length=length)
+        return [MetadataEntity.parse_obj(item) for item in data]
+
+    except errors.ServerSelectionTimeoutError:
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
+
+
+@router.get(
     "/",
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
@@ -310,6 +351,7 @@ async def upload_metadata(
     status_code=status.HTTP_201_CREATED,
     responses={
         200: {"Successful Request": "Results Available"},
+        400: {"Client Error Response": "Bad Request"},
         404: {"Client Error Response": "No Results Found"},
         406: {"Client Error Response": "Not Acceptable"},
         504: {"Server Error Response": "Internal Server Error"},
@@ -347,7 +389,6 @@ async def hash_comparison(
     try:
         inputFileType = str(fileInput.content_type)
         inputFileName = str(fileInput.filename)
-
         data = fileInput.file.read()
         h_md5 = hashlib.md5()  # noqa S324
         h_sha1 = hashlib.sha1()  # noqa: S324
@@ -383,9 +424,7 @@ async def hash_comparison(
             "$and": [
                 {
                     "name": inputFileName,
-                },
-                {
-                    "file_type": inputFileType,
+                    "fileType": inputFileType,
                 },
             ],
         }
@@ -403,8 +442,7 @@ async def hash_comparison(
                 await susCollection.insert_one(obj.dict())
                 response.status_code = status.HTTP_406_NOT_ACCEPTABLE
                 return UploadListMetadataEntityResponse(
-                    message="The hash of your file did not match the hash of the \
-existing, file in the database. File placed in suspicious collection.",
+                    message="Bad hashes. Put in suspicious collection.",
                     data=[obj],
                 )
         search_query = {
