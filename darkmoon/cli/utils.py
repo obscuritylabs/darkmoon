@@ -105,7 +105,7 @@ def get_metadata(file: Path, source_iso: Path) -> dict[str, Any]:
         except PEFormatError:
             pass
     else:
-        data_fields["header_info"] = "Not an EXE or DLL"
+        data_fields["header_info"] = "Not an EXE or DLL file"
     return data_fields
 
 

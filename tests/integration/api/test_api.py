@@ -61,7 +61,6 @@ def test_get_list_metadata_by_hash(
         # remove extra data added by mongo db, reformat _id key value
         del test_metadata_entity["id"]
         test_metadata_entity["_id"] = str(test_metadata_entity["_id"])
-
         assert response.status_code == 200
         assert response.json()[0] == test_metadata_entity
 

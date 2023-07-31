@@ -1,4 +1,5 @@
 """Imports the modules/classes Field, BaseModel, Core Response model, and Optional."""
+
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field, validator
 
@@ -57,7 +58,7 @@ class HeaderInfo(BaseModel):
     )
 
 
-class Metadata(BaseModel):
+class EXEMetadata(BaseModel):
     """Sets incoming file requirements."""
 
     name: list[str] = Field(
@@ -65,16 +66,19 @@ class Metadata(BaseModel):
         example=["End_Of_The_World"],
         min_items=1,
     )
+
     file_extension: list[str] = Field(
         description="the extension of a file",
         example=[".jpeg"],
         min_items=1,
     )
+
     file_type: list[str] = Field(
         description="the type of file",
         example=["exe"],
         min_items=1,
     )
+
     hashes: Hashes = Field(
         description="a hash",
     )
@@ -92,7 +96,7 @@ class Metadata(BaseModel):
         min_items=1,
     )
 
-    header_info: HeaderInfo | str = Field(
+    header_info: HeaderInfo = Field(
         description="contains all the header information",
     )
 
@@ -108,15 +112,80 @@ class Metadata(BaseModel):
         for value in input:
             try:
                 value.encode("UTF-8")
+
             except UnicodeEncodeError:
                 raise IncorrectInputException(
                     status_code=422,
                     detail=("Input contains invalid characters"),
                 )
+
         return input
 
 
-class MetadataEntity(BaseModel):
+class DocMetadata(BaseModel):
+    """Sets incoming file requirements."""
+
+    name: list[str] = Field(
+        description="name of file",
+        example=["End_Of_The_World"],
+        min_items=1,
+    )
+
+    file_extension: list[str] = Field(
+        description="the extension of a file",
+        example=[".jpeg"],
+        min_items=1,
+    )
+
+    file_type: list[str] = Field(
+        description="the type of file",
+        example=["exe"],
+        min_items=1,
+    )
+
+    hashes: Hashes = Field(
+        description="a hash",
+    )
+
+    source_iso_name: list[str] = Field(
+        description="source ISO name",
+        example=["Win_XP"],
+        min_items=1,
+    )
+
+    operating_system: list[str] = Field(
+        description="The operating system of the computer"
+        " where the file is coming from.",
+        example=["WindowsXP"],
+        min_items=1,
+    )
+
+    @validator(
+        "name",
+        "file_extension",
+        "file_type",
+        "source_iso_name",
+        "operating_system",
+    )
+    def validate_input(cls, input: list[str]) -> list[str]:
+        """Ensure all data in an uploaded file uses proper UTF-8 characters."""
+        for value in input:
+            try:
+                value.encode("UTF-8")
+
+            except UnicodeEncodeError:
+                raise IncorrectInputException(
+                    status_code=422,
+                    detail=("Input contains invalid characters"),
+                )
+
+        return input
+
+
+Metadata = EXEMetadata | DocMetadata
+
+
+class ExeMetadataEntity(BaseModel):
     """Sets outgoing file requirements."""
 
     id: PydanticObjectId = Field(
@@ -124,38 +193,135 @@ class MetadataEntity(BaseModel):
         example="1",
         alias="_id",
     )
+
     name: list[str] = Field(
         description="name of file",
         example=["End_Of_The_World"],
+        min_items=1,
     )
+
     file_extension: list[str] = Field(
         description="the extension of a file",
         example=[".jpeg"],
+        min_items=1,
     )
 
     file_type: list[str] = Field(
         description="the type of file",
         example=["exe"],
+        min_items=1,
     )
 
     hashes: Hashes = Field(
         description="a hash",
     )
+
     source_iso_name: list[str] = Field(
         description="source ISO name",
         example=["Win_XP"],
+        min_items=1,
     )
 
     operating_system: list[str] = Field(
         description="The operating system of the computer"
         " where the file is coming from.",
         example=["WindowsXP"],
+        min_items=1,
     )
 
-    header_info: HeaderInfo | str = Field(
+    header_info: HeaderInfo = Field(
         description="contains all the header information",
-        example="",
     )
+
+    @validator(
+        "name",
+        "file_extension",
+        "file_type",
+        "source_iso_name",
+        "operating_system",
+    )
+    def validate_input(cls, input: list[str]) -> list[str]:
+        """Ensure all data in an uploaded file uses proper UTF-8 characters."""
+        for value in input:
+            try:
+                value.encode("UTF-8")
+
+            except UnicodeEncodeError:
+                raise IncorrectInputException(
+                    status_code=422,
+                    detail=("Input contains invalid characters"),
+                )
+
+        return input
+
+
+class DocMetadataEntity(BaseModel):
+    """Sets outgoing file requirements."""
+
+    id: PydanticObjectId = Field(
+        description="ID",
+        example="1",
+        alias="_id",
+    )
+
+    name: list[str] = Field(
+        description="name of file",
+        example=["End_Of_The_World"],
+        min_items=1,
+    )
+
+    file_extension: list[str] = Field(
+        description="the extension of a file",
+        example=[".jpeg"],
+        min_items=1,
+    )
+
+    file_type: list[str] = Field(
+        description="the type of file",
+        example=["exe"],
+        min_items=1,
+    )
+
+    hashes: Hashes = Field(
+        description="a hash",
+    )
+
+    source_iso_name: list[str] = Field(
+        description="source ISO name",
+        example=["Win_XP"],
+        min_items=1,
+    )
+
+    operating_system: list[str] = Field(
+        description="The operating system of the computer"
+        " where the file is coming from.",
+        example=["WindowsXP"],
+        min_items=1,
+    )
+
+    @validator(
+        "name",
+        "file_extension",
+        "file_type",
+        "source_iso_name",
+        "operating_system",
+    )
+    def validate_input(cls, input: list[str]) -> list[str]:
+        """Ensure all data in an uploaded file uses proper UTF-8 characters."""
+        for value in input:
+            try:
+                value.encode("UTF-8")
+
+            except UnicodeEncodeError:
+                raise IncorrectInputException(
+                    status_code=422,
+                    detail=("Input contains invalid characters"),
+                )
+
+        return input
+
+
+MetadataEntity = ExeMetadataEntity | DocMetadataEntity
 
 
 class UploadResponse(Response):
