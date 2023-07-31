@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from common.main import extract
 from rich import print_json
 from rich.progress import track
 
@@ -124,7 +123,7 @@ def extract_files(
     darkmoon_server_url: Path,
 ) -> None:
     """Calls extract function from common folder."""
-    extract(file, source_iso, darkmoon_server_url)
+    utils.extract_files(file, source_iso, darkmoon_server_url)
 
 
 @app.command()
