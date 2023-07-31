@@ -46,13 +46,12 @@
         <h2>Upload VMDK File</h2>
         <input type="file" id="myFile" name="file">
         <input type="submit" value="Submit" hx-target="#results_section">
+
     </form>
-    <div id="results_section">
-        {% if extracted_filename %}
-        <h2>Results:</h2>
-        <p>Extracted Filename: {{ extracted_filename }}</p>
-        {% endif %}
-    </div>
+    <h2>Uploaded File Information:</h2>
+    <p>Extracted Filename: {{ extracted_filename }}</p>
+    <p>Processed Filename: {{ processed_filename }}</p>
+
     <form>
 
         <h2> Packer Template Upload </h2>
