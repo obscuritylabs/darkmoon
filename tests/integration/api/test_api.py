@@ -161,3 +161,7 @@ def test_suspicious_hash(
             files={"fileInput": open(test_suspicious_hash_comparison_file, "rb")},
         )
         assert response.status_code == 406
+        assert response.json()["message"] == "Bad hashes. Put in suspicious collection."
+        response = app.get("/metadata/suspicious")
+        assert len(response.json()) > 0
+        assert response.json()[0]["name"][0] == "test4.rtf"
