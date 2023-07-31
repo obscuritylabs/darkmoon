@@ -7,14 +7,13 @@ from fastapi.responses import JSONResponse
 
 from darkmoon.common import utils
 from darkmoon.common.utils import (
-    call_api,
     get_all_exe_metadata,
     get_file_type,
     get_hashes,
     get_metadata,
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/endpoints", tags=["endpoints"])
 
 
 @router.get("/metadata")
@@ -24,15 +23,6 @@ async def get_metadata_endpoint(
 ) -> dict[str, Any]:
     """Get metadata."""
     return get_metadata(file, source_iso)
-
-
-@router.post("/call_api")
-async def call_api_endpoint(
-    url: PyPath = Query(..., description="API endpoint URL"),
-    data: dict[str, Any] = Query(..., description="Data to send as JSON"),
-) -> bool:
-    """Call api."""
-    return call_api(url, data)
 
 
 @router.get("/get_file_type")
