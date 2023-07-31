@@ -88,8 +88,49 @@ def test_metadata_entity() -> (
 
 
 @pytest.fixture
+def test_suspicious_metadata_entity() -> (
+    dict[str, list[str] | dict[str, str] | dict[str, str | dict[str, str]]]
+):
+    """Represent a test metadata object."""
+    file: dict[
+        str,
+        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
+    ] = MetadataEntity(
+        _id=PydanticObjectId(),
+        name=["test4.rtf"],
+        file_extension=[".rtf"],
+        file_type=["text/rtf"],
+        hashes=Hashes(
+            md5="",
+            sha1="",
+            sha256="",
+            sha512="",
+        ),
+        source_iso_name=["Win_XP"],
+        operating_system=["Windows XP"],
+        header_info=HeaderInfo(
+            machine_type="",
+            timestamp="",
+            compile_time="",
+            signature="",
+            rich_header_hashes=Hashes(
+                md5="",
+                sha1="",
+                sha256="",
+                sha512="",
+            ),
+        ),
+    ).dict()
+    return file
+
+
+@pytest.fixture
 def populated_database(
     test_metadata_entity: dict[
+        str,
+        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
+    ],
+    test_suspicious_metadata_entity: dict[
         str,
         list[str] | dict[str, str] | dict[str, str | dict[str, str]],
     ],
@@ -98,6 +139,7 @@ def populated_database(
     with MongoDbContainer("mongo:6") as mongo:
         db = mongo.get_connection_client().get_database("darkmoon")
         db.get_collection("FieldMetadata").insert_one(test_metadata_entity)
+        db.get_collection("FieldMetadata").insert_one(test_suspicious_metadata_entity)
         yield mongo.get_connection_url()
 
 
@@ -155,5 +197,13 @@ HERE = Path(__file__).parent
 def test_hash_comparison_without_file() -> Path:
     """Load the test file as a fixture."""
     file = HERE / "test3.rtf"
+    assert file.exists()
+    return file
+
+
+@pytest.fixture()
+def test_suspicious_hash_comparison_file() -> Path:
+    """Load the test file as a fixture."""
+    file = HERE / "test4.rtf"
     assert file.exists()
     return file

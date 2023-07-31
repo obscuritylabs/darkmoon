@@ -148,3 +148,16 @@ def test_post_hash_comparison_failure(
             files={"fileInput": open(test_hash_comparison_without_file, "rb")},
         )
         assert response.status_code == 404
+
+
+def test_suspicious_hash(
+    populated_app: FastAPI,
+    test_suspicious_hash_comparison_file: Path,
+) -> None:
+    """Docstring goes here."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/metadata/hashComparison",
+            files={"fileInput": open(test_suspicious_hash_comparison_file, "rb")},
+        )
+        assert response.status_code == 406

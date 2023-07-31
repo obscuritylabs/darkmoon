@@ -423,8 +423,7 @@ async def hash_comparison(
         sus_query = {
             "$and": [
                 {
-                    "name": inputFileName,
-                    "fileType": inputFileType,
+                    "name": [inputFileName],
                 },
             ],
         }
