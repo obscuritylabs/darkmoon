@@ -324,9 +324,17 @@ class DocMetadataEntity(BaseModel):
 MetadataEntity = ExeMetadataEntity | DocMetadataEntity
 
 
-class UploadResponse(Response):
+class UploadMetadataResponse(Response):
     """Sets upload response requirements."""
 
     data: Metadata = Field(
+        description="The object inserted or updated on the database",
+    )
+
+
+class UploadListMetadataEntityResponse(Response):
+    """Sets upload response requirements."""
+
+    data: list[MetadataEntity] = Field(
         description="The object inserted or updated on the database",
     )

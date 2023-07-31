@@ -9,7 +9,11 @@ def test_jinja_homepage(populated_app: FastAPI) -> None:
             "/webpages/",
         )
         assert (
-            '<link href="http://testserver/static/homepage.css" rel="stylesheet">'
+            '<link href="http://testserver/static/style.css" rel="stylesheet">'
+            in response.content.decode("utf-8")
+        )
+        assert (
+            '<link href="http://testserver/static/variables.css" rel="stylesheet">'
             in response.content.decode("utf-8")
         )
         assert response.status_code == 200
@@ -22,7 +26,11 @@ def test_jinja_hashpage(populated_app: FastAPI) -> None:
             "/webpages/hash-lookup",
         )
         assert (
-            '<link href="http://testserver/static/styles.css" rel="stylesheet">'
+            '<link href="http://testserver/static/style.css" rel="stylesheet">'
+            in response.content.decode("utf-8")
+        )
+        assert (
+            '<link href="http://testserver/static/variables.css" rel="stylesheet">'
             in response.content.decode("utf-8")
         )
         assert response.status_code == 200
@@ -35,7 +43,11 @@ def test_jinja_uploadpage(populated_app: FastAPI) -> None:
             "/webpages/upload",
         )
         assert (
-            '<link href="http://testserver/static/styles.css" rel="stylesheet">'
+            '<link href="http://testserver/static/style.css" rel="stylesheet">'
+            in response.content.decode("utf-8")
+        )
+        assert (
+            '<link href="http://testserver/static/variables.css" rel="stylesheet">'
             in response.content.decode("utf-8")
         )
         assert response.status_code == 200

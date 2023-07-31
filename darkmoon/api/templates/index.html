@@ -3,12 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <link href="{{ url_for('static', path='/homepage.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static',path='/variables.css') }}" rel="stylesheet">
 </head>
 
-<html>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
 
-<body>
+<body class="homepage">
 
     <header>
 
@@ -25,9 +26,7 @@
         <nav>
 
             <ul>
-
-                <li><a href="/webpages">Home</a></li>
-
+                <button class="dropbtn"><a href="/webpages">Home</a></button>
                 <div class="dropdown">
 
                     <button class="dropbtn">Tools</button>
@@ -35,19 +34,36 @@
                     <div class="dropdown-content">
 
                         <a href="/webpages/hash-lookup">Hash Lookup</a>
+
                         <a href="/webpages/upload">ISO Upload</a>
 
                     </div>
 
                 </div>
-
-                <li><a href="">Credit</a></li>
-
+                <button class="dropbtn"><a href="#">Credit</a></button>
             </ul>
 
         </nav>
 
     </header>
+    <section>
+        <article>
+            <h2 id="border" style="color:white">This project will catalogue file metadata from
+                multiple Windows operating
+                systems. The data will be
+                available for lookup based on file name or file hashes.</h2>
+
+        </article>
+        <div class="logo1"></div>
+    </section>
+
+    <footer>
+
+        <a class="github-button" href="https://github.com/obscuritylabs/darkmoon" data-show-count="true"
+            data-size="large">Darkmoon
+            Repository</a>
+
+    </footer>
 
 </body>
 

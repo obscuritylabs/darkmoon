@@ -1,8 +1,9 @@
 """Defines an API router for handling metadata related requests."""
+import hashlib
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -11,9 +12,11 @@ from darkmoon.api.v1.metadata.schema import (
     DocMetadataEntity,
     EXEMetadata,
     ExeMetadataEntity,
+    Hashes,
     Metadata,
     MetadataEntity,
-    UploadResponse,
+    UploadListMetadataEntityResponse,
+    UploadMetadataResponse,
 )
 from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
@@ -31,6 +34,7 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
+        400: {"Client Error Response": "Bad Request"},
     },
 )
 async def list_metadata_by_hash(
@@ -214,7 +218,7 @@ async def get_metadata_by_id(
 async def upload_metadata(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> UploadResponse:
+) -> UploadMetadataResponse:
     """Fast API POST function for incoming files.
 
     Parameters:
@@ -310,13 +314,13 @@ async def upload_metadata(
             }
             if any("header_info" in item for item in file):
                 await collection.update_one(duplicate_hashes, change)
-                return UploadResponse(
+                return UploadMetadataResponse(
                     message="Successfully Updated Object.",
                     data=EXEMetadata.parse_obj(file_metadata),
                 )
             else:
                 await collection.update_one(duplicate_hashes, change)
-                return UploadResponse(
+                return UploadMetadataResponse(
                     message="Successfully Updated Object.",
                     data=DocMetadata.parse_obj(file_metadata),
                 )
@@ -324,13 +328,13 @@ async def upload_metadata(
         else:
             if any("header_info" in item for item in file):
                 await collection.insert_one(file_metadata)
-                return UploadResponse(
+                return UploadMetadataResponse(
                     message="Successfully Inserted Object.",
                     data=EXEMetadata.parse_obj(file_metadata),
                 )
             else:
                 await collection.insert_one(file_metadata)
-                return UploadResponse(
+                return UploadMetadataResponse(
                     message="Successfully Inserted Object.",
                     data=DocMetadata.parse_obj(file_metadata),
                 )
@@ -342,3 +346,107 @@ async def upload_metadata(
             status_code=422,
             detail=("Input contains invalid characters"),
         )
+
+
+@router.post(
+    "/hashComparison",
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        200: {"Successful Request": "Results Available"},
+        404: {"Client Error Response": "No Results Found"},
+        504: {"Server Error Response": "Internal Server Error"},
+        400: {"Client Error Response": "There was an error parsing the body"},
+    },
+)
+async def hash_comparison(
+    response: Response,
+    fileInput: UploadFile,
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
+    page: int = Query(
+        0,
+        ge=0,
+        le=18446744073709552,
+        description="The page to iterate to.",
+    ),
+    length: int = Query(10, ge=1, le=500),
+) -> UploadListMetadataEntityResponse:
+    """Fast API POST function to search database with an input file.
+
+    Parameters:
+        file (UploadFile): The file that the use inputs.
+        collection (AsyncIOMotorCollection) : The database collection to query.
+
+    Returns:
+        response (UploadListMetadataEntityResponse): return a list[MetadataEntity] or
+        raise an exception.
+
+    Raises:
+        ServerNotFoundException:
+            Endpoint is unable to connect to mongoDB instance
+    """
+    try:
+        inputFileType = str(fileInput.content_type)
+        inputFileName = str(fileInput.filename)
+
+        data = fileInput.file.read()
+        h_md5 = hashlib.md5()  # noqa S324
+        h_sha1 = hashlib.sha1()  # noqa: S324
+        h_sha256 = hashlib.sha256()
+        h_sha512 = hashlib.sha512()
+        h_md5.update(data)
+        h_sha1.update(data)
+        h_sha256.update(data)
+        h_sha512.update(data)
+        md5Hash = h_md5.hexdigest()
+        sha1Hash = h_sha1.hexdigest()
+        sha256Hash = h_sha256.hexdigest()
+        sha512Hash = h_sha512.hexdigest()
+
+        search_query = {
+            "$or": [
+                {
+                    "name": inputFileName,
+                },
+                {
+                    "file_type": inputFileType,
+                },
+            ],
+        }
+
+        results = await collection.find(search_query).to_list(length=length)
+        li: list[MetadataEntity] = []
+        for item in results:
+            if "header_info" in item:
+                li.append(ExeMetadataEntity.parse_obj(item))
+            else:
+                li.append(DocMetadataEntity.parse_obj(item))
+
+        if len(li) == 0:
+            obj = DocMetadataEntity(
+                _id=PydanticObjectId(),
+                name=[inputFileName],
+                file_type=[inputFileType],
+                operating_system=[""],
+                source_iso_name=[""],
+                file_extension=[""],
+                hashes=Hashes(
+                    md5=md5Hash,
+                    sha1=sha1Hash,
+                    sha256=sha256Hash,
+                    sha512=sha512Hash,
+                ),
+            )
+            li.append(obj)
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return UploadListMetadataEntityResponse(
+                message="No results found in database.",
+                data=li,
+            )
+        response.status_code = status.HTTP_200_OK
+        return UploadListMetadataEntityResponse(
+            message="Database results available",
+            data=li,
+        )
+
+    except errors.ServerSelectionTimeoutError:
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
