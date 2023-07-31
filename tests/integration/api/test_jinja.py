@@ -51,3 +51,17 @@ def test_jinja_uploadpage(populated_app: FastAPI) -> None:
             in response.content.decode("utf-8")
         )
         assert response.status_code == 200
+
+
+def test_jinja_fileuplaod(populated_app: FastAPI) -> None:
+    """Test uploading file for hash comparison."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/webpages/fileupload",
+        )
+
+        assert (
+            '<link href="http://testserver/static/style.css" rel="stylesheet">'
+            in response.content.decode("utf-8")
+        )
+        assert response.status_code == 200

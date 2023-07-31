@@ -25,5 +25,10 @@
     "pymongo",
     "templating",
     "typer"
+  ],
+  "xd.globalEditor": true,
+  "xd.lastPackage": "/Users/intern/Downloads/material-theme",
+  "python.analysis.extraPaths": [
+    "./darkmoon"
   ]
 }
