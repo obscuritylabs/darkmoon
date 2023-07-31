@@ -1,4 +1,5 @@
 import schemathesis
+from anyio import Path
 from fastapi import FastAPI
 from schemathesis.constants import DataGenerationMethod
 from schemathesis.lazy import LazySchema
@@ -24,18 +25,36 @@ def test_api_schema(case: Case, app: FastAPI) -> None:
         case.call_and_validate(session=session)
 
 
-def test_get(
+def test_get_default_list_metadata(
     populated_app: FastAPI,
     test_metadata_entity: dict[
         str,
         list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
     ],
 ) -> None:
-    """Test GET /metadata/ endpoint correctly receives object from database."""
+    """Test default GET /metadata."""
+    with TestClient(populated_app) as app:
+        response = app.get(
+            "/metadata/",
+        )
+        assert response.status_code == 200
+        del test_metadata_entity["id"]
+        test_metadata_entity["_id"] = str(test_metadata_entity["_id"])
+        assert response.json()[0] == test_metadata_entity
+
+
+def test_get_list_metadata_by_hash(
+    populated_app: FastAPI,
+    test_metadata_entity: dict[
+        str,
+        list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
+    ],
+) -> None:
+    """Test GET /metadata/hashSearch correctly receives object from database."""
     with TestClient(populated_app) as app:
         # positive case, should get a copy of the MetaDataEntity fixture
         response = app.get(
-            "/metadata/",
+            "/metadata/hashSearch",
             params={
                 "fullHash": "md5:0d41402abc4b2a76b9719d911017c591",
             },
@@ -48,7 +67,7 @@ def test_get(
         assert response.json()[0] == test_metadata_entity
 
         # negative case, missing parameters
-        response = app.get("/metadata/")
+        response = app.get("/metadata/hashSearch")
 
         assert response.status_code == 422
         assert response.json() == {
@@ -116,3 +135,16 @@ def test_post(
             response.json()["detail"][0]["msg"]
             == 'string does not match regex "^(?!\\s*$).+"'
         )
+
+
+def test_post_hash_comparison_failure(
+    populated_app: FastAPI,
+    test_hash_comparison_without_file: Path,
+) -> None:
+    """Returns fixture to test file."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/metadata/hashComparison",
+            files={"fileInput": open(test_hash_comparison_without_file, "rb")},
+        )
+        assert response.status_code == 404
