@@ -61,6 +61,33 @@ async def upload_file(
         raise IncorrectInputException(status_code=422, detail="File input mismatch")
 
 
+@router.post(
+    "/hashupload",
+    responses={
+        422: {"Client Error Response": "Unprocessable Content"},
+    },
+)
+async def hash_upload(
+    response: Response,
+    file: UploadFile,
+) -> Response:
+    """POST file to API."""
+    try:
+        result = await hash_comparison(response, file)
+
+        return templates.TemplateResponse(
+            "hashdata.html",
+            {
+                "response": response,
+                "file": file.filename,
+                "results": result,
+            },
+        )
+
+    except Exception:
+        raise IncorrectInputException(status_code=422, detail="File input mismatch")
+
+
 """
 @router.post("/upload_files/")
 async def upload_files(
