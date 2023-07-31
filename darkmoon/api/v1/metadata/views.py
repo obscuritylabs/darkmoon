@@ -1,5 +1,5 @@
 """Defines an API router for handling metadata related requests."""
-import hashlib
+from pathlib import Path
 
 import bson
 from beanie import PydanticObjectId
@@ -14,6 +14,7 @@ from darkmoon.api.v1.metadata.schema import (
     UploadListMetadataEntityResponse,
     UploadMetadataResponse,
 )
+from darkmoon.cli import utils
 from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
     DuplicateFileException,
@@ -341,19 +342,13 @@ async def hash_comparison(
         inputFileType = str(fileInput.content_type)
         inputFileName = str(fileInput.filename)
 
-        data = fileInput.file.read()
-        h_md5 = hashlib.md5()  # noqa S324
-        h_sha1 = hashlib.sha1()  # noqa: S324
-        h_sha256 = hashlib.sha256()
-        h_sha512 = hashlib.sha512()
-        h_md5.update(data)
-        h_sha1.update(data)
-        h_sha256.update(data)
-        h_sha512.update(data)
-        md5Hash = h_md5.hexdigest()
-        sha1Hash = h_sha1.hexdigest()
-        sha256Hash = h_sha256.hexdigest()
-        sha512Hash = h_sha512.hexdigest()
+        tmp_path = Path("tmpfile")
+        tmp_path.write_bytes(fileInput.file.read())
+        upload_hashes = utils.get_hashes(tmp_path)
+        md5Hash = upload_hashes["md5"]
+        sha1Hash = upload_hashes["sha1"]
+        sha256Hash = upload_hashes["sha256"]
+        sha512Hash = upload_hashes["sha512"]
 
         search_query = {
             "$or": [
