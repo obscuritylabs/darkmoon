@@ -57,7 +57,7 @@
     <div style="padding:90px;">
         <h1></h1>
 
-        <form action onsubmit="hashSubmission()">
+        <form action="/webpages/hashupload" method="post" enctype="multipart/form-data" onsubmit="hashSubmission()">
 
             <h2> Hash </h2>
 
@@ -93,23 +93,18 @@
 
         </form>
 
-        <h2>
+        <h2></h2>
 
-        </h2>
-
-
-        <form action onsubmit="fileSubmission()">
+        <form action="http://127.0.0.1:8000/webpages/hashcompareresult" onsubmit="fileSubmission()" method="post"
+            enctype="multipart/form-data">
 
             <h2> Upload File </h2>
-            <input type="file" id="myFile" required="required" name="filename">
-            <h1></h1>
-            <input type="submit" value="Submit">
-
+            <input type="file" required="required" name="file" id="file">
+            <input type="submit" value="Upload File">
 
         </form>
+
     </div>
-
-
 
 </body>
 

@@ -6,7 +6,7 @@ from schemathesis.lazy import LazySchema
 from schemathesis.models import Case
 from starlette_testclient import TestClient
 
-from darkmoon.api.v1.metadata.schema import Metadata
+from darkmoon.common.schema import Metadata
 
 schemathesis.fixups.install()
 schema: LazySchema = schemathesis.from_pytest_fixture(

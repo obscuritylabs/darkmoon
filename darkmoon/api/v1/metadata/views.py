@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
-from darkmoon.api.v1.metadata.schema import (
+from darkmoon.common.schema import (
     DocMetadata,
     DocMetadataEntity,
     EXEMetadata,
