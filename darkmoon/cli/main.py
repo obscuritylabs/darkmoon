@@ -1,7 +1,5 @@
 """This is the main.py file."""
 
-import tarfile
-import tempfile
 from pathlib import Path
 from typing import Annotated
 
@@ -122,13 +120,10 @@ def extract_files(
             resolve_path=True,
         ),
     ],
-    darkmoon_server_url: Path,
+    darkmoon_server_url: str,
 ) -> None:
     """Extract vmdk and put in new folder."""
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        with tarfile.open(file) as f:
-            f.extractall(tmpdirname)
-        iterate_files(Path(tmpdirname), source_iso, darkmoon_server_url)
+    utils.extract_files(file, source_iso, darkmoon_server_url)
 
 
 @app.command()
@@ -144,7 +139,7 @@ def iterate_extract(
             resolve_path=True,
         ),
     ],
-    darkmoon_server_url: Path,
+    darkmoon_server_url: str,
 ) -> None:
     """Iterate over vmdk folder and extracts files of each vmdk."""
     for vmdk in track(path.glob("*"), description="Processing..."):
@@ -175,7 +170,7 @@ def iterate_files(
             resolve_path=True,
         ),
     ],
-    darkmoon_server_url: Path,
+    darkmoon_server_url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
     utils.iterate_files(path, source_iso, darkmoon_server_url)

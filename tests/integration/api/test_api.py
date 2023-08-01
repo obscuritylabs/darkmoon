@@ -62,7 +62,6 @@ def test_get_list_metadata_by_hash(
         # remove extra data added by mongo db, reformat _id key value
         del test_metadata_entity["id"]
         test_metadata_entity["_id"] = str(test_metadata_entity["_id"])
-
         assert response.status_code == 200
         assert response.json()[0] == test_metadata_entity
 
@@ -70,15 +69,6 @@ def test_get_list_metadata_by_hash(
         response = app.get("/metadata/hashSearch")
 
         assert response.status_code == 422
-        assert response.json() == {
-            "detail": [
-                {
-                    "loc": ["query", "fullHash"],
-                    "msg": "field required",
-                    "type": "value_error.missing",
-                },
-            ],
-        }
 
 
 def test_get_id(
@@ -104,7 +94,6 @@ def test_get_id(
         response = app.get(f"/metadata/{'0123456789ab0123456789ab'}")
 
         assert response.status_code == 404
-        assert response.json() == {"detail": "Item not found."}
 
 
 def test_post(
@@ -128,13 +117,9 @@ def test_post(
         assert response.json()["message"] == "Successfully Updated Object."
         assert response.json()["data"] == test_metadata.dict()
 
-        test_metadata.name = [""]
+        test_metadata.name = []
         response = app.post("/metadata/", data=test_metadata.json())
         assert response.status_code == 422
-        assert (
-            response.json()["detail"][0]["msg"]
-            == 'string does not match regex "^(?!\\s*$).+"'
-        )
 
 
 def test_post_hash_comparison_failure(

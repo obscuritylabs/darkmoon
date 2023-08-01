@@ -8,6 +8,10 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
 from darkmoon.api.v1.metadata.schema import (
+    DocMetadata,
+    DocMetadataEntity,
+    EXEMetadata,
+    EXEMetadataEntity,
     Hashes,
     Metadata,
     MetadataEntity,
@@ -30,6 +34,7 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
+        400: {"Client Error Response": "Bad Request"},
     },
 )
 async def list_metadata_by_hash(
@@ -102,7 +107,10 @@ async def list_metadata_by_hash(
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
         data = await collection.find(search).skip(page * length).to_list(length=length)
-        return [MetadataEntity.parse_obj(item) for item in data]
+        if any("header_info" in item for item in data):
+            return [EXEMetadataEntity.parse_obj(item) for item in data]
+        else:
+            return [DocMetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
@@ -141,7 +149,10 @@ async def list_metadata(
     """
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
-        return [MetadataEntity.parse_obj(item) for item in data]
+        if any("header_info" in item for item in data):
+            return [EXEMetadataEntity.parse_obj(item) for item in data]
+        else:
+            return [DocMetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
@@ -179,7 +190,10 @@ async def get_metadata_by_id(
     try:
         doc = await collection.find_one({"_id": id})
         if doc:
-            document = MetadataEntity(**doc)
+            if any("header_info" in item for item in doc):
+                document = EXEMetadataEntity.parse_obj(doc)
+            else:
+                document = DocMetadataEntity.parse_obj(doc)  # type: ignore
         else:
             raise ItemNotFoundException(status_code=404, detail="Item not found.")
 
@@ -239,8 +253,20 @@ async def upload_metadata(
             "hashes": file_metadata["hashes"],
             "source_iso_name": file_metadata["source_iso_name"][0],
             "operating_system": file_metadata["operating_system"][0],
-            "header_info": file_metadata["header_info"],
         }
+
+        match file:
+            case EXEMetadata():
+                check_dup["header_info"] = file_metadata["header_info"]
+
+            case DocMetadata():
+                ...
+            case _:
+                raise IncorrectInputException(
+                    status_code=422,
+                    detail="Error validating file",
+                )
+
     except IndexError:
         raise IncorrectInputException(status_code=422, detail=["Input missing"])
 
@@ -250,8 +276,12 @@ async def upload_metadata(
             raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
 
         doc = await collection.find_one(duplicate_hashes)
+        document: MetadataEntity
         if doc:
-            document = MetadataEntity(**doc)
+            if "header_info" in doc:
+                document = EXEMetadataEntity.parse_obj(doc)
+            else:
+                document = DocMetadataEntity.parse_obj(doc)
 
             data_type = [
                 document.name,
@@ -269,7 +299,9 @@ async def upload_metadata(
             ]
             for index in range(len(data_type)):
                 if file_metadata[data_type_string[index]][0] not in data_type[index]:
-                    data_type[index].append(file_metadata[data_type_string[index]][0])
+                    data_type[index].append(
+                        file_metadata[data_type_string[index]][0],
+                    )
 
             change = {
                 "$set": {
@@ -280,18 +312,32 @@ async def upload_metadata(
                     "operating_system": data_type[4],
                 },
             }
-            await collection.update_one(duplicate_hashes, change)
-            return UploadMetadataResponse(
-                message="Successfully Updated Object.",
-                data=file,
-            )
+            if any("header_info" in item for item in file):
+                await collection.update_one(duplicate_hashes, change)
+                return UploadMetadataResponse(
+                    message="Successfully Updated Object.",
+                    data=EXEMetadata.parse_obj(file_metadata),
+                )
+            else:
+                await collection.update_one(duplicate_hashes, change)
+                return UploadMetadataResponse(
+                    message="Successfully Updated Object.",
+                    data=DocMetadata.parse_obj(file_metadata),
+                )
 
         else:
-            await collection.insert_one(file_metadata)
-            return UploadMetadataResponse(
-                message="Successfully Inserted Object.",
-                data=file,
-            )
+            if any("header_info" in item for item in file):
+                await collection.insert_one(file_metadata)
+                return UploadMetadataResponse(
+                    message="Successfully Inserted Object.",
+                    data=EXEMetadata.parse_obj(file_metadata),
+                )
+            else:
+                await collection.insert_one(file_metadata)
+                return UploadMetadataResponse(
+                    message="Successfully Inserted Object.",
+                    data=DocMetadata.parse_obj(file_metadata),
+                )
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=500, detail="Server not found.")
@@ -309,6 +355,7 @@ async def upload_metadata(
         200: {"Successful Request": "Results Available"},
         404: {"Client Error Response": "No Results Found"},
         504: {"Server Error Response": "Internal Server Error"},
+        400: {"Client Error Response": "Bad Request"},
     },
 )
 async def hash_comparison(
@@ -367,14 +414,20 @@ async def hash_comparison(
         }
 
         results = await collection.find(search_query).to_list(length=length)
-        li = [MetadataEntity.parse_obj(item) for item in results]
+        li: list[MetadataEntity] = []
+        for item in results:
+            if "header_info" in item:
+                li.append(EXEMetadataEntity.parse_obj(item))
+            else:
+                li.append(DocMetadataEntity.parse_obj(item))
+
         if len(li) == 0:
-            obj = MetadataEntity(
+            obj = DocMetadataEntity(
                 _id=PydanticObjectId(),
                 name=[inputFileName],
                 file_type=[inputFileType],
-                operating_system=[],
-                source_iso_name=[],
+                operating_system=[""],
+                source_iso_name=[""],
                 file_extension=[""],
                 hashes=Hashes(
                     md5=md5Hash,
@@ -382,7 +435,6 @@ async def hash_comparison(
                     sha256=sha256Hash,
                     sha512=sha512Hash,
                 ),
-                header_info=None,
             )
             li.append(obj)
             response.status_code = status.HTTP_404_NOT_FOUND
