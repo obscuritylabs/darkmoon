@@ -191,9 +191,9 @@ async def get_metadata_by_id(
         doc = await collection.find_one({"_id": id})
         if doc:
             if any("header_info" in item for item in doc):
-                document = ExeMetadataEntity(**doc)
+                document = ExeMetadataEntity.parse_obj(doc)
             else:
-                document = DocMetadataEntity(**doc)  # type: ignore
+                document = DocMetadataEntity.parse_obj(doc)  # type: ignore
         else:
             raise ItemNotFoundException(status_code=404, detail="Item not found.")
 
@@ -279,9 +279,9 @@ async def upload_metadata(
         document: MetadataEntity
         if doc:
             if "header_info" in doc:
-                document = ExeMetadataEntity(**doc)
+                document = ExeMetadataEntity.parse_obj(doc)
             else:
-                document = DocMetadataEntity(**doc)
+                document = DocMetadataEntity.parse_obj(doc)
 
             data_type = [
                 document.name,
