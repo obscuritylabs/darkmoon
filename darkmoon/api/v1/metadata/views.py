@@ -355,7 +355,7 @@ async def upload_metadata(
         200: {"Successful Request": "Results Available"},
         404: {"Client Error Response": "No Results Found"},
         504: {"Server Error Response": "Internal Server Error"},
-        400: {"Client Error Response": "There was an error parsing the body"},
+        400: {"Client Error Response": "Bad Request"},
     },
 )
 async def hash_comparison(

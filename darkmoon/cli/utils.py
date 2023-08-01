@@ -113,7 +113,7 @@ def extract_files(file: Path, source_iso: Path, url: str) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
-        subprocess.run(cmd, check=True)  # noqa: S603
+        subprocess.run(cmd, check=True)
         iterate_files(Path(tmpdirname), source_iso, url)
 
 
