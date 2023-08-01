@@ -4,6 +4,7 @@ from typing import Any
 
 import pytest
 import schemathesis
+from anyio import Path
 from beanie import PydanticObjectId
 from fastapi import FastAPI
 
@@ -11,7 +12,13 @@ from fastapi import FastAPI
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
-from darkmoon.api.v1.metadata.schema import Hashes, HeaderInfo, Metadata, MetadataEntity
+from darkmoon.api.v1.metadata.schema import (
+    EXEMetadata,
+    EXEMetadataEntity,
+    Hashes,
+    HeaderInfo,
+    Metadata,
+)
 from darkmoon.app import get_app
 from darkmoon.settings import Settings
 
@@ -57,7 +64,7 @@ def test_metadata_entity() -> (
     file: dict[
         str,
         list[str] | dict[str, str] | dict[str, str | dict[str, str]],
-    ] = MetadataEntity(
+    ] = EXEMetadataEntity(
         _id=PydanticObjectId(),
         name=["Test Name"],
         file_extension=[".jpeg"],
@@ -109,7 +116,7 @@ def populated_app(populated_database: str) -> FastAPI:
 @pytest.fixture
 def test_metadata() -> Metadata:
     """Represent a test metadata object."""
-    file: Metadata = Metadata(
+    file: Metadata = EXEMetadata(
         name=[
             "End_Of_The_World",
         ],
@@ -144,4 +151,15 @@ def test_metadata() -> Metadata:
             ),
         ),
     )
+    return file
+
+
+HERE = Path(__file__).parent
+
+
+@pytest.fixture()
+def test_hash_comparison_without_file() -> Path:
+    """Load the test file as a fixture."""
+    file = HERE / "test3.rtf"
+    assert file.exists()
     return file

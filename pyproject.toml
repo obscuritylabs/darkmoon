@@ -24,13 +24,14 @@ beanie = "^1.19.2"
 typer = { extras = ["all"], version = "^0.9.0" }
 proxmoxer = "^2.0.1"
 jinja2 = "^3.1.2"
+pytest = "^7.4.0"
+python-multipart = "^0.0.6"
 
 [tool.poetry.group.dev.dependencies]
 black = "23.7.0"
 commitizen = "3.5.3"
 mypy = "1.4.1"
 pre-commit = "^3.3.3"
-pytest = "^7.1.2"
 pytest-cov = "^4.1.0"
 ruff = "0.0.278"
 motor-types = "^1.0.0b2"
@@ -109,6 +110,7 @@ ignore = [
   "D301",
   "S106",
   "S113",
+  "S603",
   "ERA001",
 ]
 exclude = [
