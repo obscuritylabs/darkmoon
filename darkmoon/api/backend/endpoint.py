@@ -35,16 +35,10 @@ async def get_file_type_endpoint(
 
 @router.get("/get_hash")
 async def get_hashes_endpoint(
-    file: UploadFile = File(...),
+    file: PyPath = Query(..., description="Path to the file"),
 ) -> dict[str, str]:
     """Get hashes of files."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-        tmpfile.write(await file.read())
-        tmp_path = PyPath(tmpfile.name)
-        upload_hashes = utils.get_hashes(tmp_path)
-        tmpfile.unlink()
-
-    return upload_hashes
+    return get_hashes(file)
 
 
 @router.post("/get_all_exe_metadata", response_class=JSONResponse)
