@@ -3,7 +3,7 @@
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field, validator
 
-from darkmoon.core.schema import IncorrectInputException, Response
+from darkmoon.core.schema import Response
 
 
 class Hashes(BaseModel):
@@ -114,10 +114,7 @@ class EXEMetadata(BaseModel):
                 value.encode("UTF-8")
 
             except UnicodeEncodeError:
-                raise IncorrectInputException(
-                    status_code=422,
-                    detail=("Input contains invalid characters"),
-                )
+                raise ValueError
 
         return input
 
@@ -174,10 +171,7 @@ class DocMetadata(BaseModel):
                 value.encode("UTF-8")
 
             except UnicodeEncodeError:
-                raise IncorrectInputException(
-                    status_code=422,
-                    detail=("Input contains invalid characters"),
-                )
+                raise ValueError
 
         return input
 
@@ -233,27 +227,6 @@ class ExeMetadataEntity(BaseModel):
         description="contains all the header information",
     )
 
-    @validator(
-        "name",
-        "file_extension",
-        "file_type",
-        "source_iso_name",
-        "operating_system",
-    )
-    def validate_input(cls, input: list[str]) -> list[str]:
-        """Ensure all data in an uploaded file uses proper UTF-8 characters."""
-        for value in input:
-            try:
-                value.encode("UTF-8")
-
-            except UnicodeEncodeError:
-                raise IncorrectInputException(
-                    status_code=422,
-                    detail=("Input contains invalid characters"),
-                )
-
-        return input
-
 
 class DocMetadataEntity(BaseModel):
     """Sets outgoing file requirements."""
@@ -298,27 +271,6 @@ class DocMetadataEntity(BaseModel):
         example=["WindowsXP"],
         min_items=1,
     )
-
-    @validator(
-        "name",
-        "file_extension",
-        "file_type",
-        "source_iso_name",
-        "operating_system",
-    )
-    def validate_input(cls, input: list[str]) -> list[str]:
-        """Ensure all data in an uploaded file uses proper UTF-8 characters."""
-        for value in input:
-            try:
-                value.encode("UTF-8")
-
-            except UnicodeEncodeError:
-                raise IncorrectInputException(
-                    status_code=422,
-                    detail=("Input contains invalid characters"),
-                )
-
-        return input
 
 
 MetadataEntity = ExeMetadataEntity | DocMetadataEntity
