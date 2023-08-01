@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path as PyPath
 from typing import Any
 
-from fastapi import APIRouter, File, Query, UploadFile
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from fastapi.responses import JSONResponse
 
 from darkmoon.common import utils
@@ -50,7 +50,11 @@ async def get_all_exe_metadata_endpoint(
         tmpfile.write(await file.read())
         tmp_path = PyPath(tmpfile.name)
         get_hashes(tmp_path)
+
+    try:
         tmpfile.unlink()
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to remove temporary file.")
 
     return get_all_exe_metadata(tmp_path)
 
