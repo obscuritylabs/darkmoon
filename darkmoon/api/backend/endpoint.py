@@ -37,7 +37,7 @@ async def get_file_type_endpoint(
 async def get_hashes_endpoint(
     file: UploadFile = File(...),
 ) -> dict[str, str]:
-    """Get hash."""
+    """Get hashes of files."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await file.read())
         tmp_path = PyPath(tmpfile.name)
@@ -51,7 +51,7 @@ async def get_hashes_endpoint(
 async def get_all_exe_metadata_endpoint(
     file: UploadFile = File(...),
 ) -> dict[str, Any]:
-    """Exe metadata."""
+    """Post the exe metadata."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await file.read())
         tmp_path = PyPath(tmpfile.name)
@@ -80,7 +80,7 @@ async def iterate_files_endpoint(
     source_iso: PyPath = PyPath("..."),
     url: PyPath = PyPath("..."),
 ) -> None:
-    """Iterate file."""
+    """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
         tmp_path = PyPath(tmpfile.name)
