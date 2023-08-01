@@ -14,7 +14,7 @@ from testcontainers.mongodb import MongoDbContainer
 
 from darkmoon.api.v1.metadata.schema import (
     EXEMetadata,
-    ExeMetadataEntity,
+    EXEMetadataEntity,
     Hashes,
     HeaderInfo,
     Metadata,
@@ -64,7 +64,7 @@ def test_metadata_entity() -> (
     file: dict[
         str,
         list[str] | dict[str, str] | dict[str, str | dict[str, str]],
-    ] = ExeMetadataEntity(
+    ] = EXEMetadataEntity(
         _id=PydanticObjectId(),
         name=["Test Name"],
         file_extension=[".jpeg"],

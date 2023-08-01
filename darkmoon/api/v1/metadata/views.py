@@ -11,7 +11,7 @@ from darkmoon.api.v1.metadata.schema import (
     DocMetadata,
     DocMetadataEntity,
     EXEMetadata,
-    ExeMetadataEntity,
+    EXEMetadataEntity,
     Hashes,
     Metadata,
     MetadataEntity,
@@ -108,7 +108,7 @@ async def list_metadata_by_hash(
 
         data = await collection.find(search).skip(page * length).to_list(length=length)
         if any("header_info" in item for item in data):
-            return [ExeMetadataEntity.parse_obj(item) for item in data]
+            return [EXEMetadataEntity.parse_obj(item) for item in data]
         else:
             return [DocMetadataEntity.parse_obj(item) for item in data]
 
@@ -150,7 +150,7 @@ async def list_metadata(
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
         if any("header_info" in item for item in data):
-            return [ExeMetadataEntity.parse_obj(item) for item in data]
+            return [EXEMetadataEntity.parse_obj(item) for item in data]
         else:
             return [DocMetadataEntity.parse_obj(item) for item in data]
 
@@ -191,7 +191,7 @@ async def get_metadata_by_id(
         doc = await collection.find_one({"_id": id})
         if doc:
             if any("header_info" in item for item in doc):
-                document = ExeMetadataEntity.parse_obj(doc)
+                document = EXEMetadataEntity.parse_obj(doc)
             else:
                 document = DocMetadataEntity.parse_obj(doc)  # type: ignore
         else:
@@ -279,7 +279,7 @@ async def upload_metadata(
         document: MetadataEntity
         if doc:
             if "header_info" in doc:
-                document = ExeMetadataEntity.parse_obj(doc)
+                document = EXEMetadataEntity.parse_obj(doc)
             else:
                 document = DocMetadataEntity.parse_obj(doc)
 
@@ -417,7 +417,7 @@ async def hash_comparison(
         li: list[MetadataEntity] = []
         for item in results:
             if "header_info" in item:
-                li.append(ExeMetadataEntity.parse_obj(item))
+                li.append(EXEMetadataEntity.parse_obj(item))
             else:
                 li.append(DocMetadataEntity.parse_obj(item))
 

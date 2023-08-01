@@ -179,7 +179,7 @@ class DocMetadata(BaseModel):
 Metadata = EXEMetadata | DocMetadata
 
 
-class ExeMetadataEntity(BaseModel):
+class EXEMetadataEntity(BaseModel):
     """Sets outgoing file requirements."""
 
     id: PydanticObjectId = Field(
@@ -273,7 +273,7 @@ class DocMetadataEntity(BaseModel):
     )
 
 
-MetadataEntity = ExeMetadataEntity | DocMetadataEntity
+MetadataEntity = EXEMetadataEntity | DocMetadataEntity
 
 
 class UploadMetadataResponse(Response):
