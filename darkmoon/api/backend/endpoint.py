@@ -25,7 +25,7 @@ async def get_metadata_endpoint(
     return get_metadata(file, source_iso)
 
 
-@router.get("/get_file_type")
+@router.get("/get-file-type")
 async def get_file_type_endpoint(
     file: PyPath = Query(..., description="Path to the file"),
 ) -> str:
@@ -33,7 +33,7 @@ async def get_file_type_endpoint(
     return get_file_type(file)
 
 
-@router.get("/get_hash")
+@router.get("/get-hash")
 async def get_hashes_endpoint(
     file: PyPath = Query(..., description="Path to the file"),
 ) -> dict[str, str]:
@@ -41,7 +41,7 @@ async def get_hashes_endpoint(
     return get_hashes(file)
 
 
-@router.post("/get_all_exe_metadata", response_class=JSONResponse)
+@router.post("/get-all-exe-metadata", response_class=JSONResponse)
 async def get_all_exe_metadata_endpoint(
     file: UploadFile = File(...),
 ) -> dict[str, Any]:
@@ -55,7 +55,7 @@ async def get_all_exe_metadata_endpoint(
     return get_all_exe_metadata(tmp_path)
 
 
-@router.post("/extract_file")
+@router.post("/extract-file")
 async def extract_files_endpoint(
     file: UploadFile = File(...),
     source_iso: PyPath = PyPath("..."),
@@ -68,7 +68,7 @@ async def extract_files_endpoint(
         utils.extract_files(tmp_path, source_iso, url)
 
 
-@router.post("/iterate_files")
+@router.post("/iterate-files")
 async def iterate_files_endpoint(
     path: UploadFile = File(...),
     source_iso: PyPath = PyPath("..."),
