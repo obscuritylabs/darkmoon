@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path as PyPath
 from typing import Any
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, File, Query, UploadFile
 from fastapi.responses import JSONResponse
 
 from darkmoon.common import utils
@@ -43,23 +43,13 @@ async def get_hashes_endpoint(
 
 @router.post("/get-all-exe-metadata", response_class=JSONResponse)
 async def get_all_exe_metadata_endpoint(
-    file: UploadFile = File(...),
+    file: PyPath = Query(..., description="Path to the file"),
 ) -> dict[str, Any]:
     """Post the exe metadata."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-        tmpfile.write(await file.read())
-        tmp_path = PyPath(tmpfile.name)
-        get_hashes(tmp_path)
-
-    try:
-        tmpfile.unlink()
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to remove temporary file.")
-
-    return get_all_exe_metadata(tmp_path)
+    return get_all_exe_metadata(file)
 
 
-@router.post("/extract-file")
+@router.post("/extract-files")
 async def extract_files_endpoint(
     file: UploadFile = File(...),
     source_iso: PyPath = PyPath("..."),
