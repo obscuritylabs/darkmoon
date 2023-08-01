@@ -7,7 +7,7 @@ import typer
 from rich import print_json
 from rich.progress import track
 
-from darkmoon.cli import utils
+from darkmoon.common import utils
 
 app = typer.Typer()
 
