@@ -1,5 +1,5 @@
 import hashlib
-import tarfile
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -10,9 +10,9 @@ import requests
 from pefile import PEFormatError
 
 
-def call_api(url: Path, data: dict[str, Any]) -> bool:
+def call_api(url: str, data: dict[str, Any]) -> bool:
     """Send data to api post endpoint."""
-    res = requests.post(str(url / "metadata"), json=data)
+    res = requests.post(url + "/metadata", json=data)
     return res.ok
 
 
@@ -61,13 +61,12 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
         all_header_hash[hash] = pe_obj.get_rich_header_hash(algorithm=hash)
 
     # header_signature
+
     sig = str(pe_obj.NT_HEADERS)
     sig_list = sig.split()
     signature = sig_list[sig_list.index("Signature:") + 1]
-
     # compile_time
     compile_time = "Time to compile file"
-
     # timestamp
     file_header = str(pe_obj.FILE_HEADER)
     file_header_list = file_header.split()
@@ -76,10 +75,8 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
         timestamp += str(
             file_header_list[file_header_list.index("TimeDateStamp:") + num],
         )
-
     # machine_type
     machine = file_header_list[file_header_list.index("Machine:") + 1]
-
     exe_metadata = {
         "machine_type": machine,
         "timestamp": timestamp,
@@ -87,7 +84,6 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
         "signature": signature,
         "rich_header_hashes": all_header_hash,
     }
-
     return exe_metadata
 
 
@@ -105,25 +101,26 @@ def get_metadata(file: Path, source_iso: Path) -> dict[str, Any]:
     }
     if file_extension == ".exe" or file_extension == ".dll":
         try:
-            data_fields["header_info"] = get_all_exe_metadata(source_iso)
+            data_fields["header_info"] = get_all_exe_metadata(file)
         except PEFormatError:
             pass
-
+    else:
+        data_fields["header_info"] = "Not an EXE or DLL file"
     return data_fields
 
 
-def extract_files(file: Path, source_iso: Path, url: Path) -> None:
+def extract_files(file: Path, source_iso: Path, url: str) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        with tarfile.open(file) as f:
-            f.extractall(tmpdirname)
+        cmd = ["7z", "x", str(file), "-o" + tmpdirname]
+        subprocess.run(cmd, check=True)
         iterate_files(Path(tmpdirname), source_iso, url)
 
 
 def iterate_files(
     path: Path,
     source_iso: Path,
-    url: Path,
+    url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
     queue = []

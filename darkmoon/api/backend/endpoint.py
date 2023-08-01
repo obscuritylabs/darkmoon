@@ -49,7 +49,7 @@ async def get_all_exe_metadata_endpoint(
     return get_all_exe_metadata(file)
 
 
-@router.post("/extract-files")
+@router.post("/extract_file")
 async def extract_files_endpoint(
     file: UploadFile = File(...),
     source_iso: PyPath = PyPath("..."),
@@ -59,7 +59,7 @@ async def extract_files_endpoint(
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await file.read())
         tmp_path = PyPath(tmpfile.name)
-        utils.extract_files(tmp_path, source_iso, url)
+        utils.extract_files(tmp_path, source_iso, str(url))
 
 
 @router.post("/iterate-files")
@@ -72,4 +72,4 @@ async def iterate_files_endpoint(
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
         tmp_path = PyPath(tmpfile.name)
-        utils.iterate_files(tmp_path, source_iso, url)
+        utils.iterate_files(tmp_path, source_iso, str(url))
