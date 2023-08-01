@@ -13,6 +13,7 @@ from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
 from darkmoon.api.v1.metadata.schema import (
+    DocMetadataEntity,
     EXEMetadata,
     EXEMetadataEntity,
     Hashes,
@@ -57,14 +58,9 @@ def app_schema(app: FastAPI) -> BaseOpenAPISchema:
 
 
 @pytest.fixture
-def test_metadata_entity() -> (
-    dict[str, list[str] | dict[str, str] | dict[str, str | dict[str, str]]]
-):
+def test_metadata_entity() -> dict[str, Any]:
     """Represent a test metadata object."""
-    file: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
-    ] = EXEMetadataEntity(
+    file: dict[str, Any] = EXEMetadataEntity(
         _id=PydanticObjectId(),
         name=["Test Name"],
         file_extension=[".jpeg"],
@@ -94,14 +90,9 @@ def test_metadata_entity() -> (
 
 
 @pytest.fixture
-def test_suspicious_metadata_entity() -> (
-    dict[str, list[str] | dict[str, str] | dict[str, str | dict[str, str]]]
-):
+def test_suspicious_metadata_entity() -> dict[str, Any]:
     """Represent a test metadata object."""
-    file: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
-    ] = MetadataEntity(
+    file: dict[str, Any] = DocMetadataEntity(
         _id=PydanticObjectId(),
         name=["test4.rtf"],
         file_extension=[".rtf"],
@@ -114,32 +105,14 @@ def test_suspicious_metadata_entity() -> (
         ),
         source_iso_name=["Win_XP"],
         operating_system=["Windows XP"],
-        header_info=HeaderInfo(
-            machine_type="",
-            timestamp="",
-            compile_time="",
-            signature="",
-            rich_header_hashes=Hashes(
-                md5="",
-                sha1="",
-                sha256="",
-                sha512="",
-            ),
-        ),
     ).dict()
     return file
 
 
 @pytest.fixture
 def populated_database(
-    test_metadata_entity: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
-    ],
-    test_suspicious_metadata_entity: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
-    ],
+    test_metadata_entity: dict[str, Any],
+    test_suspicious_metadata_entity: dict[str, Any],
 ) -> Generator[str, Any, Any]:
     """Represent a database with an object already inserted."""
     with MongoDbContainer("mongo:6") as mongo:

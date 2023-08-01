@@ -47,7 +47,7 @@ async def list_metadata_by_hash(
     page: int = Query(
         0,
         ge=0,
-        le=18446744073709552,
+        le=36893488147419104,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -133,7 +133,7 @@ async def get_suspicious_metadata(
     page: int = Query(
         0,
         ge=0,
-        le=18446744073709552,
+        le=36893488147419104,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -154,7 +154,13 @@ async def get_suspicious_metadata(
     """
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
-        return [MetadataEntity.parse_obj(item) for item in data]
+        li: list[MetadataEntity] = []
+        for item in data:
+            if "header_info" in item:
+                li.append(EXEMetadataEntity.parse_obj(item))
+            else:
+                li.append(DocMetadataEntity.parse_obj(item))
+        return li
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
@@ -172,7 +178,7 @@ async def list_metadata(
     page: int = Query(
         0,
         ge=0,
-        le=18446744073709552,
+        le=36893488147419104,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -193,10 +199,13 @@ async def list_metadata(
     """
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
-        if any("header_info" in item for item in data):
-            return [EXEMetadataEntity.parse_obj(item) for item in data]
-        else:
-            return [DocMetadataEntity.parse_obj(item) for item in data]
+        matches: list[MetadataEntity] = []
+        for item in data:
+            if "header_info" in item:
+                matches.append(EXEMetadataEntity.parse_obj(item))
+            else:
+                matches.append(DocMetadataEntity.parse_obj(item))
+        return matches
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
@@ -401,7 +410,6 @@ async def upload_metadata(
         404: {"Client Error Response": "No Results Found"},
         406: {"Client Error Response": "Not Acceptable"},
         504: {"Server Error Response": "Internal Server Error"},
-        400: {"Client Error Response": "Bad Request"},
     },
 )
 async def hash_comparison(
@@ -414,7 +422,7 @@ async def hash_comparison(
     page: int = Query(
         0,
         ge=0,
-        le=18446744073709552,
+        le=36893488147419104,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -450,12 +458,12 @@ async def hash_comparison(
         sha256Hash = h_sha256.hexdigest()
         sha512Hash = h_sha512.hexdigest()
 
-        obj = MetadataEntity(
+        obj = DocMetadataEntity(
             _id=PydanticObjectId(),
             name=[inputFileName],
             file_type=[inputFileType],
-            operating_system=[],
-            source_iso_name=[],
+            operating_system=[""],
+            source_iso_name=[""],
             file_extension=[""],
             hashes=Hashes(
                 md5=md5Hash,
@@ -463,20 +471,20 @@ async def hash_comparison(
                 sha256=sha256Hash,
                 sha512=sha512Hash,
             ),
-            header_info=None,
         )
 
         # Check if hash is suspicious
         sus_query = {
-            "$and": [
-                {
-                    "name": [inputFileName],
-                },
-            ],
+            "name": [inputFileName],
         }
         susResults = await collection.find(sus_query).to_list(length=length)
-        susLi = [MetadataEntity.parse_obj(item) for item in susResults]
-        for metadata in susLi:
+        sus_files: list[MetadataEntity] = []
+        for item in susResults:
+            if "header_info" in item:
+                sus_files.append(EXEMetadataEntity.parse_obj(item))
+            else:
+                sus_files.append(DocMetadataEntity.parse_obj(item))
+        for metadata in sus_files:
             dbHashes = [
                 metadata.hashes.md5,
                 metadata.hashes.sha1,
@@ -511,8 +519,6 @@ async def hash_comparison(
                 li.append(DocMetadataEntity.parse_obj(item))
 
         if len(li) == 0:
-
-
             li.append(obj)
             response.status_code = status.HTTP_404_NOT_FOUND
             return UploadListMetadataEntityResponse(
