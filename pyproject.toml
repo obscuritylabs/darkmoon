@@ -1,48 +1,48 @@
 [tool.poetry]
-name = "darkmoon"
-version = "0.0.2"
 authors = ["Obscurity Labs"]
 description = "Project DarkMoon - CLI tool"
-readme = "README.md"
 license = "Proprietary"
+name = "darkmoon"
+readme = "README.md"
+version = "0.0.2"
 
 [tool.poetry.scripts]
 darkmoon = "darkmoon.cli.main:app"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-fastapi = "^0.95.0"
-types-requests = "^2.27.13"
-requests = "^2.31.0"
-motor = "^3.0.0"
-httpx = "^0.24.1"
-pydantic = "1.10.11"
-pefile = "^2023.2.7"
-uvicorn = { extras = ["standard"], version = "^0.23.1" }
-python-magic = "^0.4.27"
 beanie = "^1.19.2"
-typer = { extras = ["all"], version = "^0.9.0" }
+fastapi = "^0.95.0"
+httpx = "^0.24.1"
 jinja2 = "^3.1.2"
+motor = "^3.0.0"
+pefile = "^2023.2.7"
+pydantic = "1.10.11"
 pytest = "^7.4.0"
+python = "^3.10"
+python-magic = "^0.4.27"
 python-multipart = "^0.0.6"
+requests = "^2.31.0"
+typer = {extras = ["all"], version = "^0.9.0"}
+types-requests = "^2.27.13"
+uvicorn = {extras = ["standard"], version = "^0.23.1"}
 
 [tool.poetry.group.dev.dependencies]
+asgi-lifespan = "^2.1.0"
 black = "23.7.0"
 commitizen = "3.5.3"
+faker = "^19.1.0"
+motor-types = "^1.0.0b2"
 mypy = "1.4.1"
 pre-commit = "^3.3.3"
+pytest-asyncio = "^0.21.0"
 pytest-cov = "^4.1.0"
 ruff = "0.0.278"
-motor-types = "^1.0.0b2"
-asgi-lifespan = "^2.1.0"
-pytest-asyncio = "^0.21.0"
-faker = "^19.1.0"
-testcontainers = "^3.7.1"
 schemathesis = "^3.19.5"
+testcontainers = "^3.7.1"
 
 [build-system]
-requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
 
 [tool.pytest.ini_options]
 addopts = "-q --cov=darkmoon --no-cov-on-fail"
@@ -54,8 +54,8 @@ branch = true
 omit = ["**/tests/**"]
 
 [tool.coverage.report]
-fail_under = 58
 exclude_lines = ["pragma: no cover", "if __name__ == .__main__.:"]
+fail_under = 80
 show_missing = true
 skip_covered = true
 
@@ -63,9 +63,9 @@ skip_covered = true
 allow_redefinition = true
 ignore_missing_imports = true
 no_warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
 strict = true
 strict_optional = false
-plugins = ["pydantic.mypy"]
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
@@ -98,7 +98,16 @@ include = '\.pyi?$'
 target_versions = ['py310']
 
 [tool.ruff]
-select = ["E", "F", "S", "B", "COM", "D", "C4", "ERA", "DTZ", "I", "T20", "UP"]
+exclude = [
+  ".git",
+  ".venv",
+  "__pycache__",
+  "build",
+  "dist",
+  "setup.py",
+  "docs",
+  "scripts",
+]
 ignore = [
   "B008",
   "B904",
@@ -112,16 +121,7 @@ ignore = [
   "S603",
   "ERA001",
 ]
-exclude = [
-  ".git",
-  ".venv",
-  "__pycache__",
-  "build",
-  "dist",
-  "setup.py",
-  "docs",
-  "scripts",
-]
+select = ["E", "F", "S", "B", "COM", "D", "C4", "ERA", "DTZ", "I", "T20", "UP"]
 target-version = "py310"
 
 [tool.ruff.flake8-bugbear]
@@ -148,5 +148,5 @@ max-complexity = 10
 convention = "google"
 
 [tool.ruff.isort]
-force-wrap-aliases = false
 combine-as-imports = true
+force-wrap-aliases = false
