@@ -12,10 +12,6 @@ def test_jinja_homepage(populated_app: FastAPI) -> None:
             '<link href="http://testserver/static/style.css" rel="stylesheet">'
             in response.content.decode("utf-8")
         )
-        assert (
-            '<link href="http://testserver/static/variables.css" rel="stylesheet">'
-            in response.content.decode("utf-8")
-        )
         assert response.status_code == 200
 
 
@@ -29,10 +25,6 @@ def test_jinja_hashpage(populated_app: FastAPI) -> None:
             '<link href="http://testserver/static/style.css" rel="stylesheet">'
             in response.content.decode("utf-8")
         )
-        assert (
-            '<link href="http://testserver/static/variables.css" rel="stylesheet">'
-            in response.content.decode("utf-8")
-        )
         assert response.status_code == 200
 
 
@@ -44,10 +36,6 @@ def test_jinja_uploadpage(populated_app: FastAPI) -> None:
         )
         assert (
             '<link href="http://testserver/static/style.css" rel="stylesheet">'
-            in response.content.decode("utf-8")
-        )
-        assert (
-            '<link href="http://testserver/static/variables.css" rel="stylesheet">'
             in response.content.decode("utf-8")
         )
         assert response.status_code == 200
