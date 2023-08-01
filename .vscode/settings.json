@@ -19,6 +19,7 @@
   "cSpell.words": [
     "anyio",
     "bson",
+    "darkmoon",
     "fastapi",
     "pefile",
     "Pydantic",

@@ -1,10 +1,7 @@
-from fastapi import APIRouter, Request, UploadFile
+from fastapi import APIRouter, File, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response
 
 from darkmoon.api.v1.metadata.views import hash_comparison
-from darkmoon.core.schema import (
-    IncorrectInputException,
-)
 from darkmoon.settings import templates
 
 router = APIRouter(prefix="/webpages", tags=["webpages"])
@@ -28,64 +25,41 @@ async def read_item_upload(request: Request) -> Response:
     return templates.TemplateResponse("upload.html", {"request": request})
 
 
-@router.get("/hashoutput", response_class=HTMLResponse)
+@router.get("/hashcompare", response_class=HTMLResponse)
 async def output_hash(request: Request) -> Response:
     """Read request from fileupload."""
-    return templates.TemplateResponse("hashdata.html", {"request": request})
+    return templates.TemplateResponse("hash_compare_result.html", {"request": request})
 
 
 @router.post(
-    "/fileupload",
-    responses={
-        422: {"Client Error Response": "Unprocessable Content"},
-    },
-)
-async def upload_file(
-    response: Response,
-    file: UploadFile,
-) -> Response:
-    """POST file to API."""
-    try:
-        result = await hash_comparison(response, file)
-
-        return templates.TemplateResponse(
-            "hashdata.html",
-            {
-                "response": response,
-                "file": file.filename,
-                "results": result,
-            },
-        )
-
-    except Exception:
-        raise IncorrectInputException(status_code=422, detail="File input mismatch")
-
-
-@router.post(
-    "/hashupload",
-    responses={
-        422: {"Client Error Response": "Unprocessable Content"},
-    },
+    "/hashcompareresult",
+    response_class=HTMLResponse,
 )
 async def hash_upload(
-    response: Response,
-    file: UploadFile,
+    file: UploadFile = File(...),
 ) -> Response:
     """POST file to API."""
     try:
+        response = HTMLResponse()
         result = await hash_comparison(response, file)
 
         return templates.TemplateResponse(
-            "hashdata.html",
+            "hash_compare_result.html",
             {
-                "response": response,
-                "file": file.filename,
-                "results": result,
+                "request": file.filename,
+                "metadata_list": result,
             },
         )
 
     except Exception:
-        raise IncorrectInputException(status_code=422, detail="File input mismatch")
+        return templates.TemplateResponse(
+            "hash_compare_result.html",
+            {
+                "request": file.filename,
+                "metadata_list": "Internal Server Error",
+            },
+            status_code=500,
+        )
 
 
 """

@@ -57,7 +57,7 @@ def test_jinja_fileupload(populated_app: FastAPI) -> None:
     """Test uploading file for hash comparison."""
     with TestClient(populated_app) as app:
         response = app.post(
-            "/webpages/fileupload",
+            "/webpages/hashcompareresult",
         )
 
         assert response.status_code == 200
