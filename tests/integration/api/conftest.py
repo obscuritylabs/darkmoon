@@ -12,8 +12,8 @@ from fastapi import FastAPI
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
-from darkmoon.api.v1.metadata.schema import Hashes, HeaderInfo, Metadata, MetadataEntity
 from darkmoon.app import get_app
+from darkmoon.common.schema import Hashes, HeaderInfo, Metadata, MetadataEntity
 from darkmoon.settings import Settings
 
 
