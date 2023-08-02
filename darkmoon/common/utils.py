@@ -130,6 +130,7 @@ def iterate_files(
                 extract_files(files, source_iso, url)
             if files.is_file():
                 metadata = get_metadata(files, str(source_iso.name))
+
                 call_api(url=url, data=metadata)
             else:
                 queue.append(files)

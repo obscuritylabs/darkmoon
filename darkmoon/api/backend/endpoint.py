@@ -25,6 +25,7 @@ async def get_metadata_endpoint(
     return get_metadata(file, source_iso.name)
 
 
+
 @router.get("/get-file-type")
 async def get_file_type_endpoint(
     file: PyPath = Query(..., description="Path to the file"),
