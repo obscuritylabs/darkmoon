@@ -6,6 +6,11 @@
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
     <script src="https://unpkg.com/htmx.org@latest/dist/htmx.min.js"></script>
 </head>
+<script>
+    function filesubmit() {
+        alert("File submitted")
+    }
+</script>
 
 <body>
     <header>
@@ -84,7 +89,8 @@
 
         <h2></h2>
 
-        <form id="file_upload" hx-encoding='multipart/form-data' hx-post='/metadata/hashComparison' hx-target="#output">
+        <form id="file_upload" hx-encoding='multipart/form-data' hx-post='/metadata/hashComparison' hx-target="#output"
+            onsubmit="filesubmit()">
 
             <h2> Upload File </h2>
             <input id="file" type="file" required="required" name="file">
