@@ -12,8 +12,8 @@ from fastapi import FastAPI
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
-from darkmoon.app import get_app
 from darkmoon.common.schema import (
+    DocMetadataEntity,
     EXEMetadata,
     EXEMetadataEntity,
     Hashes,
@@ -46,7 +46,7 @@ def settings(database: str) -> Settings:
 @pytest.fixture
 def app(settings: Settings) -> FastAPI:
     """Use the settings fixture to override default app settings."""
-    return get_app(settings)
+    return app(settings)
 
 
 @pytest.fixture
@@ -57,14 +57,9 @@ def app_schema(app: FastAPI) -> BaseOpenAPISchema:
 
 
 @pytest.fixture
-def test_metadata_entity() -> (
-    dict[str, list[str] | dict[str, str] | dict[str, str | dict[str, str]]]
-):
+def test_metadata_entity() -> dict[str, Any]:
     """Represent a test metadata object."""
-    file: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
-    ] = EXEMetadataEntity(
+    file: dict[str, Any] = EXEMetadataEntity(
         _id=PydanticObjectId(),
         name=["Test Name"],
         file_extension=[".jpeg"],
@@ -94,23 +89,42 @@ def test_metadata_entity() -> (
 
 
 @pytest.fixture
+def test_suspicious_metadata_entity() -> dict[str, Any]:
+    """Represent a test metadata object."""
+    file: dict[str, Any] = DocMetadataEntity(
+        _id=PydanticObjectId(),
+        name=["test4.rtf"],
+        file_extension=[".rtf"],
+        file_type=["text/rtf"],
+        hashes=Hashes(
+            md5="",
+            sha1="",
+            sha256="",
+            sha512="",
+        ),
+        source_iso_name=["Win_XP"],
+        operating_system=["Windows XP"],
+    ).dict()
+    return file
+
+
+@pytest.fixture
 def populated_database(
-    test_metadata_entity: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]],
-    ],
+    test_metadata_entity: dict[str, Any],
+    test_suspicious_metadata_entity: dict[str, Any],
 ) -> Generator[str, Any, Any]:
     """Represent a database with an object already inserted."""
     with MongoDbContainer("mongo:6") as mongo:
         db = mongo.get_connection_client().get_database("darkmoon")
         db.get_collection("FieldMetadata").insert_one(test_metadata_entity)
+        db.get_collection("FieldMetadata").insert_one(test_suspicious_metadata_entity)
         yield mongo.get_connection_url()
 
 
 @pytest.fixture
 def populated_app(populated_database: str) -> FastAPI:
     """Darkmoon app with populated database."""
-    return get_app(Settings.parse_obj({"MONGODB_CONN": populated_database}))
+    return app(Settings.parse_obj({"MONGODB_CONN": populated_database}))
 
 
 @pytest.fixture
@@ -161,5 +175,13 @@ HERE = Path(__file__).parent
 def test_hash_comparison_without_file() -> Path:
     """Load the test file as a fixture."""
     file = HERE / "test3.rtf"
+    assert file.exists()
+    return file
+
+
+@pytest.fixture()
+def test_suspicious_hash_comparison_file() -> Path:
+    """Load the test file as a fixture."""
+    file = HERE / "test4.rtf"
     assert file.exists()
     return file
