@@ -1,9 +1,17 @@
+import subprocess
 import tempfile
 from pathlib import Path as PyPath
 from typing import Any
 
-from fastapi import APIRouter, File, Query, UploadFile
+from fastapi import (
+    APIRouter,
+    File,
+    Query,
+    Request,
+    UploadFile,
+)
 from fastapi.responses import JSONResponse
+from pydantic import FilePath
 
 from darkmoon.common import utils
 from darkmoon.common.utils import (
@@ -16,10 +24,21 @@ from darkmoon.common.utils import (
 router = APIRouter(prefix="/endpoints", tags=["endpoints"])
 
 
+async def called_process_error_handler(
+    request: Request,
+    exc: subprocess.CalledProcessError,
+) -> JSONResponse:
+    """Docstring."""
+    return JSONResponse(
+        status_code=422,
+        content={"message": f"This file can not be unzipped: {str(exc)}"},
+    )
+
+
 @router.get("/metadata")
 async def get_metadata_endpoint(
-    file: PyPath = Query(..., description="Path to the file"),
-    source_iso: PyPath = Query(..., description="Path to the source ISO"),
+    file: FilePath = Query(..., description="Path to the file"),
+    source_iso: FilePath = Query(..., description="Path to the source ISO"),
 ) -> dict[str, Any]:
     """Get metadata."""
     return get_metadata(file, source_iso)
@@ -27,7 +46,7 @@ async def get_metadata_endpoint(
 
 @router.get("/get-file-type")
 async def get_file_type_endpoint(
-    file: PyPath = Query(..., description="Path to the file"),
+    file: FilePath = Query(..., description="Path to the file"),
 ) -> str:
     """Get file."""
     return get_file_type(file)
@@ -35,7 +54,7 @@ async def get_file_type_endpoint(
 
 @router.get("/get-hash")
 async def get_hashes_endpoint(
-    file: PyPath = Query(..., description="Path to the file"),
+    file: FilePath = Query(..., description="Path to the file"),
 ) -> dict[str, str]:
     """Get hashes of files."""
     return get_hashes(file)
@@ -43,7 +62,7 @@ async def get_hashes_endpoint(
 
 @router.post("/get-all-exe-metadata", response_class=JSONResponse)
 async def get_all_exe_metadata_endpoint(
-    file: PyPath = Query(..., description="Path to the file"),
+    file: FilePath = Query(..., description="Path to the file"),
 ) -> dict[str, Any]:
     """Post the exe metadata."""
     return get_all_exe_metadata(file)
