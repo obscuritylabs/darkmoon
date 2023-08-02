@@ -1,5 +1,5 @@
 """Defines an API router for handling metadata related requests."""
-import hashlib
+from pathlib import Path
 
 import bson
 from beanie import PydanticObjectId
@@ -12,12 +12,12 @@ from darkmoon.api.v1.metadata.schema import (
     DocMetadataEntity,
     EXEMetadata,
     EXEMetadataEntity,
-    Hashes,
     Metadata,
     MetadataEntity,
     UploadListMetadataEntityResponse,
     UploadMetadataResponse,
 )
+from darkmoon.common import utils
 from darkmoon.core.database import (
     get_file_metadata_collection,
     get_suspicious_file_metadata_collection,
@@ -47,7 +47,7 @@ async def list_metadata_by_hash(
     page: int = Query(
         0,
         ge=0,
-        le=36893488147419104,
+        le=100000,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -110,11 +110,13 @@ async def list_metadata_by_hash(
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
         data = await collection.find(search).skip(page * length).to_list(length=length)
-        if any("header_info" in item for item in data):
-            return [EXEMetadataEntity.parse_obj(item) for item in data]
-        else:
-            return [DocMetadataEntity.parse_obj(item) for item in data]
-
+        matches: list[MetadataEntity] = []
+        for item in data:
+            if "header_info" in item:
+                matches.append(EXEMetadataEntity.parse_obj(item))
+            else:
+                matches.append(DocMetadataEntity.parse_obj(item))
+        return matches
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
@@ -133,7 +135,7 @@ async def get_suspicious_metadata(
     page: int = Query(
         0,
         ge=0,
-        le=36893488147419104,
+        le=100000,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -178,7 +180,7 @@ async def list_metadata(
     page: int = Query(
         0,
         ge=0,
-        le=36893488147419104,
+        le=100000,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -415,6 +417,7 @@ async def upload_metadata(
 async def hash_comparison(
     response: Response,
     fileInput: UploadFile,
+    sourceIsoName: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     susCollection: AsyncIOMotorCollection = Depends(
         get_suspicious_file_metadata_collection,
@@ -422,7 +425,7 @@ async def hash_comparison(
     page: int = Query(
         0,
         ge=0,
-        le=36893488147419104,
+        le=100000,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -444,34 +447,16 @@ async def hash_comparison(
     try:
         inputFileType = str(fileInput.content_type)
         inputFileName = str(fileInput.filename)
-        data = fileInput.file.read()
-        h_md5 = hashlib.md5()  # noqa S324
-        h_sha1 = hashlib.sha1()  # noqa: S324
-        h_sha256 = hashlib.sha256()
-        h_sha512 = hashlib.sha512()
-        h_md5.update(data)
-        h_sha1.update(data)
-        h_sha256.update(data)
-        h_sha512.update(data)
-        md5Hash = h_md5.hexdigest()
-        sha1Hash = h_sha1.hexdigest()
-        sha256Hash = h_sha256.hexdigest()
-        sha512Hash = h_sha512.hexdigest()
 
-        obj = DocMetadataEntity(
-            _id=PydanticObjectId(),
-            name=[inputFileName],
-            file_type=[inputFileType],
-            operating_system=[""],
-            source_iso_name=[""],
-            file_extension=[""],
-            hashes=Hashes(
-                md5=md5Hash,
-                sha1=sha1Hash,
-                sha256=sha256Hash,
-                sha512=sha512Hash,
-            ),
-        )
+        tmp_path = Path("tmpfile")
+        tmp_path.write_bytes(fileInput.file.read())
+        upload_hashes = utils.get_hashes(tmp_path)
+        md5Hash = upload_hashes["md5"]
+        sha1Hash = upload_hashes["sha1"]
+        sha256Hash = upload_hashes["sha256"]
+        sha512Hash = upload_hashes["sha512"]
+
+        obj = utils.get_metadata(tmp_path, sourceIsoName)
 
         # Check if hash is suspicious
         sus_query = {
@@ -493,11 +478,18 @@ async def hash_comparison(
             ]
             inputHashes = [md5Hash, sha1Hash, sha256Hash, sha512Hash]
             if dbHashes != inputHashes:
-                await susCollection.insert_one(obj.dict())
+                insert_result = await susCollection.insert_one(obj)
+                inserted_id = str(insert_result.inserted_id)
+                obj["_id"] = inserted_id
                 response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+                data: list[MetadataEntity] = []
+                if "header_info" in obj:
+                    data.append(EXEMetadataEntity.parse_obj(obj))
+                else:
+                    data.append(DocMetadataEntity.parse_obj(obj))
                 return UploadListMetadataEntityResponse(
                     message="Bad hashes. Put in suspicious collection.",
-                    data=[obj],
+                    data=data,
                 )
         search_query = {
             "$or": [
@@ -505,7 +497,7 @@ async def hash_comparison(
                     "name": inputFileName,
                 },
                 {
-                    "file_type": inputFileType,
+                    "type": inputFileType,
                 },
             ],
         }
@@ -519,7 +511,11 @@ async def hash_comparison(
                 li.append(DocMetadataEntity.parse_obj(item))
 
         if len(li) == 0:
-            li.append(obj)
+            obj["_id"] = PydanticObjectId()
+            if "header_info" in obj:
+                li.append(EXEMetadataEntity.parse_obj(obj))
+            else:
+                li.append(DocMetadataEntity.parse_obj(obj))
             response.status_code = status.HTTP_404_NOT_FOUND
             return UploadListMetadataEntityResponse(
                 message="No results found in database.",
