@@ -68,7 +68,7 @@ async def get_all_exe_metadata_endpoint(
     return get_all_exe_metadata(file)
 
 
-@router.post("/extract-file")
+@router.post("/extract-files")
 async def extract_files_endpoint(
     file: UploadFile = File(...),
     source_iso: PyPath = PyPath("..."),
