@@ -22,7 +22,7 @@ async def get_metadata_endpoint(
     source_iso: PyPath = Query(..., description="Path to the source ISO"),
 ) -> dict[str, Any]:
     """Get metadata."""
-    return get_metadata(file, source_iso.name)
+    return get_metadata(file, source_iso.name).dict()
 
 
 @router.get("/get-file-type")
@@ -58,7 +58,9 @@ async def extract_files_endpoint(
     """Extract file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await file.read())
+
         tmp_path = PyPath(tmpfile.name)
+
         utils.extract_files(tmp_path, source_iso, str(url))
 
 
@@ -71,5 +73,7 @@ async def iterate_files_endpoint(
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
+
         tmp_path = PyPath(tmpfile.name)
+
         utils.iterate_files(tmp_path, source_iso, str(url))
