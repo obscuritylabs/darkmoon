@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <head>
+
     <meta charset="utf-8">
 
     <meta name="viewport" content="width=device-width">
@@ -133,7 +134,8 @@
 
             <label for="Hash" class="hash" data-icon="p"> </label>
 
-            <hr>
+            <input id="fullHash" name="fullHash" required="required" type="text"
+                placeholder="Ex: sha256:sdlkfjksldklsdjsdfklj" />
 
 
 
@@ -163,9 +165,19 @@
 
 
             <h2> Upload File </h2>
-            <input type="file" id="myFile" required="required" name="filename">
-            <h1></h1>
-            <input type="submit" value="Submit">
+
+            <input id="fileInput" type="file" required="required" name="fileInput"><br>
+
+
+
+            <h2> ISO Key </h2>
+
+            <input id="sourceIsoName" name="sourceIsoName" required="required" type="text"><br>
+
+
+
+            <input type="submit" value="Upload">
+
 
 
         </form>
