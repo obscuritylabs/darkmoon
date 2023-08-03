@@ -78,7 +78,15 @@ async def get_all_exe_metadata_endpoint(
     return utils.get_all_exe_metadata(tmp_path)
 
 
-@router.post("/extract-files")
+@router.post(
+    "/extract-file",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+        422: {"Client Error Response": "Unprocessable Content"},
+        500: {"Server Error Response": "Internal Server Error"},
+        504: {"Server Error Response": "Gateway Timeout"},
+    },
+)
 async def extract_files_endpoint(
     file: UploadFile = File(...),
     source_iso: PyPath = PyPath("..."),
@@ -87,7 +95,7 @@ async def extract_files_endpoint(
     """Extract file."""
     try:
         with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-            tmpfile.write(await file.read())
+            tmpfile.write(file.file.read())
             tmp_path = PyPath(tmpfile.name)
             utils.extract_files(tmp_path, source_iso, str(url))
     except Exception as e:

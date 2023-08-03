@@ -44,7 +44,7 @@ async def list_metadata_by_hash(
     page: int = Query(
         0,
         ge=0,
-        le=18446744073709552,
+        le=100000,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -128,7 +128,7 @@ async def list_metadata(
     page: int = Query(
         0,
         ge=0,
-        le=18446744073709552,
+        le=100000,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
@@ -365,7 +365,7 @@ async def hash_comparison(
     page: int = Query(
         0,
         ge=0,
-        le=18446744073709552,
+        le=100000,
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
