@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
@@ -7,6 +9,14 @@ class Response(BaseModel):
 
     message: str = Field(
         description="Base response model",
+    )
+
+
+class MetadataResponse(BaseModel):
+    """Sets metadata response."""
+
+    metadata: dict[str, Any] = Field(
+        description="Base Metadata Response",
     )
 
 

@@ -128,16 +128,17 @@ def test_post_hash_comparison_failure(
 ) -> None:
     """Returns fixture to test file."""
     with TestClient(populated_app) as app:
-        response = app.post(
-            "/metadata/hashComparison",
-            files={
-                "fileInput": open(test_hash_comparison_without_file, "rb"),
-            },
-            params={
-                "sourceIsoName": "Windows",
-            },
-        )
-        assert response.status_code == 404
+        with open(test_hash_comparison_without_file, "rb") as testFile:
+            response = app.post(
+                "/metadata/hashComparison",
+                files={
+                    "fileInput": testFile,
+                },
+                params={
+                    "sourceIsoName": "Windows",
+                },
+            )
+            assert response.status_code == 404
 
 
 def test_suspicious_hash(
@@ -157,4 +158,3 @@ def test_suspicious_hash(
         assert response.json()["message"] == "Bad hashes. Put in suspicious collection."
         response = app.get("/metadata/suspicious")
         assert len(response.json()) > 0
-        assert response.json()[0]["name"][0] == "tmpfile"

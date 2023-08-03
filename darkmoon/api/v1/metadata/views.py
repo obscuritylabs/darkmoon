@@ -1,5 +1,7 @@
 """Defines an API router for handling metadata related requests."""
+import tempfile
 from pathlib import Path
+from typing import Any
 
 import bson
 from beanie import PydanticObjectId
@@ -445,24 +447,29 @@ async def hash_comparison(
             Endpoint is unable to connect to mongoDB instance
     """
     try:
-        inputFileType = str(fileInput.content_type)
-        inputFileName = str(fileInput.filename)
-
-        tmp_path = Path("tmpfile")
-        tmp_path.write_bytes(fileInput.file.read())
-        upload_hashes = utils.get_hashes(tmp_path)
-        md5Hash = upload_hashes["md5"]
-        sha1Hash = upload_hashes["sha1"]
-        sha256Hash = upload_hashes["sha256"]
-        sha512Hash = upload_hashes["sha512"]
-
-        obj = utils.get_metadata(tmp_path, sourceIsoName)
+        obj: dict[str, Any]
+        inputFileName = fileInput.filename
+        md5Hash: str
+        sha1Hash: str
+        sha256Hash: str
+        sha512Hash: str
+        with tempfile.NamedTemporaryFile(delete=True) as temp_file:
+            temp_file.write(fileInput.file.read())
+            absolute_file = temp_file.name
+            tmp_path = Path(absolute_file)
+            upload_hashes = utils.get_hashes(tmp_path)
+            md5Hash = upload_hashes["md5"]
+            sha1Hash = upload_hashes["sha1"]
+            sha256Hash = upload_hashes["sha256"]
+            sha512Hash = upload_hashes["sha512"]
+            obj = utils.get_metadata(tmp_path, sourceIsoName).metadata
+            obj["name"] = [inputFileName]
 
         # Check if hash is suspicious
-        sus_query = {
+        search_query = {
             "name": [inputFileName],
         }
-        susResults = await collection.find(sus_query).to_list(length=length)
+        susResults = await collection.find(search_query).to_list(length=length)
         sus_files: list[MetadataEntity] = []
         for item in susResults:
             if "header_info" in item:
@@ -491,16 +498,6 @@ async def hash_comparison(
                     message="Bad hashes. Put in suspicious collection.",
                     data=data,
                 )
-        search_query = {
-            "$or": [
-                {
-                    "name": inputFileName,
-                },
-                {
-                    "type": inputFileType,
-                },
-            ],
-        }
 
         results = await collection.find(search_query).to_list(length=length)
         li: list[MetadataEntity] = []
