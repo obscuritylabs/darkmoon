@@ -1,97 +1,197 @@
 <!DOCTYPE html>
 
 <head>
+
     <meta charset="utf-8">
+
     <meta name="viewport" content="width=device-width">
+
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+
     <script src="https://unpkg.com/htmx.org@latest/dist/htmx.min.js"></script>
+
 </head>
 
+
+
 <script>
+
     function fileSubmitMessage() {
+
         const targetElement = document.getElementById('file_output');
+
         targetElement.innerHTML = '<p>Loading...</p>';
+
         alert("File submitted")
+
     }
+
     function hashSubmitMessage() {
+
         const targetElement = document.getElementById('hash_output');
+
         targetElement.innerHTML = '<p>Loading...</p>';
+
         alert("Hash submitted")
+
     }
+
+
+
 </script>
 
+
+
 <body>
+
     <header>
+
+
 
         <div class="logo">
 
+
+
             <h1 id="blackoutline">
+
+
 
                 <p>Darkmoon</p>
 
+
+
             </h1>
+
+
 
         </div>
 
+
+
         <nav>
 
+
+
             <ul>
+
                 <button class="dropbtn"><a href="/webpages">Home</a></button>
+
                 <div class="dropdown">
+
+
 
                     <button class="button button1">Tools</button>
 
+
+
                     <div class="dropdown-content">
+
+
 
                         <a href="/webpages/hash-lookup">Hash Lookup</a>
 
+
+
                         <a href="/webpages/upload">ISO Upload</a>
+
+
 
                     </div>
 
+
+
                 </div>
+
                 <button class="dropbtn"><a href="#">Credit</a></button>
+
             </ul>
+
+
 
         </nav>
 
+
+
     </header>
 
+
+
     <div style="padding:90px;">
+
         <h1></h1>
+
+
 
         <form id="hash_upload" hx-get='/metadata/hashSearch' hx-trigger="submit" hx-target="#hash_output"
             hx-swap="innerHTML" onsubmit="hashSubmitMessage()">
 
+
+
+            <h2> Hash and Hash Type </h2>
+
+
             <h2> Hash and Hash Type </h2>
 
             <label for="Hash" class="hash" data-icon="p"> </label>
+
             <input id="fullHash" name="fullHash" required="required" type="text"
                 placeholder="Ex: sha256:sdlkfjksldklsdjsdfklj" />
 
+
+
             <h2></h2>
+
+
 
             <input type="submit" value="Submit" />
 
+
+
         </form>
+
+
 
         <div class="result_box" id="hash_output">Awaiting Hash Upload...</div>
 
+
+
         <h2></h2>
 
-        <form id="file_upload" hx-encoding='multipart/form-data' hx-trigger="submit" hx-post='/metadata/hashComparison'
-            hx-target="#file_output" hx-swap="innerHTML" onsubmit="fileSubmitMessage()">
+
+
+        <form id="file_upload" hx-trigger="submit" hx-post='/metadata/hashComparison' hx-target="#file_output"
+            hx-swap="innerHTML" hx-encoding='multipart/form-data' onsubmit="fileSubmitMessage()">
+
+
 
             <h2> Upload File </h2>
-            <input id="fileInput" type="file" required="required" name="fileInput">
-            <input type="submit" value="Upload File">
+
+            <input id="fileInput" type="file" required="required" name="fileInput"><br>
+
+
+
+            <h2> ISO Key </h2>
+
+            <input id="sourceIsoName" name="sourceIsoName" required="required" type="text"><br>
+
+
+
+            <input type="submit" value="Upload">
+
+
 
         </form>
 
+
+
         <div class="result_box" id="file_output">Awaiting File Upload...</div>
+
+
 
     </div>
 
 </body>
+
+
 
 </html>

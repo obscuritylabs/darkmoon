@@ -56,7 +56,7 @@ async def extract_files_endpoint(
     url: PyPath = PyPath("..."),
 ) -> None:
     """Extract file."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+    with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
         tmpfile.write(await file.read())
 
         tmp_path = PyPath(tmpfile.name)
