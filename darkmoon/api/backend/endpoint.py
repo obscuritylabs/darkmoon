@@ -6,20 +6,13 @@ from typing import Any
 from fastapi import (
     APIRouter,
     File,
-    Query,
+    HTTPException,
     Request,
     UploadFile,
 )
 from fastapi.responses import JSONResponse
-from pydantic import FilePath
 
 from darkmoon.common import utils
-from darkmoon.common.utils import (
-    get_all_exe_metadata,
-    get_file_type,
-    get_hashes,
-    get_metadata,
-)
 
 router = APIRouter(prefix="/endpoints", tags=["endpoints"])
 
@@ -35,37 +28,54 @@ async def called_process_error_handler(
     )
 
 
-@router.get("/metadata")
+@router.post("/metadata")
 async def get_metadata_endpoint(
-    file: FilePath = Query(..., description="Path to the file"),
-    source_iso: FilePath = Query(..., description="Path to the source ISO"),
+    file: UploadFile = File(...),
+    source_iso: UploadFile = File(...),
 ) -> dict[str, Any]:
     """Get metadata."""
-    return get_metadata(file, source_iso)
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await file.read())
+        tmp_path = PyPath(tmpfile.name)
+
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await source_iso.read())
+        iso_path = PyPath(tmpfile.name)
+
+    return utils.get_metadata(tmp_path, iso_path)
 
 
-@router.get("/get-file-type")
+@router.post("/get-file-type")
 async def get_file_type_endpoint(
-    file: FilePath = Query(..., description="Path to the file"),
+    file: UploadFile = File(...),
 ) -> str:
     """Get file."""
-    return get_file_type(file)
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await file.read())
+        tmp_path = PyPath(tmpfile.name)
+    return utils.get_file_type(tmp_path)
 
 
-@router.get("/get-hash")
+@router.post("/get-hash")
 async def get_hashes_endpoint(
-    file: FilePath = Query(..., description="Path to the file"),
+    file: UploadFile = File(...),
 ) -> dict[str, str]:
     """Get hashes of files."""
-    return get_hashes(file)
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await file.read())
+        tmp_path = PyPath(tmpfile.name)
+    return utils.get_hashes(tmp_path)
 
 
 @router.post("/get-all-exe-metadata", response_class=JSONResponse)
 async def get_all_exe_metadata_endpoint(
-    file: FilePath = Query(..., description="Path to the file"),
+    file: UploadFile = File(...),
 ) -> dict[str, Any]:
     """Post the exe metadata."""
-    return get_all_exe_metadata(file)
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await file.read())
+        tmp_path = PyPath(tmpfile.name)
+    return utils.get_all_exe_metadata(tmp_path)
 
 
 @router.post("/extract-file")
@@ -75,10 +85,13 @@ async def extract_files_endpoint(
     url: PyPath = PyPath("..."),
 ) -> None:
     """Extract file."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-        tmpfile.write(await file.read())
-        tmp_path = PyPath(tmpfile.name)
-        utils.extract_files(tmp_path, source_iso, str(url))
+    try:
+        with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+            tmpfile.write(await file.read())
+            tmp_path = PyPath(tmpfile.name)
+            utils.extract_files(tmp_path, source_iso, str(url))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 
 @router.post("/iterate-files")
