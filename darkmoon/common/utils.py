@@ -9,8 +9,6 @@ import pefile
 import requests
 from pefile import PEFormatError
 
-from darkmoon.api.v1.metadata.schema import DocMetadata, EXEMetadata, Metadata
-
 
 def call_api(url: str, data: dict[str, Any]) -> bool:
     """Send data to api post endpoint."""
@@ -89,26 +87,31 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
     return exe_metadata
 
 
-def get_metadata(file: Path, source_iso: str) -> Metadata:
+def get_metadata(file: Path, source_iso: str) -> dict[str, Any]:
     """Call all of the metadata functions and send data to api endpoint."""
     file_extension = str(file.suffix)
-    data_fields: dict[str, Any] = {
+
+    data_fields = {
         "name": [str(file.name)],
         "file_extension": [file_extension],
         "file_type": [str(get_file_type(file))],
         "hashes": get_hashes(file),
         "source_iso_name": [source_iso],
         "operating_system": [source_iso],
+        "header_info": {},
     }
+
     if file_extension == ".exe" or file_extension == ".dll":
         try:
             data_fields["header_info"] = get_all_exe_metadata(file)
+
         except PEFormatError:
             pass
-    if "header_info" in data_fields:
-        return EXEMetadata.parse_obj(data_fields)
+
     else:
-        return DocMetadata.parse_obj(data_fields)
+        data_fields["header_info"] = "Not an EXE or DLL file"
+
+    return data_fields
 
 
 def extract_files(file: Path, source_iso: Path, url: str) -> None:
@@ -134,8 +137,8 @@ def iterate_files(
             if files.suffix == ".ntfs":
                 extract_files(files, source_iso, url)
             if files.is_file():
-                metadata = get_metadata(files, str(source_iso.name))
+                metadata = get_metadata(files, source_iso.name)
 
-                call_api(url=url, data=metadata.dict())
+                call_api(url=url, data=metadata)
             else:
                 queue.append(files)

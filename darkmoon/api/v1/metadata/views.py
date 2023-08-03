@@ -11,7 +11,6 @@ from pymongo import errors
 from darkmoon.api.v1.metadata.schema import (
     DocMetadata,
     EXEMetadata,
-    EXEMetadataEntity,
     Metadata,
     MetadataEntity,
     UploadListMetadataEntityResponse,
@@ -115,9 +114,7 @@ async def list_metadata_by_hash(
         matches: list[MetadataEntity] = []
         for item in data:
             if "header_info" in item:
-                matches.append(EXEMetadataEntity.parse_obj(item))
-            else:
-                matches.append(DocMetadataEntity.parse_obj(item))
+                matches.append(MetadataEntity.parse_obj(item))
         return matches
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
@@ -160,10 +157,8 @@ async def get_suspicious_metadata(
         data = await collection.find({}).skip(page * length).to_list(length=length)
         li: list[MetadataEntity] = []
         for item in data:
-            if "header_info" in item:
-                li.append(EXEMetadataEntity.parse_obj(item))
-            else:
-                li.append(DocMetadataEntity.parse_obj(item))
+            li.append(MetadataEntity.parse_obj(item))
+
         return li
 
     except errors.ServerSelectionTimeoutError:
@@ -206,10 +201,7 @@ async def list_metadata(
         data = await collection.find({}).skip(page * length).to_list(length=length)
         matches: list[MetadataEntity] = []
         for item in data:
-            if "header_info" in item:
-                matches.append(EXEMetadataEntity.parse_obj(item))
-            else:
-                matches.append(DocMetadataEntity.parse_obj(item))
+            matches.append(MetadataEntity.parse_obj(item))
         return matches
 
     except errors.ServerSelectionTimeoutError:
@@ -439,8 +431,8 @@ async def hash_comparison(
             sha1Hash = upload_hashes["sha1"]
             sha256Hash = upload_hashes["sha256"]
             sha512Hash = upload_hashes["sha512"]
-            obj = utils.get_metadata(tmp_path, sourceIsoName)
-            obj.name = [str(inputFileName)]
+            obj = Metadata.parse_obj(utils.get_metadata(tmp_path, sourceIsoName))
+            obj.__root__.name = [str(inputFileName)]
 
         # Check if hash is suspicious
         search_query = {
@@ -449,16 +441,13 @@ async def hash_comparison(
         susResults = await collection.find(search_query).to_list(length=length)
         sus_files: list[MetadataEntity] = []
         for item in susResults:
-            if "header_info" in item:
-                sus_files.append(EXEMetadataEntity.parse_obj(item))
-            else:
-                sus_files.append(DocMetadataEntity.parse_obj(item))
+            sus_files.append(MetadataEntity.parse_obj(item))
         for metadata in sus_files:
             dbHashes = [
-                metadata.hashes.md5,
-                metadata.hashes.sha1,
-                metadata.hashes.sha256,
-                metadata.hashes.sha512,
+                metadata.__root__.hashes.md5,
+                metadata.__root__.hashes.sha1,
+                metadata.__root__.hashes.sha256,
+                metadata.__root__.hashes.sha512,
             ]
             inputHashes = [md5Hash, sha1Hash, sha256Hash, sha512Hash]
             if dbHashes != inputHashes:
@@ -468,10 +457,7 @@ async def hash_comparison(
                 temp["_id"] = inserted_id
                 response.status_code = status.HTTP_406_NOT_ACCEPTABLE
                 data: list[MetadataEntity] = []
-                if "header_info" in temp:
-                    data.append(EXEMetadataEntity.parse_obj(temp))
-                else:
-                    data.append(DocMetadataEntity.parse_obj(temp))
+                data.append(MetadataEntity.parse_obj(temp))
                 return UploadListMetadataEntityResponse(
                     message="Bad hashes. Put in suspicious collection.",
                     data=data,
@@ -485,10 +471,7 @@ async def hash_comparison(
         if len(li) == 0:
             temp = obj.dict()
             temp["_id"] = PydanticObjectId()
-            if "header_info" in temp:
-                li.append(EXEMetadataEntity.parse_obj(temp))
-            else:
-                li.append(DocMetadataEntity.parse_obj(temp))
+            li.append(MetadataEntity.parse_obj(temp))
             response.status_code = status.HTTP_404_NOT_FOUND
             return UploadListMetadataEntityResponse(
                 message="No results found in database.",
