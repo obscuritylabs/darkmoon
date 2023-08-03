@@ -78,7 +78,14 @@ async def get_all_exe_metadata_endpoint(
     return utils.get_all_exe_metadata(tmp_path)
 
 
-@router.post("/extract-file")
+@router.post(
+    "/extract-file",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+        422: {"Client Error Response": "Unprocessable Content"},
+        504: {"Server Error Response": "Gateway Timeout"},
+    },
+)
 async def extract_files_endpoint(
     file: UploadFile = File(...),
     source_iso: PyPath = PyPath("..."),
