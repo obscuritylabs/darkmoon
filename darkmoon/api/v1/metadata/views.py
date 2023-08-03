@@ -3,7 +3,7 @@ from pathlib import Path
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -416,8 +416,8 @@ async def upload_metadata(
 )
 async def hash_comparison(
     response: Response,
-    fileInput: UploadFile,
-    sourceIsoName: str,
+    fileInput: UploadFile = File(...),
+    sourceIsoName: str = Form(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     susCollection: AsyncIOMotorCollection = Depends(
         get_suspicious_file_metadata_collection,
