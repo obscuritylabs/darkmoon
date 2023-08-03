@@ -109,11 +109,17 @@ def get_metadata(file: Path, source_iso: Path) -> dict[str, Any]:
     return data_fields
 
 
+class ExtractionError(Exception):
+    """An error raised when 7zip is unable to extract a file."""
+
+
 def extract_files(file: Path, source_iso: Path, url: str) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
-        subprocess.run(cmd, check=True)
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            raise ExtractionError(str(result.stdout))
         iterate_files(Path(tmpdirname), source_iso, url)
 
 

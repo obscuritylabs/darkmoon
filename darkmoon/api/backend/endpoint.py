@@ -28,7 +28,12 @@ async def called_process_error_handler(
     )
 
 
-@router.post("/metadata")
+@router.post(
+    "/metadata",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+    },
+)
 async def get_metadata_endpoint(
     file: UploadFile = File(...),
     source_iso: UploadFile = File(...),
@@ -45,7 +50,12 @@ async def get_metadata_endpoint(
     return utils.get_metadata(tmp_path, iso_path)
 
 
-@router.post("/get-file-type")
+@router.post(
+    "/get-file-type",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+    },
+)
 async def get_file_type_endpoint(
     file: UploadFile = File(...),
 ) -> str:
@@ -56,7 +66,12 @@ async def get_file_type_endpoint(
     return utils.get_file_type(tmp_path)
 
 
-@router.post("/get-hash")
+@router.post(
+    "/get-hash",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+    },
+)
 async def get_hashes_endpoint(
     file: UploadFile = File(...),
 ) -> dict[str, str]:
@@ -78,6 +93,10 @@ async def get_all_exe_metadata_endpoint(
     return utils.get_all_exe_metadata(tmp_path)
 
 
+class ExtractionError(Exception):
+    """An error raised when 7zip is unable to extract a file."""
+
+
 @router.post(
     "/extract-file",
     responses={
@@ -97,12 +116,20 @@ async def extract_files_endpoint(
         with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
             tmpfile.write(file.file.read())
             tmp_path = PyPath(tmpfile.name)
-            utils.extract_files(tmp_path, source_iso, str(url))
+            try:
+                utils.extract_files(tmp_path, source_iso, str(url))
+            except ExtractionError as extraction_error:
+                raise extraction_error
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 
-@router.post("/iterate-files")
+@router.post(
+    "/iterate-files",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+    },
+)
 async def iterate_files_endpoint(
     path: UploadFile = File(...),
     source_iso: PyPath = PyPath("..."),
