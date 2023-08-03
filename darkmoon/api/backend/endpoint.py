@@ -22,7 +22,7 @@ async def get_metadata_endpoint(
     source_iso: PyPath = Query(..., description="Path to the source ISO"),
 ) -> dict[str, Any]:
     """Get metadata."""
-    return get_metadata(file, source_iso.name).metadata
+    return get_metadata(file, source_iso.name).dict()
 
 
 @router.get("/get-file-type")

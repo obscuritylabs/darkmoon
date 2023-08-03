@@ -9,7 +9,7 @@ import pefile
 import requests
 from pefile import PEFormatError
 
-from darkmoon.core.schema import MetadataResponse
+from darkmoon.api.v1.metadata.schema import DocMetadata, EXEMetadata, Metadata
 
 
 def call_api(url: str, data: dict[str, Any]) -> bool:
@@ -89,7 +89,7 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
     return exe_metadata
 
 
-def get_metadata(file: Path, source_iso: str) -> MetadataResponse:
+def get_metadata(file: Path, source_iso: str) -> Metadata:
     """Call all of the metadata functions and send data to api endpoint."""
     file_extension = str(file.suffix)
     data_fields: dict[str, Any] = {
@@ -105,7 +105,10 @@ def get_metadata(file: Path, source_iso: str) -> MetadataResponse:
             data_fields["header_info"] = get_all_exe_metadata(file)
         except PEFormatError:
             pass
-    return MetadataResponse.parse_obj({"metadata": data_fields})
+    if "header_info" in data_fields:
+        return EXEMetadata.parse_obj(data_fields)
+    else:
+        return DocMetadata.parse_obj(data_fields)
 
 
 def extract_files(file: Path, source_iso: Path, url: str) -> None:
@@ -133,6 +136,6 @@ def iterate_files(
             if files.is_file():
                 metadata = get_metadata(files, str(source_iso.name))
 
-                call_api(url=url, data=metadata.metadata)
+                call_api(url=url, data=metadata.dict())
             else:
                 queue.append(files)

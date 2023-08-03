@@ -1,7 +1,6 @@
 """Defines an API router for handling metadata related requests."""
 import tempfile
 from pathlib import Path
-from typing import Any
 
 import bson
 from beanie import PydanticObjectId
@@ -447,7 +446,7 @@ async def hash_comparison(
             Endpoint is unable to connect to mongoDB instance
     """
     try:
-        obj: dict[str, Any]
+        obj: Metadata
         inputFileName = fileInput.filename
         md5Hash: str
         sha1Hash: str
@@ -462,8 +461,8 @@ async def hash_comparison(
             sha1Hash = upload_hashes["sha1"]
             sha256Hash = upload_hashes["sha256"]
             sha512Hash = upload_hashes["sha512"]
-            obj = utils.get_metadata(tmp_path, sourceIsoName).metadata
-            obj["name"] = [inputFileName]
+            obj = utils.get_metadata(tmp_path, sourceIsoName)
+            obj.name = [str(inputFileName)]
 
         # Check if hash is suspicious
         search_query = {
@@ -485,15 +484,16 @@ async def hash_comparison(
             ]
             inputHashes = [md5Hash, sha1Hash, sha256Hash, sha512Hash]
             if dbHashes != inputHashes:
-                insert_result = await susCollection.insert_one(obj)
+                insert_result = await susCollection.insert_one(obj.dict())
                 inserted_id = str(insert_result.inserted_id)
-                obj["_id"] = inserted_id
+                temp = obj.dict()
+                temp["_id"] = inserted_id
                 response.status_code = status.HTTP_406_NOT_ACCEPTABLE
                 data: list[MetadataEntity] = []
-                if "header_info" in obj:
-                    data.append(EXEMetadataEntity.parse_obj(obj))
+                if "header_info" in temp:
+                    data.append(EXEMetadataEntity.parse_obj(temp))
                 else:
-                    data.append(DocMetadataEntity.parse_obj(obj))
+                    data.append(DocMetadataEntity.parse_obj(temp))
                 return UploadListMetadataEntityResponse(
                     message="Bad hashes. Put in suspicious collection.",
                     data=data,
@@ -508,11 +508,12 @@ async def hash_comparison(
                 li.append(DocMetadataEntity.parse_obj(item))
 
         if len(li) == 0:
-            obj["_id"] = PydanticObjectId()
-            if "header_info" in obj:
-                li.append(EXEMetadataEntity.parse_obj(obj))
+            temp = obj.dict()
+            temp["_id"] = PydanticObjectId()
+            if "header_info" in temp:
+                li.append(EXEMetadataEntity.parse_obj(temp))
             else:
-                li.append(DocMetadataEntity.parse_obj(obj))
+                li.append(DocMetadataEntity.parse_obj(temp))
             response.status_code = status.HTTP_404_NOT_FOUND
             return UploadListMetadataEntityResponse(
                 message="No results found in database.",

@@ -38,7 +38,7 @@ def get_metadata(
     ],
 ) -> None:
     """Call all of the metadata functions and send data to api endpoint."""
-    data_fields = utils.get_metadata(file, source_iso.name)
+    data_fields = utils.get_metadata(file, source_iso.name).dict()
     print_json(data=data_fields, highlight=False, indent=None)
 
 
