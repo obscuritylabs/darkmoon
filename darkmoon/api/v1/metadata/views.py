@@ -111,11 +111,7 @@ async def list_metadata_by_hash(
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
         data = await collection.find(search).skip(page * length).to_list(length=length)
-        matches: list[MetadataEntity] = []
-        for item in data:
-            if "header_info" in item:
-                matches.append(MetadataEntity.parse_obj(item))
-        return matches
+        return [MetadataEntity.parse_obj(item) for item in data]
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
@@ -155,11 +151,7 @@ async def get_suspicious_metadata(
     """
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
-        li: list[MetadataEntity] = []
-        for item in data:
-            li.append(MetadataEntity.parse_obj(item))
-
-        return li
+        return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
@@ -199,10 +191,7 @@ async def list_metadata(
     """
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
-        matches: list[MetadataEntity] = []
-        for item in data:
-            matches.append(MetadataEntity.parse_obj(item))
-        return matches
+        return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
@@ -418,19 +407,18 @@ async def hash_comparison(
     try:
         obj: Metadata
         inputFileName = fileInput.filename
-        md5Hash: str
-        sha1Hash: str
-        sha256Hash: str
-        sha512Hash: str
+        inputHashes = []
         with tempfile.NamedTemporaryFile(delete=True) as temp_file:
             temp_file.write(fileInput.file.read())
             absolute_file = temp_file.name
             tmp_path = Path(absolute_file)
             upload_hashes = utils.get_hashes(tmp_path)
-            md5Hash = upload_hashes["md5"]
-            sha1Hash = upload_hashes["sha1"]
-            sha256Hash = upload_hashes["sha256"]
-            sha512Hash = upload_hashes["sha512"]
+            inputHashes = [
+                upload_hashes["md5"],
+                upload_hashes["sha1"],
+                upload_hashes["sha256"],
+                upload_hashes["sha512"],
+            ]
             obj = Metadata.parse_obj(utils.get_metadata(tmp_path, sourceIsoName))
             obj.__root__.name = [str(inputFileName)]
 
@@ -439,9 +427,9 @@ async def hash_comparison(
             "name": [inputFileName],
         }
         susResults = await collection.find(search_query).to_list(length=length)
-        sus_files: list[MetadataEntity] = []
-        for item in susResults:
-            sus_files.append(MetadataEntity.parse_obj(item))
+        sus_files: list[MetadataEntity] = [
+            MetadataEntity.parse_obj(item) for item in susResults
+        ]
         for metadata in sus_files:
             dbHashes = [
                 metadata.__root__.hashes.md5,
@@ -449,27 +437,22 @@ async def hash_comparison(
                 metadata.__root__.hashes.sha256,
                 metadata.__root__.hashes.sha512,
             ]
-            inputHashes = [md5Hash, sha1Hash, sha256Hash, sha512Hash]
             if dbHashes != inputHashes:
-                insert_result = await susCollection.insert_one(obj.dict())
-                inserted_id = str(insert_result.inserted_id)
-                temp = obj.dict()
-                temp["_id"] = inserted_id
+                insert_result = await susCollection.insert_one(obj.dict()["__root__"])
+                temp = obj.dict()["__root__"]
+                temp["_id"] = str(insert_result.inserted_id)
                 response.status_code = status.HTTP_406_NOT_ACCEPTABLE
-                data: list[MetadataEntity] = []
-                data.append(MetadataEntity.parse_obj(temp))
+                data = [MetadataEntity.parse_obj(temp)]
                 return UploadListMetadataEntityResponse(
                     message="Bad hashes. Put in suspicious collection.",
                     data=data,
                 )
 
         results = await collection.find(search_query).to_list(length=length)
-        li: list[MetadataEntity] = []
-        for item in results:
-            li.append(MetadataEntity.parse_obj(item))
+        li = [MetadataEntity.parse_obj(item) for item in results]
 
         if len(li) == 0:
-            temp = obj.dict()
+            temp = obj.dict()["__root__"]
             temp["_id"] = PydanticObjectId()
             li.append(MetadataEntity.parse_obj(temp))
             response.status_code = status.HTTP_404_NOT_FOUND

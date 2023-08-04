@@ -129,8 +129,10 @@ def populated_database(
     """Represent a database with an object already inserted."""
     with MongoDbContainer("mongo:6") as mongo:
         db = mongo.get_connection_client().get_database("darkmoon")
-        db.get_collection("FieldMetadata").insert_one(test_metadata_entity)
-        db.get_collection("FieldMetadata").insert_one(test_suspicious_metadata_entity)
+        db.get_collection("FieldMetadata").insert_one(test_metadata_entity["__root__"])
+        db.get_collection("FieldMetadata").insert_one(
+            test_suspicious_metadata_entity["__root__"],
+        )
         yield mongo.get_connection_url()
 
 

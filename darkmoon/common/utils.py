@@ -92,24 +92,22 @@ def get_metadata(file: Path, source_iso: str) -> dict[str, Any]:
     file_extension = str(file.suffix)
 
     data_fields = {
+        "base_file_type": "doc",
         "name": [str(file.name)],
         "file_extension": [file_extension],
         "file_type": [str(get_file_type(file))],
         "hashes": get_hashes(file),
         "source_iso_name": [source_iso],
         "operating_system": [source_iso],
-        "header_info": {},
     }
 
     if file_extension == ".exe" or file_extension == ".dll":
         try:
+            data_fields["base_file_type"] = "exe"
             data_fields["header_info"] = get_all_exe_metadata(file)
 
         except PEFormatError:
             pass
-
-    else:
-        data_fields["header_info"] = "Not an EXE or DLL file"
 
     return data_fields
 
