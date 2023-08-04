@@ -51,8 +51,7 @@ async def get_metadata_endpoint(
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await source_iso.read())
         iso_path = PyPath(tmpfile.name)
-
-    return utils.get_metadata(tmp_path, iso_path)
+    return utils.get_metadata(tmp_path, str(iso_path))
 
 
 @router.post(
