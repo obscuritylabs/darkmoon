@@ -13,6 +13,7 @@ from fastapi import (
 from fastapi.responses import JSONResponse
 
 from darkmoon.common import utils
+from darkmoon.core.schema import IncorrectInputException
 
 router = APIRouter(prefix="/endpoints", tags=["endpoints"])
 
@@ -118,10 +119,13 @@ async def extract_files_endpoint(
             tmp_path = PyPath(tmpfile.name)
             try:
                 utils.extract_files(tmp_path, source_iso, str(url))
-            except ExtractionError as extraction_error:
-                raise extraction_error
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+            except ExtractionError:
+                raise IncorrectInputException(
+                    status_code=422,
+                    detail="Error during extraction",
+                )
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.post(
