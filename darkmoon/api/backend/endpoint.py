@@ -26,7 +26,7 @@ async def called_process_error_handler(
     request: Request,
     exc: subprocess.CalledProcessError,
 ) -> JSONResponse:
-    """Docstring."""
+    """Call process error handler."""
     return JSONResponse(
         status_code=422,
         content={"message": f"This file can not be unzipped: {str(exc)}"},
