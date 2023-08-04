@@ -9,6 +9,8 @@ import pefile
 import requests
 from pefile import PEFormatError
 
+from darkmoon.core.schema import ExtractionError
+
 
 def call_api(url: str, data: dict[str, Any]) -> bool:
     """Send data to api post endpoint."""
@@ -107,10 +109,6 @@ def get_metadata(file: Path, source_iso: Path) -> dict[str, Any]:
     else:
         data_fields["header_info"] = "Not an EXE or DLL file"
     return data_fields
-
-
-class ExtractionError(Exception):
-    """An error raised when 7zip is unable to extract a file."""
 
 
 def extract_files(file: Path, source_iso: Path, url: str) -> None:

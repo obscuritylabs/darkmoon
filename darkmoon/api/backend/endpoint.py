@@ -12,7 +12,7 @@ from fastapi import (
 from fastapi.responses import JSONResponse
 
 from darkmoon.common import utils
-from darkmoon.core.schema import IncorrectInputException
+from darkmoon.core.schema import ExtractionError, IncorrectInputException
 
 router = APIRouter(prefix="/endpoints", tags=["endpoints"])
 
@@ -93,10 +93,6 @@ async def get_all_exe_metadata_endpoint(
     return utils.get_all_exe_metadata(tmp_path)
 
 
-class ExtractionError(Exception):
-    """An error raised when 7zip is unable to extract a file."""
-
-
 @router.post(
     "/extract-file",
     responses={
@@ -128,7 +124,10 @@ async def extract_files_endpoint(
                     detail="Error during extraction",
                 )
     except Exception:
-        raise IncorrectInputException(status_code=500, detail="Internal Server Error")
+        raise IncorrectInputException(
+            status_code=500,
+            detail="File Could Not be Written",
+        )
 
 
 @router.post(

@@ -24,3 +24,7 @@ class DuplicateFileException(HTTPException):
 
 class IncorrectInputException(HTTPException):
     """Exception raised when a input does not contain proper identifiers."""
+
+
+class ExtractionError(Exception):
+    """An error raised when 7zip is unable to extract a file."""
