@@ -112,6 +112,10 @@ async def extract_files_endpoint(
     url: PyPath = PyPath("..."),  # refactor it, so it not being used
 ) -> None:
     """Extract file."""
+    allowed_extensions = [".vmdk"]
+    file_extension = file.content_type
+    if file_extension not in allowed_extensions:
+        IncorrectInputException(status_code=400, detail="Only VMDK files are allowed")
     try:
         with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
             tmpfile.write(file.file.read())
