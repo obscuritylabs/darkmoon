@@ -47,12 +47,12 @@ class HeaderInfo(BaseModel):
 
     compile_time: str = Field(
         description="compile time of the file",
-        example="",
+        example="comp time",
     )
 
     signature: str = Field(
         description="digital file signature",
-        example="",
+        example="signature",
     )
 
     rich_header_hashes: Hashes = Field(
@@ -120,7 +120,7 @@ class BaseMetadata(BaseModel):
 class EXEMetadata(BaseMetadata):
     """Sets incoming EXE file requirements."""
 
-    base_file_type: Literal["exe"]
+    base_file_type: Literal["exe"] = Field(example="exe")
 
     header_info: HeaderInfo = Field(
         description="contains all the header information",
@@ -130,7 +130,7 @@ class EXEMetadata(BaseMetadata):
 class DocMetadata(BaseMetadata):
     """Sets incoming Doc file requirements."""
 
-    base_file_type: Literal["doc"]
+    base_file_type: Literal["doc"] = Field(example="doc")
 
 
 class Metadata(BaseModel):
@@ -145,7 +145,7 @@ class Metadata(BaseModel):
 class EXEMetadataEntity(EXEMetadata):
     """Sets outgoing EXE file requirements."""
 
-    base_file_type: Literal["exe"]
+    base_file_type: Literal["exe"] = Field(example="exe")
     id: PydanticObjectId = Field(
         description="ID",
         example="1",
@@ -156,7 +156,7 @@ class EXEMetadataEntity(EXEMetadata):
 class DocMetadataEntity(DocMetadata):
     """Sets outgoing Doc file requirements."""
 
-    base_file_type: Literal["doc"]
+    base_file_type: Literal["doc"] = Field(example="doc")
     id: PydanticObjectId = Field(
         description="ID",
         example="1",

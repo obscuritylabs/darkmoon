@@ -1,5 +1,4 @@
 """Defines an API router for handling metadata related requests."""
-import hashlib
 import tempfile
 from pathlib import Path
 
@@ -17,7 +16,11 @@ from darkmoon.api.v1.metadata.schema import (
     UploadListMetadataEntityResponse,
     UploadMetadataResponse,
 )
-from darkmoon.core.database import get_file_metadata_collection
+from darkmoon.common import utils
+from darkmoon.core.database import (
+    get_file_metadata_collection,
+    get_suspicious_file_metadata_collection,
+)
 from darkmoon.core.schema import (
     DuplicateFileException,
     IncorrectInputException,
@@ -108,6 +111,46 @@ async def list_metadata_by_hash(
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
         data = await collection.find(search).skip(page * length).to_list(length=length)
+        return [MetadataEntity.parse_obj(item) for item in data]
+    except errors.ServerSelectionTimeoutError:
+        raise ServerNotFoundException(status_code=504, detail="Server timed out.")
+
+
+@router.get(
+    "/suspicious",
+    responses={
+        422: {"Client Error Response": "Unprocessable Content"},
+        504: {"Server Error Response": "Gateway Timeout"},
+    },
+)
+async def get_suspicious_metadata(
+    collection: AsyncIOMotorCollection = Depends(
+        get_suspicious_file_metadata_collection,
+    ),
+    page: int = Query(
+        0,
+        ge=0,
+        le=100000,
+        description="The page to iterate to.",
+    ),
+    length: int = Query(10, ge=1, le=500),
+) -> list[MetadataEntity]:
+    """Get list of suspicious metadata that matches the parameters in the database.
+
+    Parameters:
+        collection (AsyncIOMotorCollection): The database collection to query.
+        page (int): The page number to iterate to.
+        length (int): The number of items per page.
+
+    Returns:
+        List[MetadataEntity]: List of all documents that match parameters in the
+            database.
+
+    Raises:
+        ServerNotFoundException: Endpoint is unable to connect to mongoDB instance
+    """
+    try:
+        data = await collection.find({}).skip(page * length).to_list(length=length)
         return [MetadataEntity.parse_obj(item) for item in data]
 
     except errors.ServerSelectionTimeoutError:
@@ -325,15 +368,20 @@ async def upload_metadata(
     status_code=status.HTTP_201_CREATED,
     responses={
         200: {"Successful Request": "Results Available"},
-        404: {"Client Error Response": "No Results Found"},
-        504: {"Server Error Response": "Internal Server Error"},
         400: {"Client Error Response": "Bad Request"},
+        404: {"Client Error Response": "No Results Found"},
+        406: {"Client Error Response": "Not Acceptable"},
+        504: {"Server Error Response": "Internal Server Error"},
     },
 )
 async def hash_comparison(
     response: Response,
     fileInput: UploadFile,
+    sourceIsoName: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
+    susCollection: AsyncIOMotorCollection = Depends(
+        get_suspicious_file_metadata_collection,
+    ),
     page: int = Query(
         0,
         ge=0,
@@ -357,46 +405,56 @@ async def hash_comparison(
             Endpoint is unable to connect to mongoDB instance
     """
     try:
-        inputFileType = str(fileInput.content_type)
-        inputFileName = str(fileInput.filename)
+        obj: Metadata
+        inputFileName = fileInput.filename
+        inputHashes = []
+        with tempfile.NamedTemporaryFile(delete=True) as temp_file:
+            temp_file.write(fileInput.file.read())
+            absolute_file = temp_file.name
+            tmp_path = Path(absolute_file)
+            upload_hashes = utils.get_hashes(tmp_path)
+            inputHashes = [
+                upload_hashes["md5"],
+                upload_hashes["sha1"],
+                upload_hashes["sha256"],
+                upload_hashes["sha512"],
+            ]
+            obj = Metadata.parse_obj(utils.get_metadata(tmp_path, sourceIsoName))
+            obj.__root__.name = [str(inputFileName)]
 
-        data = fileInput.file.read()
-        h_md5 = hashlib.md5()  # noqa S324
-        h_sha1 = hashlib.sha1()  # noqa: S324
-        h_sha256 = hashlib.sha256()
-        h_sha512 = hashlib.sha512()
-        h_md5.update(data)
-        h_sha1.update(data)
-        h_sha256.update(data)
-        h_sha512.update(data)
-        h_md5.hexdigest()
-        h_sha1.hexdigest()
-        h_sha256.hexdigest()
-        h_sha512.hexdigest()
-
+        # Check if hash is suspicious
         search_query = {
-            "$or": [
-                {
-                    "name": inputFileName,
-                },
-                {
-                    "file_type": inputFileType,
-                },
-            ],
+            "name": [inputFileName],
         }
+        susResults = await collection.find(search_query).to_list(length=length)
+        sus_files: list[MetadataEntity] = [
+            MetadataEntity.parse_obj(item) for item in susResults
+        ]
+        for metadata in sus_files:
+            dbHashes = [
+                metadata.__root__.hashes.md5,
+                metadata.__root__.hashes.sha1,
+                metadata.__root__.hashes.sha256,
+                metadata.__root__.hashes.sha512,
+            ]
+            if dbHashes != inputHashes:
+                insert_result = await susCollection.insert_one(obj.dict()["__root__"])
+                temp = obj.dict()["__root__"]
+                temp["_id"] = str(insert_result.inserted_id)
+                response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+                data = [MetadataEntity.parse_obj(temp)]
+                return UploadListMetadataEntityResponse(
+                    message="Bad hashes. Put in suspicious collection.",
+                    data=data,
+                )
 
         results = await collection.find(search_query).to_list(length=length)
-        li: list[MetadataEntity] = []
-        for item in results:
-            li.append(MetadataEntity.parse_obj(item))
+        li = [MetadataEntity.parse_obj(item) for item in results]
 
         if len(li) == 0:
-            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-                temp_file.write(fileInput.file.read())
-
-                absolute_file = temp_file.name
-
-                Path(absolute_file)
+            temp = obj.dict()["__root__"]
+            temp["_id"] = PydanticObjectId()
+            li.append(MetadataEntity.parse_obj(temp))
             response.status_code = status.HTTP_404_NOT_FOUND
             return UploadListMetadataEntityResponse(
                 message="No results found in database.",
