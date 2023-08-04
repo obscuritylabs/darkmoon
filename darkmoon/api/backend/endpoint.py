@@ -6,7 +6,6 @@ from typing import Any
 from fastapi import (
     APIRouter,
     File,
-    HTTPException,
     Request,
     UploadFile,
 )
@@ -108,9 +107,9 @@ class ExtractionError(Exception):
     },
 )
 async def extract_files_endpoint(
-    file: UploadFile = File(...),
+    file: UploadFile = File(...),  # only vmdks
     source_iso: PyPath = PyPath("..."),
-    url: PyPath = PyPath("..."),
+    url: PyPath = PyPath("..."),  # refactor it, so it not being used
 ) -> None:
     """Extract file."""
     try:
@@ -125,7 +124,7 @@ async def extract_files_endpoint(
                     detail="Error during extraction",
                 )
     except Exception:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise IncorrectInputException(status_code=500, detail="Internal Server Error")
 
 
 @router.post(
