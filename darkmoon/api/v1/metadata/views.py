@@ -1,6 +1,7 @@
 """Defines an API router for handling metadata related requests."""
 import tempfile
 from pathlib import Path
+from typing import Annotated
 
 import bson
 from beanie import PydanticObjectId
@@ -442,7 +443,7 @@ async def upload_metadata(
 async def hash_comparison(
     response: Response,
     fileInput: UploadFile,
-    sourceIsoName: str = Form(...),
+    sourceIsoName: Annotated[str, Form()],
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     susCollection: AsyncIOMotorCollection = Depends(
         get_suspicious_file_metadata_collection,

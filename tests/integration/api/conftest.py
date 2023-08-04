@@ -7,8 +7,6 @@ import schemathesis
 from anyio import Path
 from beanie import PydanticObjectId
 from fastapi import FastAPI
-
-# from fastapi.testclient import TestClient
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
@@ -16,6 +14,7 @@ from darkmoon.api.v1.metadata.schema import (
     Metadata,
     MetadataEntity,
 )
+from darkmoon.app import get_app
 from darkmoon.settings import Settings
 
 
@@ -42,7 +41,7 @@ def settings(database: str) -> Settings:
 @pytest.fixture
 def app(settings: Settings) -> FastAPI:
     """Use the settings fixture to override default app settings."""
-    return app(settings)
+    return get_app(settings)
 
 
 @pytest.fixture
@@ -138,7 +137,7 @@ def populated_database(
 @pytest.fixture
 def populated_app(populated_database: str) -> FastAPI:
     """Darkmoon app with populated database."""
-    return app(Settings.parse_obj({"MONGODB_CONN": populated_database}))
+    return get_app(Settings.parse_obj({"MONGODB_CONN": populated_database}))
 
 
 @pytest.fixture
