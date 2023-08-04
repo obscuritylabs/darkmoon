@@ -19,7 +19,7 @@ def test_get_metadata_file_data(test_3_first_file: Path, test_3_tar_zip: Path) -
         ],
     )
     assert result.exit_code == 0
-    data = json.loads(result.stdout)
+    data = json.loads(result.output)
     assert "download-example.exe" == data["name"][0]
 
 

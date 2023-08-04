@@ -12,13 +12,9 @@ from fastapi import FastAPI
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
-from darkmoon.common.schema import (
-    DocMetadataEntity,
-    EXEMetadata,
-    EXEMetadataEntity,
-    Hashes,
-    HeaderInfo,
+from darkmoon.api.v1.metadata.schema import (
     Metadata,
+    MetadataEntity,
 )
 from darkmoon.settings import Settings
 
@@ -59,31 +55,44 @@ def app_schema(app: FastAPI) -> BaseOpenAPISchema:
 @pytest.fixture
 def test_metadata_entity() -> dict[str, Any]:
     """Represent a test metadata object."""
-    file: dict[str, Any] = EXEMetadataEntity(
-        _id=PydanticObjectId(),
-        name=["Test Name"],
-        file_extension=[".jpeg"],
-        file_type=["exe"],
-        hashes=Hashes(
-            md5="0d41402abc4b2a76b9719d911017c591",
-            sha1="0af4c61ddcc5e8a2dabede0f3b482cd9aea9434a",
-            sha256="0cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9823",
-            sha512="05d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84979",
-        ),
-        source_iso_name=["Win_XP"],
-        operating_system=["Windows XP"],
-        header_info=HeaderInfo(
-            machine_type="",
-            timestamp="",
-            compile_time="",
-            signature="",
-            rich_header_hashes=Hashes(
-                md5="0d41402abc4b2a76b9719d911017c591",
-                sha1="0af4c61ddcc5e8a2dabede0f3b482cd9aea9434a",
-                sha256="0cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9823",
-                sha512="05d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84979",
-            ),
-        ),
+    file: dict[str, Any] = MetadataEntity.parse_obj(
+        {
+            "base_file_type": "exe",
+            "_id": PydanticObjectId(),
+            "name": [
+                "Test Name",
+            ],
+            "file_extension": [
+                ".jpeg",
+            ],
+            "file_type": [
+                "exe",
+            ],
+            "hashes": {
+                "md5": "0d41402abc4b2a76b9719d911017c591",
+                "sha1": "0af4c61ddcc5e8a2dabede0f3b482cd9aea9434a",
+                "sha256": "0cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9823",  # noqa: E501
+                "sha512": "05d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84979",  # noqa: E501
+            },
+            "source_iso_name": [
+                "Win_XP",
+            ],
+            "operating_system": [
+                "WindowsXP",
+            ],
+            "header_info": {
+                "machine_type": "0x14c",
+                "timestamp": "12/2/23 17:57:43",
+                "compile_time": "15",
+                "signature": "example",
+                "rich_header_hashes": {
+                    "md5": "0d41402abc4b2a76b9719d911017c591",
+                    "sha1": "0af4c61ddcc5e8a2dabede0f3b482cd9aea9434a",
+                    "sha256": "0cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9823",  # noqa: E501
+                    "sha512": "05d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84979",  # noqa: E501
+                },
+            },
+        },
     ).dict()
     return file
 
@@ -91,19 +100,22 @@ def test_metadata_entity() -> dict[str, Any]:
 @pytest.fixture
 def test_suspicious_metadata_entity() -> dict[str, Any]:
     """Represent a test metadata object."""
-    file: dict[str, Any] = DocMetadataEntity(
-        _id=PydanticObjectId(),
-        name=["test4.rtf"],
-        file_extension=[".rtf"],
-        file_type=["text/rtf"],
-        hashes=Hashes(
-            md5="",
-            sha1="",
-            sha256="",
-            sha512="",
-        ),
-        source_iso_name=["Win_XP"],
-        operating_system=["Windows XP"],
+    file: dict[str, Any] = MetadataEntity.parse_obj(
+        {
+            "base_file_type": "doc",
+            "_id": PydanticObjectId(),
+            "name": ["test4.rtf"],
+            "file_extension": [".rtf"],
+            "file_type": ["text/rtf"],
+            "hashes": {
+                "md5": "",
+                "sha1": "",
+                "sha256": "",
+                "sha512": "",
+            },
+            "source_iso_name": ["Win_XP"],
+            "operating_system": ["Windows XP"],
+        },
     ).dict()
     return file
 
@@ -116,8 +128,10 @@ def populated_database(
     """Represent a database with an object already inserted."""
     with MongoDbContainer("mongo:6") as mongo:
         db = mongo.get_connection_client().get_database("darkmoon")
-        db.get_collection("FieldMetadata").insert_one(test_metadata_entity)
-        db.get_collection("FieldMetadata").insert_one(test_suspicious_metadata_entity)
+        db.get_collection("FieldMetadata").insert_one(test_metadata_entity["__root__"])
+        db.get_collection("FieldMetadata").insert_one(
+            test_suspicious_metadata_entity["__root__"],
+        )
         yield mongo.get_connection_url()
 
 
@@ -130,40 +144,43 @@ def populated_app(populated_database: str) -> FastAPI:
 @pytest.fixture
 def test_metadata() -> Metadata:
     """Represent a test metadata object."""
-    file: Metadata = EXEMetadata(
-        name=[
-            "End_Of_The_World",
-        ],
-        file_extension=[
-            ".jpeg",
-        ],
-        file_type=[
-            "exe",
-        ],
-        hashes=Hashes(
-            md5="5d41402abc4b2a76b9719d911017c592",
-            sha1="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
-            sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
-            sha512="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
-        ),
-        source_iso_name=[
-            "Win_XP",
-        ],
-        operating_system=[
-            "WindowsXP",
-        ],
-        header_info=HeaderInfo(
-            machine_type="0x14c",
-            timestamp="12/2/23 17:57:43",
-            compile_time="15",
-            signature="example",
-            rich_header_hashes=Hashes(
-                md5="5d41402abc4b2a76b9719d911017c592",
-                sha1="aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
-                sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
-                sha512="75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",
-            ),
-        ),
+    file: Metadata = Metadata.parse_obj(
+        {
+            "base_file_type": "exe",
+            "name": [
+                "End_Of_The_World",
+            ],
+            "file_extension": [
+                ".jpeg",
+            ],
+            "file_type": [
+                "exe",
+            ],
+            "hashes": {
+                "md5": "5d41402abc4b2a76b9719d911017c592",
+                "sha1": "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
+                "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",  # noqa: E501
+                "sha512": "75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",  # noqa: E501
+            },
+            "source_iso_name": [
+                "Win_XP",
+            ],
+            "operating_system": [
+                "WindowsXP",
+            ],
+            "header_info": {
+                "machine_type": "0x14c",
+                "timestamp": "12/2/23 17:57:43",
+                "compile_time": "15",
+                "signature": "example",
+                "rich_header_hashes": {
+                    "md5": "5d41402abc4b2a76b9719d911017c592",
+                    "sha1": "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d",
+                    "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",  # noqa: E501
+                    "sha512": "75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1cd58835286d1da9a38deba3de98b5a53e5ed78a84976",  # noqa: E501
+                },
+            },
+        },
     )
     return file
 
