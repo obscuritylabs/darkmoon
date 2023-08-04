@@ -50,7 +50,7 @@ async def get_metadata_endpoint(
 
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await source_iso.read())
-        iso_path = PyPath(tmpfile.name)
+        iso_path = str(PyPath(tmpfile.name))
 
     return utils.get_metadata(tmp_path, iso_path)
 
@@ -99,7 +99,7 @@ async def get_all_exe_metadata_endpoint(
 
 
 @router.post(
-    "/extract-file",
+    "/extract-files",
     responses={
         400: {"Client Error Response": "Bad Request"},
         422: {"Client Error Response": "Unprocessable Content"},
