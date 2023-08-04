@@ -28,3 +28,7 @@ class IncorrectInputException(HTTPException):
 
 class ExtractionError(Exception):
     """An error raised when 7zip is unable to extract a file."""
+
+
+class InternalServerException(HTTPException):
+    """Exception raised when a problem occurs internally."""

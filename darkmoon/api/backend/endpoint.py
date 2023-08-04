@@ -10,9 +10,14 @@ from fastapi import (
     UploadFile,
 )
 from fastapi.responses import JSONResponse
+from requests.models import MissingSchema
 
 from darkmoon.common import utils
-from darkmoon.core.schema import ExtractionError, IncorrectInputException
+from darkmoon.core.schema import (
+    ExtractionError,
+    IncorrectInputException,
+    InternalServerException,
+)
 
 router = APIRouter(prefix="/endpoints", tags=["endpoints"])
 
@@ -112,22 +117,27 @@ async def extract_files_endpoint(
     file_extension = file.content_type
     if file_extension not in allowed_extensions:
         IncorrectInputException(status_code=400, detail="Only VMDK files are allowed")
-    try:
-        with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-            tmpfile.write(file.file.read())
-            tmp_path = PyPath(tmpfile.name)
-            try:
-                utils.extract_files(tmp_path, source_iso, str(url))
-            except ExtractionError:
-                raise IncorrectInputException(
-                    status_code=422,
-                    detail="Error during extraction",
-                )
-    except Exception:
-        raise IncorrectInputException(
-            status_code=500,
-            detail="File Could Not be Written",
-        )
+
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(file.file.read())
+        tmp_path = PyPath(tmpfile.name)
+        try:
+            utils.extract_files(tmp_path, source_iso, str(url))
+        except ExtractionError:
+            raise IncorrectInputException(
+                status_code=422,
+                detail="Error during extraction",
+            )
+        except MissingSchema:
+            raise IncorrectInputException(
+                status_code=422,
+                detail="Invalid URL",
+            )
+        except Exception:
+            raise InternalServerException(
+                status_code=500,
+                detail="Internal Server Error",
+            )
 
 
 @router.post(
