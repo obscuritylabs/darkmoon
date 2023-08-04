@@ -18,44 +18,24 @@
             // Show the loading box when a POST request is triggered
             document.getElementById("loadingBox").style.display = "block";
         }
+        if (event.detail.verb === "get") {
+            // Show the loading box when a POST request is triggered
+            document.getElementById("hash_output").style.display = "block";
+        }
     });
 
     document.addEventListener("htmx:afterRequest", function (event) {
-        // Hide the loading box after the request is complete
-        document.getElementById("loadingBox").style.display = "none";
+        const response = event.detail.xhr.response;
+
+        const jsonResponse = JSON.parse(response);
+
+        const hashes = jsonResponse.data[0].hashes;
+
+        const hashText = `MD5: ${hashes.md5}<br>SHA1: ${hashes.sha1}<br>SHA256: ${hashes.sha256}<br>SHA512: ${hashes.sha512}`;
+        document.getElementById("loadingBox").innerHTML = hashText;
     });
 
 </script>
-
-
-
-<script>
-
-    function fileSubmitMessage() {
-
-        const targetElement = document.getElementById('file_output');
-
-        targetElement.innerHTML = '<p>Loading...</p>';
-
-        alert("File submitted")
-
-    }
-
-    function hashSubmitMessage() {
-
-        const targetElement = document.getElementById('hash_output');
-
-        targetElement.innerHTML = '<p>Loading...</p>';
-
-        alert("Hash submitted")
-
-    }
-
-
-
-</script>
-
-
 
 <body>
 
@@ -129,64 +109,38 @@
 
     </header>
 
-
-
     <div style="padding:90px;">
 
         <h1></h1>
 
-
-
-        <form id="hash_upload" hx-get='/metadata/hashSearch' hx-trigger="submit" hx-target="#hash_output"
-            hx-swap="innerHTML" onsubmit="hashSubmitMessage()">
-
-
+        <form id="hash_upload" hx-get="/metadata/hashSearch" hx-target="#hash_output" hx-trigger="submit"
+            hx-indicator="hash_output">
 
             <h2> Hash and Hash Type </h2>
 
-            <label for="Hash" class="hash" data-icon="p"> </label>
-
             <input id="fullHash" name="fullHash" required="required" type="text"
-                placeholder="Ex: sha256:sdlkfjksldklsdjsdfklj" />
-
-
-
-            <h2></h2>
-
-
+                placeholder="Ex: sha256:sdlkfjksldklsdjsdfklj" /><br>
 
             <input type="submit" value="Submit" />
 
-
-
         </form>
 
-
-
-        <div class="result_box" id="hash_output">Awaiting Hash Upload...</div>
-
-
+        <div class="result_box" id="hash_output" style="display: none;" hx-swap="innerHTML">
+            <div class="loading-spinner" style="padding:30px; object-position: center;"></div>
+        </div>
 
         <h2></h2>
 
-
-
         <form id="file_upload" hx-trigger="submit" hx-post='/metadata/hashComparison' hx-target="#loadingBox"
-            hx-swap="innerHTML" hx-encoding='multipart/form-data' onsubmit="fileSubmitMessage()">
-
-
+            hx-swap="innerHTML" hx-encoding='multipart/form-data'>
 
             <h2> Upload File </h2>
 
             <input id="fileInput" type="file" required="required" name="fileInput"><br>
 
-
-
             <h2> ISO Key </h2>
 
             <input id="sourceIsoName" name="sourceIsoName" required="required" type="text"><br>
-
-
 
             <input type="submit" value="Upload" hx-indicator="#loadingBox">
 
