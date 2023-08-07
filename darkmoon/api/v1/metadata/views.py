@@ -4,7 +4,7 @@ from pathlib import Path
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, Response, UploadFile, status
+from fastapi import APIRouter, Body, Depends, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -252,7 +252,34 @@ async def get_metadata_by_id(
     },
 )
 async def upload_metadata(
-    file: Metadata,
+    file: Metadata = Body(
+        example={
+            "name": ["End_Of_The_World"],
+            "file_extension": [".jpeg"],
+            "file_type": ["exe"],
+            "hashes": {
+                "md5": "5d41402abc4b2a76b9719d",
+                "sha1": "aaf4c61ddcc5e8a2dabede0f3b",
+                "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c",
+                "sha512": "75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1",
+            },
+            "source_iso_name": ["Win_XP"],
+            "operating_system": ["WindowsXP"],
+            "base_file_type": "exe",
+            "header_info": {
+                "machine_type": "0x14c",
+                "timestamp": "12/2/23 17:57:43",
+                "compile_time": "comp time",
+                "signature": "signature",
+                "rich_header_hashes": {
+                    "md5": "5d41402abc4b2a76b9719d",
+                    "sha1": "aaf4c61ddcc5e8a2dabede0f3b",
+                    "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c",
+                    "sha512": "75d527c368f2efe848ecd5f984f036eb6df891d75f72d9b154518c1",
+                },
+            },
+        },
+    ),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> UploadMetadataResponse:
     """Fast API POST function for incoming files.
