@@ -9,7 +9,7 @@ import pefile
 import requests
 from pefile import PEFormatError
 
-from darkmoon.core.schema import ExtractionError
+from darkmoon.core.schema import ExtractionError, ValidationError
 
 
 def call_api(url: str, data: dict[str, Any]) -> bool:
@@ -144,3 +144,27 @@ def iterate_files(
                 call_api(url=url, data=metadata)
             else:
                 queue.append(files)
+
+
+def packer_build(template: Path) -> subprocess.Popen[bytes]:
+    """Call packer build on a provided template.
+
+    subprocess.run is a blocking function, so this will take awhile
+    as packer runs
+    """
+    valid_cmd = ["packer", "validate", str(template)]
+    build_cmd = ["packer", "build", str(template)]
+    result = subprocess.run(valid_cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise ValidationError(str("\n" + result.stdout))
+
+    process = subprocess.Popen(build_cmd, stdout=subprocess.PIPE)
+    return process
+
+
+def mount_nfs(args: str) -> Path:
+    """Attempt to mount the NFS containing the generated disk image.
+
+    Still needs to be implemented.
+    """
+    return Path("/")
