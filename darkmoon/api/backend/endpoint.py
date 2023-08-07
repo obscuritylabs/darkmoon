@@ -160,3 +160,47 @@ async def iterate_files_endpoint(
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
         utils.iterate_files(tmp_path, iso_path, str(url))
+
+
+@router.post("/process-iso")
+async def process_iso(
+    iso_upload: UploadFile = File(...),
+    template_upload: UploadFile = File(...),
+    answer_upload: UploadFile = File(...),
+    darkmoon_url: str = "https://127.0.0.1:8000",
+) -> None:
+    """Takes in an ISO, Packer template, and answer file to extract files.
+
+    The Packer template is used to upload and install an ISO,
+    afterwards the NFS containing the VM image is mounted
+    and the VM image is extracted and processed.
+    """
+    tmp_iso = PyPath("tmpfile.iso")
+    tmp_iso.write_bytes(iso_upload.file.read())
+
+    tmp_packer = PyPath("tmp.pkr.hcl")
+    tmp_packer.write_bytes(template_upload.file.read())
+
+    tmp_answer = PyPath("autounattend.xml")
+    tmp_answer.write_bytes(iso_upload.file.read())
+
+    vmid: int = 0
+    build_process = utils.packer_build(tmp_packer)
+    output = []
+    while build_process.poll() is None:
+        if build_process.stdout is not None:
+            curr = build_process.stdout.readline().decode("utf-8")
+            if "A template was created:" in output:
+                vmid = int(curr.split(":")[-1].strip())
+            output.append(curr)
+    if build_process.poll() != 0:
+        return
+    if vmid == 0:
+        raise Exception
+    mount_point: PyPath = utils.mount_nfs("mount_args")
+    disk_img = PyPath.joinpath(mount_point, f"template file for {vmid}")
+    utils.extract_files(
+        file=disk_img,
+        source_iso=tmp_iso.name,
+        url=darkmoon_url,
+    )

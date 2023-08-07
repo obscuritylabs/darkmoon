@@ -224,6 +224,7 @@ def process_iso(
             print("Error:")
             print(output)
     if vmid == 0:
+        print(output)
         raise Exception
     mount_point: Path = utils.mount_nfs(mount_args)
     disk_img = Path.joinpath(mount_point, f"template file for {vmid}")
