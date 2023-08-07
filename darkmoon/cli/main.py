@@ -123,7 +123,7 @@ def extract_files(
     darkmoon_server_url: str,
 ) -> None:
     """Extract vmdk and put in new folder."""
-    utils.extract_files(file, str(source_iso), darkmoon_server_url)
+    utils.extract_files(file, str(source_iso))
 
 
 @app.command()
@@ -173,7 +173,7 @@ def iterate_files(
     darkmoon_server_url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
-    utils.iterate_files(path, source_iso, darkmoon_server_url)
+    utils.iterate_files(path, source_iso)
 
 
 if __name__ == "__main__":
