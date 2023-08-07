@@ -7,7 +7,7 @@ import typer
 from rich import print_json
 from rich.progress import track
 
-from darkmoon.cli import utils
+from darkmoon.common import utils
 
 app = typer.Typer()
 
@@ -38,7 +38,7 @@ def get_metadata(
     ],
 ) -> None:
     """Call all of the metadata functions and send data to api endpoint."""
-    data_fields = utils.get_metadata(file, source_iso)
+    data_fields = utils.get_metadata(file, source_iso.name)
     print_json(data=data_fields, highlight=False, indent=None)
 
 

@@ -1,3 +1,5 @@
+from typing import Any
+
 import schemathesis
 from anyio import Path
 from fastapi import FastAPI
@@ -27,12 +29,10 @@ def test_api_schema(case: Case, app: FastAPI) -> None:
 
 def test_get_default_list_metadata(
     populated_app: FastAPI,
-    test_metadata_entity: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
-    ],
+    test_metadata_entity: dict[str, Any],
 ) -> None:
     """Test default GET /metadata."""
+    test_metadata_entity = test_metadata_entity["__root__"]
     with TestClient(populated_app) as app:
         response = app.get(
             "/metadata/",
@@ -45,12 +45,10 @@ def test_get_default_list_metadata(
 
 def test_get_list_metadata_by_hash(
     populated_app: FastAPI,
-    test_metadata_entity: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
-    ],
+    test_metadata_entity: dict[str, Any],
 ) -> None:
     """Test GET /metadata/hashSearch correctly receives object from database."""
+    test_metadata_entity = test_metadata_entity["__root__"]
     with TestClient(populated_app) as app:
         # positive case, should get a copy of the MetaDataEntity fixture
         response = app.get(
@@ -73,12 +71,10 @@ def test_get_list_metadata_by_hash(
 
 def test_get_id(
     populated_app: FastAPI,
-    test_metadata_entity: dict[
-        str,
-        list[str] | dict[str, str] | dict[str, str | dict[str, str]] | str,
-    ],
+    test_metadata_entity: dict[str, Any],
 ) -> None:
     """Test GET /metadata/{id} endpoint correctly receives object from database."""
+    test_metadata_entity = test_metadata_entity["__root__"]
     with TestClient(populated_app) as app:
         # positive case, should get a copy of the MetaDataEntity fixture
         # remove extra data added by mongo db, reformat _id key value
@@ -92,7 +88,6 @@ def test_get_id(
 
         # negative case, incorrect id
         response = app.get(f"/metadata/{'0123456789ab0123456789ab'}")
-
         assert response.status_code == 404
 
 
@@ -105,19 +100,18 @@ def test_post(
         response = app.post("/metadata/", data=test_metadata.json())
         assert response.status_code == 201
         assert response.json()["message"] == "Successfully Inserted Object."
-        assert response.json()["data"] == test_metadata.dict()
-
+        assert response.json()["data"] == test_metadata.dict()["__root__"]
         response = app.post("/metadata/", data=test_metadata.json())
         assert response.status_code == 409
         assert response.json()["detail"] == "File is a duplicate."
 
-        test_metadata.name = ["different name"]
+        test_metadata.__root__.name = ["different name"]
         response = app.post("/metadata/", data=test_metadata.json())
         assert response.status_code == 201
         assert response.json()["message"] == "Successfully Updated Object."
-        assert response.json()["data"] == test_metadata.dict()
+        assert response.json()["data"] == test_metadata.dict()["__root__"]
 
-        test_metadata.name = []
+        test_metadata.__root__.name = []
         response = app.post("/metadata/", data=test_metadata.json())
         assert response.status_code == 422
 
@@ -128,8 +122,33 @@ def test_post_hash_comparison_failure(
 ) -> None:
     """Returns fixture to test file."""
     with TestClient(populated_app) as app:
+        with open(test_hash_comparison_without_file, "rb") as testFile:
+            response = app.post(
+                "/metadata/hashComparison",
+                files={
+                    "fileInput": testFile,
+                },
+                params={
+                    "sourceIsoName": "Windows",
+                },
+            )
+            assert response.status_code == 404
+
+
+def test_suspicious_hash(
+    populated_app: FastAPI,
+    test_suspicious_hash_comparison_file: Path,
+) -> None:
+    """Docstring goes here."""
+    with TestClient(populated_app) as app:
         response = app.post(
             "/metadata/hashComparison",
-            files={"fileInput": open(test_hash_comparison_without_file, "rb")},
+            files={"fileInput": open(test_suspicious_hash_comparison_file, "rb")},
+            params={
+                "sourceIsoName": "Windows",
+            },
         )
-        assert response.status_code == 404
+        assert response.status_code == 406
+        assert response.json()["message"] == "Bad hashes. Put in suspicious collection."
+        response = app.get("/metadata/suspicious")
+        assert len(response.json()) > 0
