@@ -5,10 +5,10 @@ from fastapi.responses import HTMLResponse, Response
 
 from darkmoon.settings import templates
 
-router = APIRouter(prefix="/webpages", tags=["webpages"])
+router = APIRouter(prefix="", tags=["webpages"])
 
 
-@router.get("", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse)
 async def read_item_index(request: Request) -> Response:
     """Read index."""
     return templates.TemplateResponse("index.html", {"request": request})
