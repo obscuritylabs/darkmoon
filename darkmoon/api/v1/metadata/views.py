@@ -1,10 +1,10 @@
 """Defines an API router for handling metadata related requests."""
 import tempfile
-from pathlib import Path
+from pathlib import Path, Path as PyPath
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Body, Depends, Query, Response, UploadFile, status
+from fastapi import APIRouter, Body, Depends, File, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
@@ -495,3 +495,29 @@ async def hash_comparison(
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
+
+
+@router.post("/extract_file")
+async def extract_files_endpoint(
+    file: UploadFile = File(...),
+    source_iso: PyPath = PyPath("..."),
+    url: PyPath = PyPath("..."),
+) -> None:
+    """Extract file."""
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await file.read())
+        tmp_path = PyPath(tmpfile.name)
+        utils.extract_files(tmp_path, source_iso, str(url))
+
+
+@router.post("/iterate-files")
+async def iterate_files_endpoint(
+    path: UploadFile = File(...),
+    source_iso: PyPath = PyPath("..."),
+    url: PyPath = PyPath("..."),
+) -> None:
+    """Iterate through file."""
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await path.read())
+        tmp_path = PyPath(tmpfile.name)
+        utils.iterate_files(tmp_path, source_iso, str(url))
