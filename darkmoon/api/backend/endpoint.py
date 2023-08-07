@@ -41,18 +41,14 @@ async def called_process_error_handler(
 )
 async def get_metadata_endpoint(
     file: UploadFile = File(...),
-    source_iso: UploadFile = File(...),
+    source_iso: PyPath = PyPath("..."),
 ) -> dict[str, Any]:
     """Get metadata."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await file.read())
         tmp_path = PyPath(tmpfile.name)
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-        tmpfile.write(await source_iso.read())
-        iso_path = str(PyPath(tmpfile.name))
-
-    return utils.get_metadata(tmp_path, iso_path)
+    return utils.get_metadata(tmp_path, str(source_iso))
 
 
 @router.post(
