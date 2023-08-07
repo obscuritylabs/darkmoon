@@ -13,26 +13,63 @@
 </head>
 
 <script>
+    function showForm1() {
+        document.getElementById("hash_output").style.display = "block";
+        document.getElementById("file_output").style.display = "none";
+    }
+
+    function showForm2() {
+        document.getElementById("hash_output").style.display = "none";
+        document.getElementById("file_output").style.display = "block";
+    }
+</script>
+
+<script>
+
+    document.addEventListener("htmx:responseError", function (event) {
+        const response = event.detail.xhr.response;
+
+        const error = JSON.parse(response);
+
+        const fileComparison = `${error.detail}`;
+        document.getElementById("hash_output").innerHTML = fileComparison;
+    });
+
     document.addEventListener("htmx:configRequest", function (event) {
         if (event.detail.verb === "post") {
-            // Show the loading box when a POST request is triggered
-            document.getElementById("loadingBox").style.display = "block";
+            document.getElementById("file_output").style.display = "block";
         }
         if (event.detail.verb === "get") {
-            // Show the loading box when a POST request is triggered
             document.getElementById("hash_output").style.display = "block";
         }
     });
 
     document.addEventListener("htmx:afterRequest", function (event) {
+
         const response = event.detail.xhr.response;
 
         const jsonResponse = JSON.parse(response);
 
+        // For hash comparison
         const hashes = jsonResponse.data[0].hashes;
 
-        const hashText = `MD5: ${hashes.md5}<br>SHA1: ${hashes.sha1}<br>SHA256: ${hashes.sha256}<br>SHA512: ${hashes.sha512}`;
-        document.getElementById("loadingBox").innerHTML = hashText;
+        const fileType = jsonResponse.data[0].file_type;
+
+        const fileExtension = jsonResponse.data[0].file_extension;
+
+        const message = jsonResponse.message;
+
+        const sourceIso = jsonResponse.data[0].source_iso_name;
+
+        const opSystem = jsonResponse.data[0].operating_system;
+
+        const name = jsonResponse.data[0].name;
+
+        const baseFileType = jsonResponse.data[0].base_file_type;
+
+        const fileComparison = `${message}<br><br><b>Name: </b>${name}<br><b>File Type: </b>${fileType}<br><b>File Extension: </b>
+        ${fileExtension}<br><b>Source ISO: </b>${sourceIso}<br><b>Operating System: </b>${opSystem}<br><b>Base File Type: </b>${baseFileType} <br><br><b>MD5: </b> ${hashes.md5}<br><b>SHA1: </b>${hashes.sha1}<br><b>SHA256: </b>${hashes.sha256}<br><b>SHA512: </b>${hashes.sha512}`;
+        document.getElementById("file_output").innerHTML = fileComparison;
     });
 
 </script>
@@ -114,24 +151,24 @@
         <h1></h1>
 
         <form id="hash_upload" hx-get="/metadata/hashSearch" hx-target="#hash_output" hx-trigger="submit"
-            hx-indicator="hash_output">
+            hx-swap="innerHTML">
 
             <h2> Hash and Hash Type </h2>
 
             <input id="fullHash" name="fullHash" required="required" type="text"
                 placeholder="Ex: sha256:sdlkfjksldklsdjsdfklj" /><br>
 
-            <input type="submit" value="Submit" />
+            <input type="submit" value="Submit" hx-indicator="#hash_output" onclick="showForm1()" />
 
         </form>
 
-        <div class="result_box" id="hash_output" style="display: none;" hx-swap="innerHTML">
+        <div class="result_box" id="hash_output" style="display: none;">
             <div class="loading-spinner" style="padding:30px; object-position: center;"></div>
         </div>
 
         <h2></h2>
 
-        <form id="file_upload" hx-trigger="submit" hx-post='/metadata/hashComparison' hx-target="#loadingBox"
+        <form id="file_upload" hx-trigger="submit" hx-post='/metadata/hashComparison' hx-target="#file_output"
             hx-swap="innerHTML" hx-encoding='multipart/form-data'>
 
             <h2> Upload File </h2>
@@ -142,11 +179,11 @@
 
             <input id="sourceIsoName" name="sourceIsoName" required="required" type="text"><br>
 
-            <input type="submit" value="Upload" hx-indicator="#loadingBox">
+            <input type="submit" value="Upload" hx-indicator="#file_output" onclick="showForm2()">
 
         </form>
 
-        <div class="result_box" id="loadingBox" style="display: none;">
+        <div class="result_box" id="file_output" style="display: none;">
             <div class="loading-spinner" style="padding:30px; object-position: center;"></div>
         </div>
 
