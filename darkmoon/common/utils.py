@@ -9,6 +9,8 @@ import pefile
 import requests
 from pefile import PEFormatError
 
+from darkmoon.core.schema import ExtractionError
+
 
 def call_api(url: str, data: dict[str, Any]) -> bool:
     """Send data to api post endpoint."""
@@ -87,39 +89,44 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
     return exe_metadata
 
 
-def get_metadata(file: Path, source_iso: Path) -> dict[str, Any]:
+def get_metadata(file: Path, source_iso: str) -> dict[str, Any]:
     """Call all of the metadata functions and send data to api endpoint."""
     file_extension = str(file.suffix)
+
     data_fields = {
+        "base_file_type": "doc",
         "name": [str(file.name)],
         "file_extension": [file_extension],
         "file_type": [str(get_file_type(file))],
         "hashes": get_hashes(file),
-        "source_iso_name": [str(source_iso.name)],
-        "operating_system": [str(source_iso.name)],
-        "header_info": {},
+        "source_iso_name": [source_iso],
+        "operating_system": [source_iso],
     }
+
     if file_extension == ".exe" or file_extension == ".dll":
         try:
+            data_fields["base_file_type"] = "exe"
             data_fields["header_info"] = get_all_exe_metadata(file)
+
         except PEFormatError:
             pass
-    else:
-        data_fields["header_info"] = "Not an EXE or DLL file"
+
     return data_fields
 
 
-def extract_files(file: Path, source_iso: Path, url: str) -> None:
+def extract_files(file: Path, source_iso: str, url: str) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
-        subprocess.run(cmd, check=True)
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            raise ExtractionError(str(result.stdout))
         iterate_files(Path(tmpdirname), source_iso, url)
 
 
 def iterate_files(
     path: Path,
-    source_iso: Path,
+    source_iso: str,
     url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
@@ -133,6 +140,7 @@ def iterate_files(
                 extract_files(files, source_iso, url)
             if files.is_file():
                 metadata = get_metadata(files, source_iso)
+
                 call_api(url=url, data=metadata)
             else:
                 queue.append(files)

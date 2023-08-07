@@ -26,7 +26,7 @@ def get_metadata(
         ),
     ],
     source_iso: Annotated[
-        Path,
+        str,
         typer.Argument(
             exists=True,
             file_okay=True,
@@ -110,7 +110,7 @@ def extract_files(
         ),
     ],
     source_iso: Annotated[
-        Path,
+        str,
         typer.Argument(
             exists=True,
             file_okay=True,
@@ -123,7 +123,7 @@ def extract_files(
     darkmoon_server_url: str,
 ) -> None:
     """Extract vmdk and put in new folder."""
-    utils.extract_files(file, source_iso, darkmoon_server_url)
+    utils.extract_files(file, str(source_iso), darkmoon_server_url)
 
 
 @app.command()
@@ -143,7 +143,7 @@ def iterate_extract(
 ) -> None:
     """Iterate over vmdk folder and extracts files of each vmdk."""
     for vmdk in track(path.glob("*"), description="Processing..."):
-        extract_files(vmdk, vmdk, darkmoon_server_url)
+        extract_files(vmdk, str(vmdk), darkmoon_server_url)
 
 
 @app.command()
@@ -160,7 +160,7 @@ def iterate_files(
         ),
     ],
     source_iso: Annotated[
-        Path,
+        str,
         typer.Argument(
             exists=True,
             file_okay=True,
