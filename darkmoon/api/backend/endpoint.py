@@ -41,14 +41,17 @@ async def called_process_error_handler(
 )
 async def get_metadata_endpoint(
     file: UploadFile = File(...),
-    source_iso: PyPath = PyPath("..."),
+    source_iso: UploadFile = File(...),
 ) -> dict[str, Any]:
     """Get metadata."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await file.read())
         tmp_path = PyPath(tmpfile.name)
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await source_iso.read())
+        iso_path = str(PyPath(tmpfile.name))
 
-    return utils.get_metadata(tmp_path, str(source_iso))
+    return utils.get_metadata(tmp_path, iso_path)
 
 
 @router.post(
@@ -105,9 +108,9 @@ async def get_all_exe_metadata_endpoint(
 )
 async def extract_files_endpoint(
     file: UploadFile = File(...),  # only vmdks
-    source_iso: PyPath = PyPath("..."),
+    source_iso: UploadFile = File(...),
     url: PyPath = PyPath("..."),  # refactor it, so it not being used
-) -> None:
+) -> dict[str, str]:
     """Extract file."""
     allowed_extensions = ["application/octet-stream"]
     file_extension = file.content_type
@@ -117,8 +120,11 @@ async def extract_files_endpoint(
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(file.file.read())
         tmp_path = PyPath(tmpfile.name)
+        tmpfile.write(await source_iso.read())
+        iso_path = str(PyPath(tmpfile.name))
         try:
-            utils.extract_files(tmp_path, source_iso, str(url))
+            utils.extract_files(tmp_path, str(iso_path), str(url))
+            return {"message": "Extraction successful"}
         except ExtractionError:
             raise IncorrectInputException(
                 status_code=422,
@@ -144,11 +150,13 @@ async def extract_files_endpoint(
 )
 async def iterate_files_endpoint(
     path: UploadFile = File(...),
-    source_iso: PyPath = PyPath("..."),
+    source_iso: UploadFile = File(...),
     url: PyPath = PyPath("..."),
 ) -> None:
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
         tmp_path = PyPath(tmpfile.name)
-        utils.iterate_files(tmp_path, source_iso, str(url))
+        tmpfile.write(await source_iso.read())
+        iso_path = str(PyPath(tmpfile.name))
+        utils.iterate_files(tmp_path, iso_path, str(url))
