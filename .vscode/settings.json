@@ -24,6 +24,7 @@
     "Pydantic",
     "pymongo",
     "templating",
+    "tmpdirname",
     "typer"
   ]
 }
