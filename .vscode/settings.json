@@ -27,7 +27,7 @@
     "pymongo",
     "schemathesis",
     "templating",
-    "testcontainers",
+    "tmpdirname",
     "typer"
   ],
   "xd.globalEditor": true,

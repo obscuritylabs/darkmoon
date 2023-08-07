@@ -1,13 +1,24 @@
 """Defines an API router for handling metadata related requests."""
 import tempfile
-from pathlib import Path
+from pathlib import Path, Path as PyPath
 from typing import Annotated
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Body, Depends, Form, Query, Response, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    File,
+    Form,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
+from requests.models import MissingSchema
 
 from darkmoon.api.v1.metadata.schema import (
     DocMetadata,
@@ -24,7 +35,9 @@ from darkmoon.core.database import (
 )
 from darkmoon.core.schema import (
     DuplicateFileException,
+    ExtractionError,
     IncorrectInputException,
+    InternalServerException,
     ItemNotFoundException,
     ServerNotFoundException,
 )
@@ -577,3 +590,68 @@ async def hash_comparison(
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
+
+
+@router.post(
+    "/extract-files",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+        422: {"Client Error Response": "Unprocessable Content"},
+        500: {"Server Error Response": "Internal Server Error"},
+        504: {"Server Error Response": "Gateway Timeout"},
+    },
+)
+async def extract_files_endpoint(
+    file: UploadFile = File(...),  # only vmdks
+    source_iso: UploadFile = File(...),
+    url: PyPath = PyPath("..."),  # refactor it, so it not being used
+) -> dict[str, str]:
+    """Extract file."""
+    allowed_extensions = ["application/octet-stream"]
+    file_extension = file.content_type
+    if file_extension not in allowed_extensions:
+        IncorrectInputException(status_code=400, detail="Only VMDK files are allowed")
+
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(file.file.read())
+        tmp_path = PyPath(tmpfile.name)
+        tmpfile.write(await source_iso.read())
+        iso_path = str(PyPath(tmpfile.name))
+        try:
+            utils.extract_files(tmp_path, str(iso_path), str(url))
+            return {"message": "Extraction successful"}
+        except ExtractionError:
+            raise IncorrectInputException(
+                status_code=422,
+                detail="Error during extraction",
+            )
+        except MissingSchema:
+            raise IncorrectInputException(
+                status_code=422,
+                detail="Invalid URL",
+            )
+        except Exception:
+            raise InternalServerException(
+                status_code=500,
+                detail="Internal Server Error",
+            )
+
+
+@router.post(
+    "/iterate-files",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+    },
+)
+async def iterate_files_endpoint(
+    path: UploadFile = File(...),
+    source_iso: UploadFile = File(...),
+    url: PyPath = PyPath("..."),
+) -> None:
+    """Iterate through file."""
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        tmpfile.write(await path.read())
+        tmp_path = PyPath(tmpfile.name)
+        tmpfile.write(await source_iso.read())
+        iso_path = str(PyPath(tmpfile.name))
+        utils.iterate_files(tmp_path, iso_path, str(url))

@@ -26,7 +26,7 @@ repos:
         args: ["-t", "py310"]
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.5.3
+    rev: v3.6.0
     hooks:
       - id: commitizen
         stages: [commit-msg]

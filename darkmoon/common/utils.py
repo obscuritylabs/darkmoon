@@ -9,6 +9,8 @@ import pefile
 import requests
 from pefile import PEFormatError
 
+from darkmoon.core.schema import ExtractionError
+
 
 def call_api(url: str, data: dict[str, Any]) -> bool:
     """Send data to api post endpoint."""
@@ -141,19 +143,19 @@ def get_metadata(file: Path, source_iso: str) -> dict[str, Any]:
     return data_fields
 
 
-def extract_files(file: Path, source_iso: Path, url: str) -> None:
+def extract_files(file: Path, source_iso: str, url: str) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
-
-        subprocess.run(cmd, check=True)
-
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            raise ExtractionError(str(result.stdout))
         iterate_files(Path(tmpdirname), source_iso, url)
 
 
 def iterate_files(
     path: Path,
-    source_iso: Path,
+    source_iso: str,
     url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
@@ -169,7 +171,7 @@ def iterate_files(
                 extract_files(files, source_iso, url)
 
             if files.is_file():
-                metadata = get_metadata(files, source_iso.name)
+                metadata = get_metadata(files, source_iso)
 
                 call_api(url=url, data=metadata)
             else:

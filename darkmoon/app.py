@@ -6,7 +6,6 @@
 
 from fastapi import FastAPI
 
-import darkmoon.api.backend.endpoint as endpoints
 import darkmoon.api.v1.jinja.views as webpages
 import darkmoon.api.v1.metadata.views as views
 from darkmoon.core.database import register_database
@@ -30,7 +29,6 @@ def get_app(settings: Settings | None = None) -> FastAPI:
     app.mount("/static", static, name="static")
 
     app.include_router(webpages.router)
-    app.include_router(endpoints.router)
     app.include_router(views.router)
 
     return app

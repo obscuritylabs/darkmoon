@@ -6,7 +6,7 @@ def test_jinja_homepage(populated_app: FastAPI) -> None:
     """Test jinja webpages endpoint for the home page."""
     with TestClient(populated_app) as app:
         response = app.get(
-            "/webpages/",
+            "/",
         )
         assert (
             '<link href="http://testserver/static/style.css" rel="stylesheet">'
@@ -19,7 +19,7 @@ def test_jinja_hashpage(populated_app: FastAPI) -> None:
     """Test jinja webpages endpoint for the hash page."""
     with TestClient(populated_app) as app:
         response = app.get(
-            "/webpages/hash-lookup",
+            "/hash-lookup",
         )
         assert (
             '<link href="http://testserver/static/style.css" rel="stylesheet">'
@@ -32,7 +32,7 @@ def test_jinja_uploadpage(populated_app: FastAPI) -> None:
     """Test jinja webpages endpoint for the upload page."""
     with TestClient(populated_app) as app:
         response = app.get(
-            "/webpages/upload",
+            "/upload",
         )
         assert (
             '<link href="http://testserver/static/style.css" rel="stylesheet">'
