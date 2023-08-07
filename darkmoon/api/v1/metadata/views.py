@@ -5,7 +5,7 @@ from typing import Annotated
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Form, Body, Query, Response, UploadFile, status
+from fastapi import APIRouter, Body, Depends, Form, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
