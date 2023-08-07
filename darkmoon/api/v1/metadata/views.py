@@ -53,7 +53,7 @@ async def list_metadata_by_hash(
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
-) -> list[MetadataEntity]:
+) -> UploadListMetadataEntityResponse:
     """Get list of metadata that matches the parameters in the database.
 
     Parameters:
@@ -91,7 +91,7 @@ async def list_metadata_by_hash(
         raise IncorrectInputException(
             status_code=422,
             detail=(
-                "Format hash information like this: ",
+                "Format hash information like this: "
                 "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
             ),
         )
@@ -135,7 +135,11 @@ async def list_metadata_by_hash(
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
         data = await collection.find(search).skip(page * length).to_list(length=length)
-        return [MetadataEntity.parse_obj(item) for item in data]
+        li = [MetadataEntity.parse_obj(item) for item in data]
+        return UploadListMetadataEntityResponse(
+            message="Database results available",
+            data=li,
+        )
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 

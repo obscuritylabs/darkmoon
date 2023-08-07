@@ -12,26 +12,24 @@
 
 </head>
 
-<script>
+<script type="text/javascript">
     function showForm1() {
-        document.getElementById("hash_output").style.display = "block";
         document.getElementById("file_output").style.display = "none";
     }
 
     function showForm2() {
         document.getElementById("hash_output").style.display = "none";
-        document.getElementById("file_output").style.display = "block";
     }
 </script>
 
-<script>
+<script type="text/javascript">
 
     document.addEventListener("htmx:responseError", function (event) {
         const response = event.detail.xhr.response;
 
         const error = JSON.parse(response);
 
-        const fileComparison = `${error.detail}`;
+        const fileComparison = `<b>${error.detail}`;
         document.getElementById("hash_output").innerHTML = fileComparison;
     });
 
@@ -47,31 +45,53 @@
     document.addEventListener("htmx:afterRequest", function (event) {
 
         const response = event.detail.xhr.response;
-
         const jsonResponse = JSON.parse(response);
 
-        // For hash comparison
-        const hashes = jsonResponse.data[0].hashes;
+        for (let i = 0; i < jsonResponse.data.length; i++) {
+            const searchHashes = jsonResponse.data[i].hashes;
 
-        const fileType = jsonResponse.data[0].file_type;
+            const searchFileType = jsonResponse.data[i].file_type;
 
-        const fileExtension = jsonResponse.data[0].file_extension;
+            const searchFileExtension = jsonResponse.data[i].file_extension;
 
-        const message = jsonResponse.message;
+            const searchMessage = jsonResponse.message;
 
-        const sourceIso = jsonResponse.data[0].source_iso_name;
+            const searchSourceIso = jsonResponse.data[i].source_iso_name;
 
-        const opSystem = jsonResponse.data[0].operating_system;
+            const searchOpSystem = jsonResponse.data[i].operating_system;
 
-        const name = jsonResponse.data[0].name;
+            const searchName = jsonResponse.data[i].name;
 
-        const baseFileType = jsonResponse.data[0].base_file_type;
+            const searchBaseFileType = jsonResponse.data[i].base_file_type;
 
-        const fileComparison = `${message}<br><br><b>Name: </b>${name}<br><b>File Type: </b>${fileType}<br><b>File Extension: </b>
+            const searchHash = `${searchMessage}<br><br><b>Name: </b>${searchName}<br><b>File Type: </b>${searchFileType}<br><b>File Extension: </b>
+            ${searchFileExtension}<br><b>Source ISO: </b>${searchSourceIso}<br><b>Operating System: </b>${searchOpSystem}<br><b>Base File Type: </b>
+            ${searchBaseFileType} <br><br><b>MD5: </b> ${searchHashes.md5}<br><b>SHA1: </b>${searchHashes.sha1}<br><b>SHA256: </b>${searchHashes.sha256}<br>
+            <b>SHA512: </b>${searchHashes.sha512}`;
+            document.getElementById("hash_output").innerHTML = searchHash;
+
+            const hashes = jsonResponse.data[i].hashes;
+
+            const fileType = jsonResponse.data[i].file_type;
+
+            const fileExtension = jsonResponse.data[i].file_extension;
+
+            const message = jsonResponse.message;
+
+            const sourceIso = jsonResponse.data[i].source_iso_name;
+
+            const opSystem = jsonResponse.data[i].operating_system;
+
+            const name = jsonResponse.data[i].name;
+
+            const baseFileType = jsonResponse.data[i].base_file_type;
+
+            const fileComparison = `${message}<br><br><b>Name: </b>${name}<br><b>File Type: </b>${fileType}<br><b>File Extension: </b>
         ${fileExtension}<br><b>Source ISO: </b>${sourceIso}<br><b>Operating System: </b>${opSystem}<br><b>Base File Type: </b>${baseFileType} <br><br><b>MD5: </b> ${hashes.md5}<br><b>SHA1: </b>${hashes.sha1}<br><b>SHA256: </b>${hashes.sha256}<br><b>SHA512: </b>${hashes.sha512}`;
-        document.getElementById("file_output").innerHTML = fileComparison;
-    });
+            document.getElementById("file_output").innerHTML = fileComparison;
+        }
 
+    });
 </script>
 
 <body>
@@ -158,7 +178,8 @@
             <input id="fullHash" name="fullHash" required="required" type="text"
                 placeholder="Ex: sha256:sdlkfjksldklsdjsdfklj" /><br>
 
-            <input type="submit" value="Submit" hx-indicator="#hash_output" onclick="showForm1()" />
+            <input type="submit" value="Submit" hx-indicator="#hash_output" hx-trigger="button1"
+                onclick="showForm1()" />
 
         </form>
 
@@ -179,7 +200,7 @@
 
             <input id="sourceIsoName" name="sourceIsoName" required="required" type="text"><br>
 
-            <input type="submit" value="Upload" hx-indicator="#file_output" onclick="showForm2()">
+            <input type="submit" value="Upload" hx-indicator="#file_output" hx-trigger="button2" onclick="showForm2()">
 
         </form>
 
