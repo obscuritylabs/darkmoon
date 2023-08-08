@@ -182,7 +182,7 @@ async def process_iso(
     tmp_packer.write_bytes(template_upload.file.read())
 
     tmp_answer = PyPath("autounattend.xml")
-    tmp_answer.write_bytes(iso_upload.file.read())
+    tmp_answer.write_bytes(answer_upload.file.read())
 
     vmid: int = 0
     build_process = utils.packer_build(tmp_packer)
@@ -194,13 +194,29 @@ async def process_iso(
                 vmid = int(curr.split(":")[-1].strip())
             output.append(curr)
     if build_process.poll() != 0:
-        return
+        tmp_iso.unlink()
+        tmp_packer.unlink()
+        tmp_answer.unlink()
+        raise InternalServerException(
+            status_code=500,
+            detail=f"Build Process Error Code {build_process.poll()}: "
+            + "".join(output),
+        )
     if vmid == 0:
-        raise Exception
-    mount_point: PyPath = utils.mount_nfs("mount_args")
-    disk_img = PyPath.joinpath(mount_point, f"template file for {vmid}")
-    utils.extract_files(
-        file=disk_img,
-        source_iso=tmp_iso.name,
-        url=darkmoon_url,
-    )
+        tmp_iso.unlink()
+        tmp_packer.unlink()
+        tmp_answer.unlink()
+        raise InternalServerException(
+            status_code=500,
+            detail="Could not get VMID: " + "".join(output),
+        )
+    tmp_iso.unlink()
+    tmp_packer.unlink()
+    tmp_answer.unlink()
+    # mount_point: PyPath = utils.mount_nfs("mount arguments")
+    # disk_img = mount_point.joinpath(f"template file for {vmid}")
+    # utils.extract_files(
+    #     file=disk_img,
+    #     source_iso=tmp_iso.name,
+    #     url=darkmoon_url,
+    # )

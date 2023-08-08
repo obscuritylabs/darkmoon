@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from rich import print, print_json
+from rich import print_json
 from rich.console import Console
 from rich.progress import track
 
@@ -221,13 +221,15 @@ def process_iso(
                     vmid = int(curr.split(":")[-1].strip())
                 output.append(curr)
         if build_process.poll() != 0:
-            print("Error:")
-            print(output)
+            console.print(f"\nError, Exit Code {build_process.poll()}:")
+            console.print(*output)
+            raise Exception
     if vmid == 0:
-        print(output)
+        console.print("\nError, Could Not Get VMID:")
+        console.print(*output)
         raise Exception
     mount_point: Path = utils.mount_nfs(mount_args)
-    disk_img = Path.joinpath(mount_point, f"template file for {vmid}")
+    disk_img = mount_point.joinpath(f"template file for {vmid}")
     utils.extract_files(
         file=disk_img,
         source_iso=source_iso,
