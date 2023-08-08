@@ -228,7 +228,7 @@ async def iterate_files(
             if files.is_file():
                 metadata_dict = get_metadata(files, source_iso)
 
-                metadata_instance = Metadata(**metadata_dict)
+                metadata_instance = Metadata.parse_obj(metadata_dict)
 
                 await upload_metadata_to_database(
                     file=metadata_instance,
