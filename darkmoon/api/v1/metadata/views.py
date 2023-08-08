@@ -7,7 +7,6 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, Body, Depends, File, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
-from requests.models import MissingSchema
 
 from darkmoon.api.v1.metadata.schema import (
     DocMetadata,
@@ -512,7 +511,6 @@ async def hash_comparison(
 async def extract_files_endpoint(
     file: UploadFile = File(...),  # only vmdks
     source_iso: UploadFile = File(...),
-    url: PyPath = PyPath("..."),  # refactor it, so it not being used
 ) -> dict[str, str]:
     """Extract file."""
     allowed_extensions = ["application/octet-stream"]
@@ -526,17 +524,12 @@ async def extract_files_endpoint(
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
         try:
-            utils.extract_files(tmp_path, str(iso_path), str(url))
+            utils.extract_files(tmp_path, str(iso_path))
             return {"message": "Extraction successful"}
         except ExtractionError:
             raise IncorrectInputException(
                 status_code=422,
                 detail="Error during extraction",
-            )
-        except MissingSchema:
-            raise IncorrectInputException(
-                status_code=422,
-                detail="Invalid URL",
             )
         except Exception:
             raise InternalServerException(
@@ -554,7 +547,6 @@ async def extract_files_endpoint(
 async def iterate_files_endpoint(
     path: UploadFile = File(...),
     source_iso: UploadFile = File(...),
-    url: PyPath = PyPath("..."),
 ) -> None:
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
@@ -562,4 +554,4 @@ async def iterate_files_endpoint(
         tmp_path = PyPath(tmpfile.name)
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
-        utils.iterate_files(tmp_path, iso_path, str(url))
+        utils.iterate_files(tmp_path, iso_path)
