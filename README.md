@@ -40,6 +40,8 @@ Make sure the following dependencies are installed on your system:
 - Docker
 - MongoDB Compass
 - 1Password
+- 7zip
+- Hashicorp Packer
 
 
 ## Getting Started
