@@ -289,3 +289,227 @@ input[type="submit"]:hover {
         transform: rotate(360deg);
     }
 }
+
+.openButton {
+
+    display: block;
+
+    width: 30%;
+
+    padding: 10px;
+
+    margin-left: 0px;
+
+    margin-right: 50px;
+
+    background-color: #5d05bc;
+
+    color: #fff;
+
+    border: none;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+
+}
+
+
+.loginPopup {
+
+    position: relative;
+
+    text-align: center;
+
+    width: 100%;
+
+}
+
+
+
+.formPopup {
+
+    display: none;
+
+    bottom: 0;
+
+    background-color: rgb(255, 255, 255);
+
+    position: fixed;
+
+    width: 850px;
+
+    padding: 80px;
+
+    text-align: center;
+
+    border-radius: 5px;
+
+    transform: translate(-50%, 50%);
+
+    z-index: 9;
+
+    margin-bottom: 100px;
+
+    margin-top: 30px;
+
+    margin-left: 70px;
+
+    overflow-wrap: break-word;
+
+}
+
+
+
+* {
+
+    box-sizing: border-box;
+
+}
+
+
+
+.openBtn {
+
+    display: flex;
+
+    justify-content: left;
+
+}
+
+
+
+
+
+.loginPopup {
+
+    position: relative;
+
+    text-align: center;
+
+    width: 100%;
+
+}
+
+
+
+.formPopup {
+
+    display: none;
+
+    position: fixed;
+
+    left: 45%;
+
+    top: 5%;
+
+    transform: translate(-50%, 5%);
+
+    border: 3px solid #999999;
+
+    z-index: 9;
+
+}
+
+
+
+.formContainer {
+
+    max-width: 300px;
+
+    padding: 20px;
+
+    background-color: #fff;
+
+}
+
+
+
+.formContainer input[type=text],
+
+.formContainer input[type=password] {
+
+    width: 100%;
+
+    padding: 15px;
+
+    margin: 5px 0 20px 0;
+
+    border: none;
+
+    background: #eee;
+
+}
+
+
+
+.formContainer input[type=text]:focus,
+
+.formContainer input[type=password]:focus {
+
+    background-color: #ddd;
+
+    outline: none;
+
+}
+
+
+
+.formContainer .btn {
+
+    padding: 12px 20px;
+
+    border: none;
+
+    background-color: #8ebf42;
+
+    color: #fff;
+
+    cursor: pointer;
+
+    width: 100%;
+
+    margin-bottom: 15px;
+
+    opacity: 0.8;
+
+}
+
+
+
+
+
+
+
+.formContainer .btn:hover,
+
+.openButton:hover {
+
+    opacity: 1;
+
+}
+
+.shadow {
+
+    max-width: 1000px;
+    max-height: 1000px;
+
+    padding: 20px;
+
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 9;
+
+}
+
+
+.btncancel {
+
+    background: red;
+
+    position: fixed;
+
+    top: 0;
+
+    right: 0;
+
+}

@@ -12,6 +12,8 @@
 
 </head>
 
+
+
 <script type="text/javascript">
     function showForm1() {
         document.getElementById("file_output").style.display = "none";
@@ -20,6 +22,26 @@
     function showForm2() {
         document.getElementById("hash_output").style.display = "none";
     }
+
+    function openForm() {
+
+        document.getElementById("popupForm").style.display = "block";
+        document.getElementById("shadow").style.display = "block";
+
+    }
+
+    function closeForm() {
+
+        document.getElementById("popupForm").style.display = "none";
+        document.getElementById("shadow").style.display = "none";
+
+    }
+    function showPopupBox() {
+
+        document.getElementById("popupBox").classList.remove(".hidden");
+
+    }
+
 </script>
 
 <script type="text/javascript">
@@ -65,9 +87,9 @@
             const searchBaseFileType = jsonResponse.data[i].base_file_type;
 
             const searchHash = `${searchMessage}<br><br><b>Name: </b>${searchName}<br><b>File Type: </b>${searchFileType}<br><b>File Extension: </b>
-            ${searchFileExtension}<br><b>Source ISO: </b>${searchSourceIso}<br><b>Operating System: </b>${searchOpSystem}<br><b>Base File Type: </b>
-            ${searchBaseFileType} <br><br><b>MD5: </b> ${searchHashes.md5}<br><b>SHA1: </b>${searchHashes.sha1}<br><b>SHA256: </b>${searchHashes.sha256}<br>
-            <b>SHA512: </b>${searchHashes.sha512}`;
+                ${searchFileExtension}<br><b>Source ISO: </b>${searchSourceIso}<br><b>Operating System: </b>${searchOpSystem}<br><b>Base File Type: </b>
+                    ${searchBaseFileType} <br><br><b>MD5: </b> ${searchHashes.md5}<br><b>SHA1: </b>${searchHashes.sha1}<br><b>SHA256: </b>${searchHashes.sha256}<br>
+                        <b>SHA512: </b>${searchHashes.sha512}`;
             document.getElementById("hash_output").innerHTML = searchHash;
 
             const hashes = jsonResponse.data[i].hashes;
@@ -87,7 +109,7 @@
             const baseFileType = jsonResponse.data[i].base_file_type;
 
             const fileComparison = `${message}<br><br><b>Name: </b>${name}<br><b>File Type: </b>${fileType}<br><b>File Extension: </b>
-        ${fileExtension}<br><b>Source ISO: </b>${sourceIso}<br><b>Operating System: </b>${opSystem}<br><b>Base File Type: </b>${baseFileType} <br><br><b>MD5: </b> ${hashes.md5}<br><b>SHA1: </b>${hashes.sha1}<br><b>SHA256: </b>${hashes.sha256}<br><b>SHA512: </b>${hashes.sha512}`;
+                            ${fileExtension}<br><b>Source ISO: </b>${sourceIso}<br><b>Operating System: </b>${opSystem}<br><b>Base File Type: </b>${baseFileType} <br><br><b>MD5: </b> ${hashes.md5}<br><b>SHA1: </b>${hashes.sha1}<br><b>SHA256: </b>${hashes.sha256}<br><b>SHA512: </b>${hashes.sha512}`;
             document.getElementById("file_output").innerHTML = fileComparison;
         }
 
@@ -166,7 +188,7 @@
         <h1></h1>
 
         <form id="hash_upload" hx-get="/metadata/hashSearch" hx-target="#hash_output" hx-trigger="submit"
-            hx-swap="innerHTML">
+            hx-swap="innerHTML" onsubmit="showPopupBox()">
 
             <h3>Hash Search</h3>
 
@@ -178,14 +200,22 @@
             <input id="fullHash" name="fullHash" required="required" type="text"
                 placeholder="Ex: sha256:sdlkfjksldklsdjsdfklj" /><br>
 
-            <input type="submit" value="Submit" hx-indicator="#hash_output" hx-trigger="button1"
-                onclick="showForm1()" />
+            <input type="submit" value="Submit" hx-indicator="#hash_output" hx-trigger="button1" onclick="openForm()" />
 
         </form>
 
-        <div class="result_box" id="hash_output" style="display: none;">
-            <div class="loading-spinner" style="padding:30px; object-position: center;"></div>
+
+
+        <div class="formPopup" id="popupForm">
+
+            <p id="hash_output"> </p>
+            <button type="button" class="btncancel" onclick="closeForm()">X</button>
+
         </div>
+
+
+
+
 
         <h2></h2>
 
@@ -205,13 +235,19 @@
 
             <input id="sourceIsoName" name="sourceIsoName" required="required" type="text"><br>
 
-            <input type="submit" value="Upload" hx-indicator="#file_output" hx-trigger="button2" onclick="showForm2()">
+            <input type="submit" value="Upload" hx-indicator="#file_output" hx-trigger="button2" onclick="openForm()">
 
         </form>
 
-        <div class="result_box" id="file_output" style="display: none;">
-            <div class="loading-spinner" style="padding:30px; object-position: center;"></div>
+
+        <div class="formPopup" id="popupForm">
+
+            <p id="file_output"> </p>
+
+            <button type="button" class="btncancel" onclick="closeForm()">Close</button>
+
         </div>
+
 
     </div>
 
