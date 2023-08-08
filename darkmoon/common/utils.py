@@ -6,16 +6,107 @@ from typing import Any
 
 import magic
 import pefile
-import requests
+from fastapi import Body, Depends
+from motor.motor_asyncio import AsyncIOMotorCollection
 from pefile import PEFormatError
 
-from darkmoon.core.schema import ExtractionError
+from darkmoon.api.v1.metadata.schema import (
+    DocMetadata,
+    EXEMetadata,
+    Metadata,
+    MetadataEntity,
+    UploadMetadataResponse,
+)
+from darkmoon.core.database import get_file_metadata_collection
+from darkmoon.core.schema import (
+    DuplicateFileException,
+    ExtractionError,
+    IncorrectInputException,
+)
 
 
-def call_api(data: dict[str, Any]) -> bool:
-    """Send data to api post endpoint."""
-    res = requests.post("/metadata", json=data)
-    return res.ok
+async def upload_metadata(
+    file: Metadata = Body(),
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
+) -> UploadMetadataResponse:
+    """Docstring."""
+    file_metadata = file.dict()["__root__"]
+
+    duplicate_hashes = {
+        "hashes.md5": file_metadata["hashes"]["md5"],
+        "hashes.sha1": file_metadata["hashes"]["sha1"],
+        "hashes.sha256": file_metadata["hashes"]["sha256"],
+        "hashes.sha512": file_metadata["hashes"]["sha512"],
+    }
+    check_dup = {
+        "name": file_metadata["name"][0],
+        "file_extension": file_metadata["file_extension"][0],
+        "file_type": file_metadata["file_type"][0],
+        "hashes": file_metadata["hashes"],
+        "source_iso_name": file_metadata["source_iso_name"][0],
+        "operating_system": file_metadata["operating_system"][0],
+    }
+
+    match file.__root__:
+        case EXEMetadata():
+            check_dup["header_info"] = file_metadata["header_info"]
+        case DocMetadata():
+            ...
+        case _:
+            raise IncorrectInputException(
+                status_code=422,
+                detail="Error validating file",
+            )
+
+    dup = await collection.find_one(check_dup)
+    if dup:
+        raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
+
+    doc = await collection.find_one(duplicate_hashes)
+    if doc:
+        document = MetadataEntity.parse_obj(doc)
+
+        data_type = [
+            document.__root__.name,
+            document.__root__.file_extension,
+            document.__root__.file_type,
+            document.__root__.source_iso_name,
+            document.__root__.operating_system,
+        ]
+        data_type_string = [
+            "name",
+            "file_extension",
+            "file_type",
+            "source_iso_name",
+            "operating_system",
+        ]
+        for index in range(len(data_type)):
+            if file_metadata[data_type_string[index]][0] not in data_type[index]:
+                data_type[index].append(
+                    file_metadata[data_type_string[index]][0],
+                )
+
+        change = {
+            "$set": {
+                "name": data_type[0],
+                "file_extension": data_type[1],
+                "file_type": data_type[2],
+                "source_iso_name": data_type[3],
+                "operating_system": data_type[4],
+            },
+        }
+        await collection.update_one(duplicate_hashes, change)
+        return UploadMetadataResponse(
+            message="Successfully Updated Object.",
+            data=Metadata.parse_obj(file_metadata),
+        )
+
+    else:
+        await collection.insert_one(file_metadata)
+        return UploadMetadataResponse(
+            message="Successfully Inserted Object.",
+            data=Metadata.parse_obj(file_metadata),
+        )
 
 
 def get_file_type(file: Path) -> str:
@@ -114,17 +205,17 @@ def get_metadata(file: Path, source_iso: str) -> dict[str, Any]:
     return data_fields
 
 
-def extract_files(file: Path, source_iso: str) -> None:
+async def extract_files(file: Path, source_iso: str) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
         result = subprocess.run(cmd)
         if result.returncode != 0:
             raise ExtractionError(str(result.stdout))
-        iterate_files(Path(tmpdirname), source_iso)
+        await iterate_files(Path(tmpdirname), source_iso)
 
 
-def iterate_files(
+async def iterate_files(
     path: Path,
     source_iso: str,
 ) -> None:
@@ -136,10 +227,13 @@ def iterate_files(
 
         for files in curr_dir.glob("*"):
             if files.suffix == ".ntfs":
-                extract_files(files, source_iso)
+                await extract_files(files, source_iso)
             if files.is_file():
-                metadata = get_metadata(files, source_iso)
+                metadata_dict = get_metadata(files, source_iso)
 
-                call_api(data=metadata)
+                metadata_instance = Metadata(**metadata_dict)
+
+                await upload_metadata(file=metadata_instance)
+
             else:
                 queue.append(files)

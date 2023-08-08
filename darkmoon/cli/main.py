@@ -97,7 +97,7 @@ def get_all_exe_metadata(
 
 
 @app.command()
-def extract_files(
+async def extract_files(
     file: Annotated[
         Path,
         typer.Argument(
@@ -123,11 +123,11 @@ def extract_files(
     darkmoon_server_url: str,
 ) -> None:
     """Extract vmdk and put in new folder."""
-    utils.extract_files(file, str(source_iso))
+    await utils.extract_files(file, str(source_iso))
 
 
 @app.command()
-def iterate_extract(
+async def iterate_extract(
     path: Annotated[
         Path,
         typer.Argument(
@@ -143,11 +143,11 @@ def iterate_extract(
 ) -> None:
     """Iterate over vmdk folder and extracts files of each vmdk."""
     for vmdk in track(path.glob("*"), description="Processing..."):
-        extract_files(vmdk, str(vmdk), darkmoon_server_url)
+        await extract_files(vmdk, str(vmdk), darkmoon_server_url)
 
 
 @app.command()
-def iterate_files(
+async def iterate_files(
     path: Annotated[
         Path,
         typer.Argument(
@@ -173,7 +173,7 @@ def iterate_files(
     darkmoon_server_url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
-    utils.iterate_files(path, source_iso)
+    await utils.iterate_files(path, source_iso)
 
 
 if __name__ == "__main__":
