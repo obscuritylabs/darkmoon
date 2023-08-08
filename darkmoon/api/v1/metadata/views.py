@@ -7,7 +7,6 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, Body, Depends, File, Query, Response, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
-from requests.models import MissingSchema
 
 from darkmoon.api.v1.metadata.schema import (
     DocMetadata,
@@ -554,11 +553,6 @@ async def extract_files_endpoint(
             raise IncorrectInputException(
                 status_code=422,
                 detail="Error during extraction",
-            )
-        except MissingSchema:
-            raise IncorrectInputException(
-                status_code=422,
-                detail="Invalid URL",
             )
         except Exception:
             raise InternalServerException(
