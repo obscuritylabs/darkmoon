@@ -104,32 +104,44 @@ async def upload_metadata_to_database(
 def get_file_type(file: Path) -> str:
     """Get the file type of the file."""
     file_type_string = magic.from_file(file)
+
     file_type_list = file_type_string.split(",")
+
     return file_type_list[0]
 
 
 def get_hashes(file: Path) -> dict[str, Any]:
     """Create a list of hashes for files."""
     h_md5 = hashlib.md5()  # noqa S324
+
     h_sha1 = hashlib.sha1()  # noqa S324
+
     h_sha256 = hashlib.sha256()
+
     h_sha512 = hashlib.sha512()
 
     store_hash = [h_md5, h_sha1, h_sha256, h_sha512]
+
     all_hashes: dict[str, str] = {}
 
     with file.open("rb") as f:
         # read file in chunks and update hash
+
         while True:
             data = f.read(65536)
+
             if not data:
                 break
+
             for hash in store_hash:
                 hash.update(data)
 
     all_hashes["md5"] = store_hash[0].hexdigest()
+
     all_hashes["sha1"] = store_hash[1].hexdigest()
+
     all_hashes["sha256"] = store_hash[2].hexdigest()
+
     all_hashes["sha512"] = store_hash[3].hexdigest()
 
     return all_hashes
@@ -140,28 +152,43 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
     pe_obj = pefile.PE(file)
 
     # header_hashes
+
     all_header_hash = {"md5": "", "sha1": "", "sha256": "", "sha512": ""}
+
     binary_hash = ["md5", "sha1", "sha256", "sha512"]
+
     for hash in binary_hash:
         all_header_hash[hash] = pe_obj.get_rich_header_hash(algorithm=hash)
 
     # header_signature
 
     sig = str(pe_obj.NT_HEADERS)
+
     sig_list = sig.split()
+
     signature = sig_list[sig_list.index("Signature:") + 1]
+
     # compile_time
+
     compile_time = "Time to compile file"
+
     # timestamp
+
     file_header = str(pe_obj.FILE_HEADER)
+
     file_header_list = file_header.split()
+
     timestamp = str(file_header_list[file_header_list.index("TimeDateStamp:") + 1])
+
     for num in range(2, 8):
         timestamp += str(
             file_header_list[file_header_list.index("TimeDateStamp:") + num],
         )
+
     # machine_type
+
     machine = file_header_list[file_header_list.index("Machine:") + 1]
+
     exe_metadata = {
         "machine_type": machine,
         "timestamp": timestamp,
@@ -169,6 +196,7 @@ def get_all_exe_metadata(file: Path) -> dict[str, Any]:
         "signature": signature,
         "rich_header_hashes": all_header_hash,
     }
+
     return exe_metadata
 
 
@@ -218,7 +246,9 @@ async def iterate_files(
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
     queue = []
+
     queue.append(path)
+
     while queue:
         curr_dir = queue.pop(0)
 
