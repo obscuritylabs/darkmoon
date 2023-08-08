@@ -39,3 +39,16 @@ def test_jinja_uploadpage(populated_app: FastAPI) -> None:
             in response.content.decode("utf-8")
         )
         assert response.status_code == 200
+
+
+def test_jinja_creditpage(populated_app: FastAPI) -> None:
+    """Test jinja webpages endpoint for the credit page."""
+    with TestClient(populated_app) as app:
+        response = app.get(
+            "/credit",
+        )
+        assert (
+            '<link href="http://testserver/static/style.css" rel="stylesheet">'
+            in response.content.decode("utf-8")
+        )
+        assert response.status_code == 200
