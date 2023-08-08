@@ -13,7 +13,7 @@ from pydantic import BaseSettings, Field, MongoDsn
 class Settings(BaseSettings):
     """The Settings class."""
 
-    MONGODB_CONN: MongoDsn = Field(default="mongodb://darkmoon:password@mongodb:27017/?authMechanism=DEFAULT")  # type: ignore  # noqa
+    MONGODB_CONN: MongoDsn = Field(default="mongodb://darkmoon:password@localhost:27017/?authMechanism=DEFAULT")  # type: ignore  # noqa
 
 
 HERE = Path(__file__).parent

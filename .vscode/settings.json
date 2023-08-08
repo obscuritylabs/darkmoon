@@ -21,6 +21,7 @@
     "bson",
     "darkmoon",
     "fastapi",
+    "ntfs",
     "htmx",
     "pefile",
     "Pydantic",

@@ -100,7 +100,7 @@ def get_all_exe_metadata(
 
 
 @app.command()
-def extract_files(
+async def extract_files(
     file: Annotated[
         Path,
         typer.Argument(
@@ -126,11 +126,11 @@ def extract_files(
     darkmoon_server_url: str,
 ) -> None:
     """Extract vmdk and put in new folder."""
-    utils.extract_files(file, str(source_iso), darkmoon_server_url)
+    await utils.extract_files(file, str(source_iso))
 
 
 @app.command()
-def iterate_extract(
+async def iterate_extract(
     path: Annotated[
         Path,
         typer.Argument(
@@ -146,11 +146,11 @@ def iterate_extract(
 ) -> None:
     """Iterate over vmdk folder and extracts files of each vmdk."""
     for vmdk in track(path.glob("*"), description="Processing..."):
-        extract_files(vmdk, str(vmdk), darkmoon_server_url)
+        await extract_files(vmdk, str(vmdk), darkmoon_server_url)
 
 
 @app.command()
-def iterate_files(
+async def iterate_files(
     path: Annotated[
         Path,
         typer.Argument(
@@ -176,11 +176,11 @@ def iterate_files(
     darkmoon_server_url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
-    utils.iterate_files(path, source_iso, darkmoon_server_url)
+    await utils.iterate_files(path, source_iso)
 
 
 @app.command()
-def process_iso(
+async def process_iso(  # type:ignore
     source_iso: Annotated[
         str,
         typer.Argument(
@@ -203,7 +203,6 @@ def process_iso(
             resolve_path=True,
         ),
     ],
-    darkmoon_server_url: str,
     mount_args: str,
 ) -> None:
     """Take in an ISO and a template to build and extract."""
@@ -230,10 +229,9 @@ def process_iso(
         raise Exception
     mount_point: Path = utils.mount_nfs(mount_args)
     disk_img = mount_point.joinpath(f"template file for {vmid}")
-    utils.extract_files(
+    await utils.extract_files(
         file=disk_img,
         source_iso=source_iso,
-        url=darkmoon_server_url,
     )
 
 

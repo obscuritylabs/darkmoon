@@ -18,43 +18,38 @@ from fastapi import (
 )
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
-from requests.models import MissingSchema
 
 from darkmoon.api.v1.metadata.schema import (
-    DocMetadata,
-    EXEMetadata,
     Metadata,
     MetadataEntity,
     UploadListMetadataEntityResponse,
     UploadMetadataResponse,
 )
 from darkmoon.common import utils
+from darkmoon.common.utils import upload_metadata_to_database
 from darkmoon.core.database import (
     get_file_metadata_collection,
     get_suspicious_file_metadata_collection,
 )
 from darkmoon.core.schema import (
-    DuplicateFileException,
     ExtractionError,
     IncorrectInputException,
-    InternalServerException,
     ItemNotFoundException,
     ServerNotFoundException,
-    ValidationError,
 )
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 
 @router.get(
-    "/hashSearch",
+    "/hash-search",
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
         400: {"Client Error Response": "Bad Request"},
     },
 )
-async def list_metadata_by_hash(
+async def get_hash_search(
     fullHash: str = Query(
         example="sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
     ),
@@ -166,7 +161,7 @@ async def list_metadata_by_hash(
 
 
 @router.get(
-    "/suspicious",
+    "/suspicious-metadata",
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
@@ -398,90 +393,11 @@ async def upload_metadata(
             Endpoint is unable to connect to mongoDB instance
 
     """
-    file_metadata = file.dict()["__root__"]
     try:
-        duplicate_hashes = {
-            "hashes.md5": file_metadata["hashes"]["md5"],
-            "hashes.sha1": file_metadata["hashes"]["sha1"],
-            "hashes.sha256": file_metadata["hashes"]["sha256"],
-            "hashes.sha512": file_metadata["hashes"]["sha512"],
-        }
-
-        check_dup = {
-            "name": file_metadata["name"][0],
-            "file_extension": file_metadata["file_extension"][0],
-            "file_type": file_metadata["file_type"][0],
-            "hashes": file_metadata["hashes"],
-            "source_iso_name": file_metadata["source_iso_name"][0],
-            "operating_system": file_metadata["operating_system"][0],
-        }
-        match file.__root__:
-            case EXEMetadata():
-                check_dup["header_info"] = file_metadata["header_info"]
-            case DocMetadata():
-                ...
-
-            case _:
-                raise IncorrectInputException(
-                    status_code=422,
-                    detail="Error validating file",
-                )
-    except IndexError:
-        raise IncorrectInputException(status_code=422, detail=["Input missing"])
-
-    try:
-        dup = await collection.find_one(check_dup)
-
-        if dup:
-            raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
-
-        doc = await collection.find_one(duplicate_hashes)
-        if doc:
-            document = MetadataEntity.parse_obj(doc)
-
-            data_type = [
-                document.__root__.name,
-                document.__root__.file_extension,
-                document.__root__.file_type,
-                document.__root__.source_iso_name,
-                document.__root__.operating_system,
-            ]
-
-            data_type_string = [
-                "name",
-                "file_extension",
-                "file_type",
-                "source_iso_name",
-                "operating_system",
-            ]
-
-            for index in range(len(data_type)):
-                if file_metadata[data_type_string[index]][0] not in data_type[index]:
-                    data_type[index].append(
-                        file_metadata[data_type_string[index]][0],
-                    )
-
-            change = {
-                "$set": {
-                    "name": data_type[0],
-                    "file_extension": data_type[1],
-                    "file_type": data_type[2],
-                    "source_iso_name": data_type[3],
-                    "operating_system": data_type[4],
-                },
-            }
-            await collection.update_one(duplicate_hashes, change)
-            return UploadMetadataResponse(
-                message="Successfully Updated Object.",
-                data=Metadata.parse_obj(file_metadata),
-            )
-
-        else:
-            await collection.insert_one(file_metadata)
-            return UploadMetadataResponse(
-                message="Successfully Inserted Object.",
-                data=Metadata.parse_obj(file_metadata),
-            )
+        return UploadMetadataResponse(
+            message="Database results available",
+            data=await upload_metadata_to_database(collection=collection, file=file),
+        )
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=500, detail="Server not found.")
@@ -494,7 +410,7 @@ async def upload_metadata(
 
 
 @router.post(
-    "/hashComparison",
+    "/hash-comparison",
     status_code=status.HTTP_201_CREATED,
     responses={
         200: {"Successful Request": "Results Available"},
@@ -621,10 +537,10 @@ async def hash_comparison(
         504: {"Server Error Response": "Gateway Timeout"},
     },
 )
-async def extract_files_endpoint(
-    file: UploadFile = File(...),  # only vmdks
+async def extract_files(
+    file: UploadFile = File(...),
     source_iso: UploadFile = File(...),
-    url: PyPath = PyPath("..."),  # refactor it, so it not being used
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> dict[str, str]:
     """Extract file."""
     allowed_extensions = ["application/octet-stream"]
@@ -638,23 +554,18 @@ async def extract_files_endpoint(
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
         try:
-            utils.extract_files(tmp_path, str(iso_path), str(url))
+            await utils.extract_files(tmp_path, str(iso_path), collection)
             return {"message": "Extraction successful"}
         except ExtractionError:
             raise IncorrectInputException(
                 status_code=422,
                 detail="Error during extraction",
             )
-        except MissingSchema:
-            raise IncorrectInputException(
-                status_code=422,
-                detail="Invalid URL",
-            )
-        except Exception:
-            raise InternalServerException(
-                status_code=500,
-                detail="Internal Server Error",
-            )
+        # except Exception:
+        #     raise InternalServerException(
+        #         status_code=500,
+        #         detail="Internal Server Error",
+        #     )
 
 
 @router.post(
@@ -663,10 +574,10 @@ async def extract_files_endpoint(
         400: {"Client Error Response": "Bad Request"},
     },
 )
-async def iterate_files_endpoint(
+async def iterate_files(
     path: UploadFile = File(...),
     source_iso: UploadFile = File(...),
-    url: PyPath = PyPath("..."),
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> None:
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
@@ -674,90 +585,4 @@ async def iterate_files_endpoint(
         tmp_path = PyPath(tmpfile.name)
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
-        utils.iterate_files(tmp_path, iso_path, str(url))
-
-
-@router.post(
-    "/process-iso",
-    responses={
-        400: {"Client Error Response": "Bad Request"},
-        422: {"Client Error Response": "Unprocessable Content"},
-    },
-)
-async def process_iso(
-    iso_upload: UploadFile = File(...),
-    template_upload: UploadFile = File(...),
-    answer_upload: UploadFile = File(...),
-    darkmoon_url: str = "https://127.0.0.1:8000",
-) -> None:
-    """Build VM from provided files then extract the VMDK result.
-
-    Parameters:
-        iso_upload (UploadFile): windows ISO to be run in VM and then extracted
-        template_upload (UploadFile): Packer template to automate VM and VMDK creation
-        answer_upload (UploadFile): answer file to automate windows install to VM
-        darkmoon_url (str): URL to post to during extraction step
-
-    Returns:
-        None
-
-    Raises:
-        IncorrectInputException: Provided document is missing information or
-            uses invalid characters
-        InternalServerException: Server fails to properly build VM and get VMDK
-    """
-    tmp_iso = PyPath("tmpfile.iso")
-    tmp_iso.write_bytes(iso_upload.file.read())
-
-    tmp_packer = PyPath("tmp.pkr.hcl")
-    tmp_packer.write_bytes(template_upload.file.read())
-
-    tmp_answer = PyPath("autounattend.xml")
-    tmp_answer.write_bytes(answer_upload.file.read())
-
-    vmid: int = 0
-    try:
-        build_process = utils.packer_build(tmp_packer)
-    except ValidationError:
-        tmp_iso.unlink()
-        tmp_packer.unlink()
-        tmp_answer.unlink()
-        raise IncorrectInputException(
-            status_code=422,
-            detail="Packer Template Failed Validation",
-        )
-
-    output = []
-    while build_process.poll() is None:
-        if build_process.stdout is not None:
-            curr = build_process.stdout.readline().decode("utf-8")
-            if "A template was created:" in output:
-                vmid = int(curr.split(":")[-1].strip())
-            output.append(curr)
-    if build_process.poll() != 0:
-        tmp_iso.unlink()
-        tmp_packer.unlink()
-        tmp_answer.unlink()
-        raise InternalServerException(
-            status_code=500,
-            detail=f"Build Process Error Code {build_process.poll()}: "
-            + "".join(output),
-        )
-    if vmid == 0:
-        tmp_iso.unlink()
-        tmp_packer.unlink()
-        tmp_answer.unlink()
-        raise InternalServerException(
-            status_code=500,
-            detail="Could not get VMID: " + "".join(output),
-        )
-    tmp_iso.unlink()
-    tmp_packer.unlink()
-    tmp_answer.unlink()
-    # mount_point: PyPath = utils.mount_nfs("mount arguments")
-    # disk_img = mount_point.joinpath(f"template file for {vmid}")
-    # utils.extract_files(
-    #     file=disk_img,
-    #     source_iso=tmp_iso.name,
-    #     url=darkmoon_url,
-    # )
+        await utils.iterate_files(tmp_path, iso_path, collection)
