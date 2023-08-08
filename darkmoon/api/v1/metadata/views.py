@@ -40,6 +40,7 @@ from darkmoon.core.schema import (
     InternalServerException,
     ItemNotFoundException,
     ServerNotFoundException,
+    ValidationError,
 )
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
@@ -676,38 +677,87 @@ async def iterate_files_endpoint(
         utils.iterate_files(tmp_path, iso_path, str(url))
 
 
-@router.post("/process-iso")
+@router.post(
+    "/process-iso",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+        422: {"Client Error Response": "Unprocessable Content"},
+    },
+)
 async def process_iso(
     iso_upload: UploadFile = File(...),
     template_upload: UploadFile = File(...),
     answer_upload: UploadFile = File(...),
-    # URL req will probably be removed soon
     darkmoon_url: str = "https://127.0.0.1:8000",
-    # mount options
-    op_system: str = Query(
-        example="WindowsXP",
-    ),
-    version: str = Query(
-        example="Windows 11",
-    ),
-    build: str = Query(
-        example="19045.3271",
-    ),
-) -> UploadListMetadataEntityResponse:
-    """Vdsvsdvs."""
-    parameters = {
-        "iso_upload": iso_upload.filename,
-        "template_upload": template_upload.filename,
-        "answer_upload": answer_upload.filename,
-        "darkmoon_url": darkmoon_url,
-        "op_system": op_system,
-        "version": version,
-        "build": build,
-    }
+) -> None:
+    """Build VM from provided files then extract the VMDK result.
 
-    out: list[MetadataEntity] = [MetadataEntity.parse_obj(item) for item in parameters]
+    Parameters:
+        iso_upload (UploadFile): windows ISO to be run in VM and then extracted
+        template_upload (UploadFile): Packer template to automate VM and VMDK creation
+        answer_upload (UploadFile): answer file to automate windows install to VM
+        darkmoon_url (str): URL to post to during extraction step
 
-    return UploadListMetadataEntityResponse(
-        data=out,
-        message="Results available.",
-    )
+    Returns:
+        None
+
+    Raises:
+        IncorrectInputException: Provided document is missing information or
+            uses invalid characters
+        InternalServerException: Server fails to properly build VM and get VMDK
+    """
+    tmp_iso = PyPath("tmpfile.iso")
+    tmp_iso.write_bytes(iso_upload.file.read())
+
+    tmp_packer = PyPath("tmp.pkr.hcl")
+    tmp_packer.write_bytes(template_upload.file.read())
+
+    tmp_answer = PyPath("autounattend.xml")
+    tmp_answer.write_bytes(answer_upload.file.read())
+
+    vmid: int = 0
+    try:
+        build_process = utils.packer_build(tmp_packer)
+    except ValidationError:
+        tmp_iso.unlink()
+        tmp_packer.unlink()
+        tmp_answer.unlink()
+        raise IncorrectInputException(
+            status_code=422,
+            detail="Packer Template Failed Validation",
+        )
+
+    output = []
+    while build_process.poll() is None:
+        if build_process.stdout is not None:
+            curr = build_process.stdout.readline().decode("utf-8")
+            if "A template was created:" in output:
+                vmid = int(curr.split(":")[-1].strip())
+            output.append(curr)
+    if build_process.poll() != 0:
+        tmp_iso.unlink()
+        tmp_packer.unlink()
+        tmp_answer.unlink()
+        raise InternalServerException(
+            status_code=500,
+            detail=f"Build Process Error Code {build_process.poll()}: "
+            + "".join(output),
+        )
+    if vmid == 0:
+        tmp_iso.unlink()
+        tmp_packer.unlink()
+        tmp_answer.unlink()
+        raise InternalServerException(
+            status_code=500,
+            detail="Could not get VMID: " + "".join(output),
+        )
+    tmp_iso.unlink()
+    tmp_packer.unlink()
+    tmp_answer.unlink()
+    # mount_point: PyPath = utils.mount_nfs("mount arguments")
+    # disk_img = mount_point.joinpath(f"template file for {vmid}")
+    # utils.extract_files(
+    #     file=disk_img,
+    #     source_iso=tmp_iso.name,
+    #     url=darkmoon_url,
+    # )
