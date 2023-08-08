@@ -168,6 +168,11 @@
         <form id="hash_upload" hx-get="/metadata/hashSearch" hx-target="#hash_output" hx-trigger="submit"
             hx-swap="innerHTML">
 
+            <h3>Hash Search</h3>
+
+            <hr>
+            <h1></h1>
+
             <h2> Hash and Hash Type </h2>
 
             <input id="fullHash" name="fullHash" required="required" type="text"
@@ -186,6 +191,11 @@
 
         <form id="file_upload" hx-trigger="submit" hx-post='/metadata/hashComparison' hx-target="#file_output"
             hx-swap="innerHTML" hx-encoding='multipart/form-data'>
+
+            <h3>Hash Comparison</h3>
+
+            <hr>
+            <h1></h1>
 
             <h2> Upload File </h2>
 

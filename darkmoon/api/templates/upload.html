@@ -80,25 +80,30 @@
         <form id="VMDK_upload" hx-trigger="submit" hx-post='/metadata/process-iso' hx-target="#VMDK_output"
             hx-swap="innerHTML" hx-encoding='multipart/form-data'>
 
-            <h2> .ISO Upload </h2>
+            <h3>VMDK Extraction</h3>
+
+            <hr>
+            <h1></h1>
+
+            <h2> .ISO </h2>
             <input id="iso_upload" type="file" required="required" name="iso_upload"><br>
 
             <hr>
             <h1></h1>
 
-            <h2> Packer Template Upload </h2>
+            <h2> Packer Template </h2>
             <input id="template_upload" type="file" required="required" name="template_upload"><br>
 
             <hr>
             <h1></h1>
 
-            <h2> Answer File Upload </h2>
+            <h2> Answer File</h2>
             <input id="answer_upload" type="file" required="required" name="answer_upload"><br>
 
             <hr>
             <h1></h1>
 
-            <h2> Operating System </h2>
+            <!--- <h2> Operating System </h2>
             <input id="op_system" name="op_system" required="required" type="text" placeholder="Operating System"><br>
 
 
@@ -112,7 +117,7 @@
             <h2> Build </h2>
             <input id="build" name="build" required="required" type="text" placeholder="Build"><br>
 
-            <h1></h1>
+            <h1></h1> -->
 
             <input type="submit" value="Upload" hx-indicator="#VMDK_output">
 
