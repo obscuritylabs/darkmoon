@@ -1229,6 +1229,17 @@ files = [
 wcwidth = "*"
 
 [[package]]
+name = "proxmoxer"
+version = "2.0.1"
+description = "Python Wrapper for the Proxmox 2.x API (HTTP and SSH)"
+optional = false
+python-versions = "*"
+files = [
+    {file = "proxmoxer-2.0.1-py3-none-any.whl", hash = "sha256:badb3095507e486b76dfda75177545dd85da608a3aef8590d362901253f10576"},
+    {file = "proxmoxer-2.0.1.tar.gz", hash = "sha256:088923f1a81ee27631e88314c609bfe22b33d8a41271b5f02e86f996f837fe31"},
+]
+
+[[package]]
 name = "pydantic"
 version = "1.10.11"
 description = "Data validation and settings management using python type hints"
@@ -2540,4 +2551,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "dd1a3cd18a8c85d33431f35b72a520009e914028d9ab94ff41115c3db6d1343f"
+content-hash = "3237dc8c6f3eab2da9fe19a6972f9df7eb924da571d92e24d1a7fa6593576614"
