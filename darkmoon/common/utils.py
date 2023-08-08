@@ -11,7 +11,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from pefile import PEFormatError
 
 from darkmoon.api.v1.metadata.schema import (
-    DocMetadata,
+    DocMetadataEntity,
     EXEMetadata,
     Metadata,
     MetadataEntity,
@@ -20,6 +20,7 @@ from darkmoon.core.schema import (
     DuplicateFileException,
     ExtractionError,
     IncorrectInputException,
+    ValidationError,
 )
 
 
@@ -48,7 +49,7 @@ async def upload_metadata_to_database(
     match file.__root__:
         case EXEMetadata():
             check_dup["header_info"] = file_metadata["header_info"]
-        case DocMetadata():
+        case DocMetadataEntity():
             ...
         case _:
             raise IncorrectInputException(
@@ -237,3 +238,27 @@ async def iterate_files(
 
             else:
                 queue.append(files)
+
+
+def packer_build(template: Path) -> subprocess.Popen[bytes]:
+    """Call packer build on a provided template.
+
+    subprocess.run is a blocking function, so this will take awhile
+    as packer runs
+    """
+    valid_cmd = ["packer", "validate", str(template)]
+    build_cmd = ["packer", "build", str(template)]
+    result = subprocess.run(valid_cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise ValidationError(str("\n" + result.stdout))
+
+    process = subprocess.Popen(build_cmd, stdout=subprocess.PIPE)
+    return process
+
+
+def mount_nfs(args: str) -> Path:
+    """Attempt to mount the NFS containing the generated disk image.
+
+    Still needs to be implemented.
+    """
+    return Path("/")

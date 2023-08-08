@@ -10,6 +10,10 @@ class Response(BaseModel):
     )
 
 
+class ValidationError(Exception):
+    """Error thrown when a given packer template is invalid."""
+
+
 class ServerNotFoundException(HTTPException):
     """Exception raised when the server is not found."""
 

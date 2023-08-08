@@ -23,7 +23,6 @@ from darkmoon.core.database import (
 from darkmoon.core.schema import (
     ExtractionError,
     IncorrectInputException,
-    InternalServerException,
     ItemNotFoundException,
     ServerNotFoundException,
 )
@@ -479,11 +478,11 @@ async def extract_files_endpoint(
                 status_code=422,
                 detail="Error during extraction",
             )
-        except Exception:
-            raise InternalServerException(
-                status_code=500,
-                detail="Internal Server Error",
-            )
+        # except Exception:
+        #     raise InternalServerException(
+        #         status_code=500,
+        #         detail="Internal Server Error",
+        #     )
 
 
 @router.post(

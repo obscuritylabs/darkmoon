@@ -6,10 +6,13 @@ from typing import Annotated
 import typer
 from motor.motor_asyncio import AsyncIOMotorCollection
 from rich import print_json
+from rich.console import Console
 from rich.progress import track
 
 from darkmoon.common import utils
 
+console = Console()
+console = Console()
 app = typer.Typer()
 
 
@@ -178,6 +181,64 @@ async def iterate_files(
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
     await utils.iterate_files(path, source_iso, collection)
+
+
+@app.command()
+async def process_iso(  # type:ignore
+    source_iso: Annotated[
+        str,
+        typer.Argument(
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ],
+    pkr_template: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ],
+    mount_args: str,
+    collection=AsyncIOMotorCollection,
+) -> None:
+    """Take in an ISO and a template to build and extract."""
+    vmid: int = 0
+    with console.status(
+        "Building Template (This May Take Awhile)...",
+        spinner="aesthetic",
+    ):
+        build_process = utils.packer_build(pkr_template)
+        output = []
+        while build_process.poll() is None:
+            if build_process.stdout is not None:
+                curr = build_process.stdout.readline().decode("utf-8")
+                if "A template was created:" in output:
+                    vmid = int(curr.split(":")[-1].strip())
+                output.append(curr)
+        if build_process.poll() != 0:
+            console.print(f"\nError, Exit Code {build_process.poll()}:")
+            console.print(*output)
+            raise Exception
+    if vmid == 0:
+        console.print("\nError, Could Not Get VMID:")
+        console.print(*output)
+        raise Exception
+    mount_point: Path = utils.mount_nfs(mount_args)
+    disk_img = mount_point.joinpath(f"template file for {vmid}")
+    await utils.extract_files(
+        file=disk_img,
+        source_iso=source_iso,
+        collection=collection,  # type: ignore
+    )
 
 
 if __name__ == "__main__":
