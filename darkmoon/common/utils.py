@@ -6,12 +6,11 @@ from typing import Any
 
 import magic
 import pefile
-from fastapi import Body
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pefile import PEFormatError
 
 from darkmoon.api.v1.metadata.schema import (
-    DocMetadataEntity,
+    DocMetadata,
     EXEMetadata,
     Metadata,
     MetadataEntity,
@@ -26,7 +25,7 @@ from darkmoon.core.schema import (
 
 async def upload_metadata_to_database(
     collection: AsyncIOMotorCollection,
-    file: Metadata = Body(),
+    file: Metadata,
 ) -> Metadata:
     """Docstring."""
     file_metadata = file.dict()["__root__"]
@@ -49,7 +48,7 @@ async def upload_metadata_to_database(
     match file.__root__:
         case EXEMetadata():
             check_dup["header_info"] = file_metadata["header_info"]
-        case DocMetadataEntity():
+        case DocMetadata():
             ...
         case _:
             raise IncorrectInputException(
