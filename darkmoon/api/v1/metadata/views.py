@@ -148,11 +148,19 @@ async def list_metadata_by_hash(
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
         data = await collection.find(search).skip(page * length).to_list(length=length)
-        li = [MetadataEntity.parse_obj(item) for item in data]
-        return UploadListMetadataEntityResponse(
-            message="Database results available",
-            data=li,
-        )
+
+        out: list[MetadataEntity] = [MetadataEntity.parse_obj(item) for item in data]
+        if len(out) == 0:
+            temp: list[MetadataEntity] = []
+            return UploadListMetadataEntityResponse(
+                data=temp,
+                message="No results found.",
+            )
+        else:
+            return UploadListMetadataEntityResponse(
+                data=out,
+                message="Results available.",
+            )
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
 
@@ -175,7 +183,7 @@ async def get_suspicious_metadata(
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
-) -> list[MetadataEntity]:
+) -> UploadListMetadataEntityResponse:
     """Get list of suspicious metadata that matches the parameters in the database.
 
     Parameters:
@@ -192,7 +200,13 @@ async def get_suspicious_metadata(
     """
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
-        return [MetadataEntity.parse_obj(item) for item in data]
+        out: list[MetadataEntity] = [MetadataEntity.parse_obj(item) for item in data]
+        if len(out) == 0:
+            return UploadListMetadataEntityResponse(
+                data=[],
+                message="No Results Found.",
+            )
+        return UploadListMetadataEntityResponse(data=out, message="Results Available")
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")
@@ -215,7 +229,7 @@ async def list_metadata(
         description="The page to iterate to.",
     ),
     length: int = Query(10, ge=1, le=500),
-) -> list[MetadataEntity]:
+) -> UploadListMetadataEntityResponse:
     """Get list of metadata that matches the parameters in the database.
 
     Parameters:
@@ -241,7 +255,13 @@ async def list_metadata(
     """
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
-        return [MetadataEntity.parse_obj(item) for item in data]
+        out = [MetadataEntity.parse_obj(item) for item in data]
+        if len(out) == 0:
+            return UploadListMetadataEntityResponse(
+                data=[],
+                message="No results found.",
+            )
+        return UploadListMetadataEntityResponse(data=out, message="Results available.")
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=504, detail="Server timed out.")

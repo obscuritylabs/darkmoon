@@ -40,7 +40,7 @@ def test_get_default_list_metadata(
         assert response.status_code == 200
         del test_metadata_entity["id"]
         test_metadata_entity["_id"] = str(test_metadata_entity["_id"])
-        assert response.json()[0] == test_metadata_entity
+        assert dict(response.json())["data"][0] == test_metadata_entity
 
 
 def test_get_list_metadata_by_hash(
@@ -61,7 +61,8 @@ def test_get_list_metadata_by_hash(
         del test_metadata_entity["id"]
         test_metadata_entity["_id"] = str(test_metadata_entity["_id"])
         assert response.status_code == 200
-        assert response.json()["data"][0] == test_metadata_entity
+        assert dict(response.json())["data"][0] == test_metadata_entity
+
 
         # negative case, missing parameters
         response = app.get("/metadata/hashSearch")
@@ -151,4 +152,4 @@ def test_suspicious_hash(
         assert response.status_code == 406
         assert response.json()["message"] == "Bad hashes. Put in suspicious collection."
         response = app.get("/metadata/suspicious")
-        assert len(response.json()) > 0
+        assert len(dict(response.json())["data"]) > 0
