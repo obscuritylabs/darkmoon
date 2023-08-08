@@ -128,7 +128,7 @@ def test_post_hash_comparison_failure(
                 files={
                     "fileInput": testFile,
                 },
-                params={
+                data={
                     "sourceIsoName": "Windows",
                 },
             )
@@ -144,7 +144,7 @@ def test_suspicious_hash(
         response = app.post(
             "/metadata/hashComparison",
             files={"fileInput": open(test_suspicious_hash_comparison_file, "rb")},
-            params={
+            data={
                 "sourceIsoName": "Windows",
             },
         )

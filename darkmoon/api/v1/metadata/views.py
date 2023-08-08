@@ -1,10 +1,21 @@
 """Defines an API router for handling metadata related requests."""
 import tempfile
 from pathlib import Path, Path as PyPath
+from typing import Annotated
 
 import bson
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Body, Depends, File, Query, Response, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    File,
+    Form,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 from requests.models import MissingSchema
@@ -60,35 +71,54 @@ async def list_metadata_by_hash(
     """Get list of metadata that matches the parameters in the database.
 
     Parameters:
+
         collection (AsyncIOMotorCollection): The database collection to query.
+
         file_name (str): The name of the file being searched.
+
         fullHash (str): The hash of the file.
+
         page (int): The page number to iterate to.
+
         length (int): The number of items per page.
+
+
 
     Returns:
         List[MetadataEntity]: List of all documents that match parameters in the
+
             database.
+
+
 
     Raises:
         ServerNotFoundException: Endpoint is unable to connect to mongoDB instance
+
         IncorrectInputException: Provided document is missing information or
+
             uses invalid characters
+
     """
     split = fullHash.split(":")
+
     if len(split) != 2 or ":" not in fullHash:
         raise IncorrectInputException(
             status_code=422,
             detail=(
-                "Format hash information like this: ",
+                "Format hash information like this: "
                 "sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
             ),
         )
+
     hash_type = str(split[0])
+
     hash = str(split[1])
+
     try:
         hash.encode("UTF-8")
+
         hash_type.encode("UTF-8")
+
     except UnicodeEncodeError:
         raise IncorrectInputException(
             status_code=422,
@@ -106,21 +136,25 @@ async def list_metadata_by_hash(
     try:
         if file_name:
             search["name"] = file_name
+
         if hash and hash_type:
             hash_parameter = "hashes." + str(hash_type)
+
             search[hash_parameter] = hash
+
         elif hash_type:
             raise IncorrectInputException(status_code=422, detail="Enter hash.")
+
         elif hash:
             raise IncorrectInputException(status_code=422, detail="Enter hash type.")
 
         data = await collection.find(search).skip(page * length).to_list(length=length)
+
         out: list[MetadataEntity] = [MetadataEntity.parse_obj(item) for item in data]
         if len(out) == 0:
-            temp: list[MetadataEntity] = []
-            return UploadListMetadataEntityResponse(
-                data=temp,
-                message="No results found.",
+            raise IncorrectInputException(
+                status_code=404,
+                detail=("No database results available "),
             )
         else:
             return UploadListMetadataEntityResponse(
@@ -199,16 +233,25 @@ async def list_metadata(
     """Get list of metadata that matches the parameters in the database.
 
     Parameters:
+
         collection (AsyncIOMotorCollection): The database collection to query.
+
         page (int): The page number to iterate to.
+
         length (int): The number of items per page.
+
+
 
     Returns:
         List[MetadataEntity]: List of all documents that match parameters in the
+
             database.
+
+
 
     Raises:
         ServerNotFoundException: Endpoint is unable to connect to mongoDB instance
+
     """
     try:
         data = await collection.find({}).skip(page * length).to_list(length=length)
@@ -239,22 +282,35 @@ async def get_metadata_by_id(
     """Find file by ObjectID in MongoDB.
 
     Parameters:
+
         id (str): Unique id of specific entry in MongoDB
+
         collection (AsyncIOMotorCollection) : The database collection to query.
+
+
 
     Returns:
         document (MetadataEntity): Return the database entry with
+
             matching id or raise 400, 404, or 500 error.
+
+
 
     Raises:
         ItemNotFoundException:
+
             no item with the provided ID is in the database
+
         ServerNotFoundException:
+
             Endpoint is unable to connect to mongoDB instance
+
+
 
     """
     try:
         doc = await collection.find_one({"_id": id})
+
         if doc:
             document = MetadataEntity.parse_obj(doc)
         else:
@@ -312,21 +368,35 @@ async def upload_metadata(
     """Fast API POST function for incoming files.
 
     Parameters:
+
         file (Metadata): The file that is uploaded to the database.
+
         collection (AsyncIOMotorCollection) : The database collection to query.
+
+
 
     Returns:
         response (UploadResponse): return a copy of the uploaded file
+
             or raise 409, 422, or 500 error.
+
+
 
     Raises:
         DuplicateFileException:
+
             A file already exists in the database with this information
+
         IncorrectInputException:
+
             Provided document is missing information or
+
             uses invalid characters
+
         ServerNotFoundException:
+
             Endpoint is unable to connect to mongoDB instance
+
     """
     file_metadata = file.dict()["__root__"]
     try:
@@ -336,6 +406,7 @@ async def upload_metadata(
             "hashes.sha256": file_metadata["hashes"]["sha256"],
             "hashes.sha512": file_metadata["hashes"]["sha512"],
         }
+
         check_dup = {
             "name": file_metadata["name"][0],
             "file_extension": file_metadata["file_extension"][0],
@@ -349,6 +420,7 @@ async def upload_metadata(
                 check_dup["header_info"] = file_metadata["header_info"]
             case DocMetadata():
                 ...
+
             case _:
                 raise IncorrectInputException(
                     status_code=422,
@@ -359,6 +431,7 @@ async def upload_metadata(
 
     try:
         dup = await collection.find_one(check_dup)
+
         if dup:
             raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
 
@@ -373,6 +446,7 @@ async def upload_metadata(
                 document.__root__.source_iso_name,
                 document.__root__.operating_system,
             ]
+
             data_type_string = [
                 "name",
                 "file_extension",
@@ -380,6 +454,7 @@ async def upload_metadata(
                 "source_iso_name",
                 "operating_system",
             ]
+
             for index in range(len(data_type)):
                 if file_metadata[data_type_string[index]][0] not in data_type[index]:
                     data_type[index].append(
@@ -410,6 +485,7 @@ async def upload_metadata(
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=500, detail="Server not found.")
+
     except UnicodeEncodeError:
         raise IncorrectInputException(
             status_code=422,
@@ -431,7 +507,7 @@ async def upload_metadata(
 async def hash_comparison(
     response: Response,
     fileInput: UploadFile,
-    sourceIsoName: str,
+    sourceIsoName: Annotated[str, Form()],
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
     susCollection: AsyncIOMotorCollection = Depends(
         get_suspicious_file_metadata_collection,
@@ -447,16 +523,25 @@ async def hash_comparison(
     """Fast API POST function to search database with an input file.
 
     Parameters:
+
         file (UploadFile): The file that the use inputs.
+
         collection (AsyncIOMotorCollection) : The database collection to query.
+
+
 
     Returns:
         response (UploadListMetadataEntityResponse): return a list[MetadataEntity] or
+
         raise an exception.
+
+
 
     Raises:
         ServerNotFoundException:
+
             Endpoint is unable to connect to mongoDB instance
+
     """
     try:
         obj: Metadata
@@ -510,11 +595,14 @@ async def hash_comparison(
             temp["_id"] = PydanticObjectId()
             li.append(MetadataEntity.parse_obj(temp))
             response.status_code = status.HTTP_404_NOT_FOUND
+
             return UploadListMetadataEntityResponse(
                 message="No results found in database.",
                 data=li,
             )
+
         response.status_code = status.HTTP_200_OK
+
         return UploadListMetadataEntityResponse(
             message="Database results available",
             data=li,
@@ -609,7 +697,6 @@ async def process_iso(
         template_upload (UploadFile): Packer template to automate VM and VMDK creation
         answer_upload (UploadFile): answer file to automate windows install to VM
         darkmoon_url (str): URL to post to during extraction step
-
 
     Returns:
         None

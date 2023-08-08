@@ -1,5 +1,3 @@
-# views.py
-
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, Response
 
@@ -22,5 +20,11 @@ async def read_item_hash(request: Request) -> Response:
 
 @router.get("/upload", response_class=HTMLResponse)
 async def read_item_upload(request: Request) -> Response:
-    """Read hash."""
+    """Read upload."""
     return templates.TemplateResponse("upload.html", {"request": request})
+
+
+@router.get("/credit", response_class=HTMLResponse)
+async def read_item_credit(request: Request) -> Response:
+    """Read credit."""
+    return templates.TemplateResponse("credit.html", {"request": request})

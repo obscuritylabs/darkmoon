@@ -7,8 +7,6 @@ import schemathesis
 from anyio import Path
 from beanie import PydanticObjectId
 from fastapi import FastAPI
-
-# from fastapi.testclient import TestClient
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from testcontainers.mongodb import MongoDbContainer
 
