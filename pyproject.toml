@@ -29,7 +29,7 @@ python-magic = "^0.4.27"
 
 [tool.poetry.group.dev.dependencies]
 black = "23.7.0"
-commitizen = "3.5.3"
+commitizen = "3.6.0"
 mypy = "1.4.1"
 pre-commit = "^3.3.3"
 pytest-cov = "^4.1.0"
