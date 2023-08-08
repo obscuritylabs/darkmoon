@@ -29,6 +29,7 @@ from darkmoon.core.schema import (
     InternalServerException,
     ItemNotFoundException,
     ServerNotFoundException,
+    ValidationError,
 )
 
 router = APIRouter(prefix="/metadata", tags=["metadata"])
@@ -588,18 +589,35 @@ async def iterate_files_endpoint(
         utils.iterate_files(tmp_path, iso_path, str(url))
 
 
-@router.post("/process-iso")
+@router.post(
+    "/process-iso",
+    responses={
+        400: {"Client Error Response": "Bad Request"},
+        422: {"Client Error Response": "Unprocessable Content"},
+    },
+)
 async def process_iso(
     iso_upload: UploadFile = File(...),
     template_upload: UploadFile = File(...),
     answer_upload: UploadFile = File(...),
     darkmoon_url: str = "https://127.0.0.1:8000",
 ) -> None:
-    """Takes in an ISO, Packer template, and answer file to extract files.
+    """Build VM from provided files then extract the VMDK result.
 
-    The Packer template is used to upload and install an ISO,
-    afterwards the NFS containing the VM image is mounted
-    and the VM image is extracted and processed.
+    Parameters:
+        iso_upload (UploadFile): windows ISO to be run in VM and then extracted
+        template_upload (UploadFile): Packer template to automate VM and VMDK creation
+        answer_upload (UploadFile): answer file to automate windows install to VM
+        darkmoon_url (str): URL to post to during extraction step
+
+
+    Returns:
+        None
+
+    Raises:
+        IncorrectInputException: Provided document is missing information or
+            uses invalid characters
+        InternalServerException: Server fails to properly build VM and get VMDK
     """
     tmp_iso = PyPath("tmpfile.iso")
     tmp_iso.write_bytes(iso_upload.file.read())
@@ -611,7 +629,17 @@ async def process_iso(
     tmp_answer.write_bytes(answer_upload.file.read())
 
     vmid: int = 0
-    build_process = utils.packer_build(tmp_packer)
+    try:
+        build_process = utils.packer_build(tmp_packer)
+    except ValidationError:
+        tmp_iso.unlink()
+        tmp_packer.unlink()
+        tmp_answer.unlink()
+        raise IncorrectInputException(
+            status_code=422,
+            detail="Packer Template Failed Validation",
+        )
+
     output = []
     while build_process.poll() is None:
         if build_process.stdout is not None:
