@@ -63,7 +63,6 @@ def test_get_list_metadata_by_hash(
         assert response.status_code == 200
         assert dict(response.json())["data"][0] == test_metadata_entity
 
-
         # negative case, missing parameters
         response = app.get("/metadata/hashSearch")
 
