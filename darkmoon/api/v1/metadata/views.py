@@ -151,10 +151,9 @@ async def list_metadata_by_hash(
 
         out: list[MetadataEntity] = [MetadataEntity.parse_obj(item) for item in data]
         if len(out) == 0:
-            temp: list[MetadataEntity] = []
-            return UploadListMetadataEntityResponse(
-                data=temp,
-                message="No results found.",
+            raise IncorrectInputException(
+                status_code=404,
+                detail=("No database results available "),
             )
         else:
             return UploadListMetadataEntityResponse(
@@ -675,3 +674,40 @@ async def iterate_files_endpoint(
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
         utils.iterate_files(tmp_path, iso_path, str(url))
+
+
+@router.post("/process-iso")
+async def process_iso(
+    iso_upload: UploadFile = File(...),
+    template_upload: UploadFile = File(...),
+    answer_upload: UploadFile = File(...),
+    # URL req will probably be removed soon
+    darkmoon_url: str = "https://127.0.0.1:8000",
+    # mount options
+    op_system: str = Query(
+        example="WindowsXP",
+    ),
+    version: str = Query(
+        example="Windows 11",
+    ),
+    build: str = Query(
+        example="19045.3271",
+    ),
+) -> UploadListMetadataEntityResponse:
+    """Vdsvsdvs."""
+    parameters = {
+        "iso_upload": iso_upload.filename,
+        "template_upload": template_upload.filename,
+        "answer_upload": answer_upload.filename,
+        "darkmoon_url": darkmoon_url,
+        "op_system": op_system,
+        "version": version,
+        "build": build,
+    }
+
+    out: list[MetadataEntity] = [MetadataEntity.parse_obj(item) for item in parameters]
+
+    return UploadListMetadataEntityResponse(
+        data=out,
+        message="Results available.",
+    )
