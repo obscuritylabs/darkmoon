@@ -42,14 +42,14 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
 
 
 @router.get(
-    "/hashSearch",
+    "/hash-search",
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
         400: {"Client Error Response": "Bad Request"},
     },
 )
-async def list_metadata_by_hash(
+async def get_hash_search(
     fullHash: str = Query(
         example="sha256:94dfb9048439d49490de0a00383e2b0183676cbd56d8c1f4432b5d2f17390621",
     ),
@@ -161,7 +161,7 @@ async def list_metadata_by_hash(
 
 
 @router.get(
-    "/suspicious",
+    "/suspicious-metadata",
     responses={
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
@@ -410,7 +410,7 @@ async def upload_metadata(
 
 
 @router.post(
-    "/hashComparison",
+    "/hash-comparison",
     status_code=status.HTTP_201_CREATED,
     responses={
         200: {"Successful Request": "Results Available"},
@@ -537,7 +537,7 @@ async def hash_comparison(
         504: {"Server Error Response": "Gateway Timeout"},
     },
 )
-async def extract_files_endpoint(
+async def extract_files(
     file: UploadFile = File(...),
     source_iso: UploadFile = File(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
@@ -574,7 +574,7 @@ async def extract_files_endpoint(
         400: {"Client Error Response": "Bad Request"},
     },
 )
-async def iterate_files_endpoint(
+async def iterate_files(
     path: UploadFile = File(...),
     source_iso: UploadFile = File(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),

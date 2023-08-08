@@ -6,6 +6,7 @@ from typing import Any
 
 import magic
 import pefile
+from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pefile import PEFormatError
 
@@ -15,6 +16,7 @@ from darkmoon.api.v1.metadata.schema import (
     Metadata,
     MetadataEntity,
 )
+from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
     DuplicateFileException,
     ExtractionError,
@@ -24,8 +26,8 @@ from darkmoon.core.schema import (
 
 
 async def upload_metadata_to_database(
-    collection: AsyncIOMotorCollection,
     file: Metadata,
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> Metadata:
     """Docstring."""
     file_metadata = file.dict()["__root__"]
@@ -228,7 +230,7 @@ def get_metadata(file: Path, source_iso: str) -> dict[str, Any]:
 async def extract_files(
     file: Path,
     source_iso: str,
-    collection: AsyncIOMotorCollection,
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> None:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
@@ -242,7 +244,7 @@ async def extract_files(
 async def iterate_files(
     path: Path,
     source_iso: str,
-    collection: AsyncIOMotorCollection,
+    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
     queue = []

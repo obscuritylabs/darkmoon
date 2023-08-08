@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from motor.motor_asyncio import AsyncIOMotorCollection
 from rich import print_json
 from rich.console import Console
 from rich.progress import track
@@ -125,10 +124,9 @@ async def extract_files(
         ),
     ],
     darkmoon_server_url: str,
-    collection: AsyncIOMotorCollection,
 ) -> None:
     """Extract vmdk and put in new folder."""
-    await utils.extract_files(file, str(source_iso), collection)
+    await utils.extract_files(file, str(source_iso))
 
 
 @app.command()
@@ -145,11 +143,10 @@ async def iterate_extract(
         ),
     ],
     darkmoon_server_url: str,
-    collection: AsyncIOMotorCollection,
 ) -> None:
     """Iterate over vmdk folder and extracts files of each vmdk."""
     for vmdk in track(path.glob("*"), description="Processing..."):
-        await extract_files(vmdk, str(vmdk), darkmoon_server_url, collection)
+        await extract_files(vmdk, str(vmdk), darkmoon_server_url)
 
 
 @app.command()
@@ -177,10 +174,9 @@ async def iterate_files(
         ),
     ],
     darkmoon_server_url: str,
-    collection: AsyncIOMotorCollection,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
-    await utils.iterate_files(path, source_iso, collection)
+    await utils.iterate_files(path, source_iso)
 
 
 @app.command()
@@ -208,7 +204,6 @@ async def process_iso(  # type:ignore
         ),
     ],
     mount_args: str,
-    collection=AsyncIOMotorCollection,
 ) -> None:
     """Take in an ISO and a template to build and extract."""
     vmid: int = 0
@@ -237,7 +232,6 @@ async def process_iso(  # type:ignore
     await utils.extract_files(
         file=disk_img,
         source_iso=source_iso,
-        collection=collection,  # type: ignore
     )
 
 
