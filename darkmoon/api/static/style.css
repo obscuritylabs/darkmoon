@@ -42,6 +42,13 @@ section {
     height: 80vh;
 }
 
+.row {
+    margin-right: 500px;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
 article {
     float: left;
     padding: 20px;
@@ -238,4 +245,5 @@ input[type="submit"]:hover {
         mask: var(--corner) subtract, var(--inner);
         content: ''
     }
+
 }
