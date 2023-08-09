@@ -48,9 +48,12 @@
     document.addEventListener("htmx:afterRequest", function (event) {
         const response = event.detail.xhr.response;
         const jsonResponse = JSON.parse(response);
-        const message = jsonResponse.detail;
-        const extractOutput = `Message: ${detail}`
-        document.getElementById("extract_output").innerHTML = extractOutput;
+        const summary = jsonResponse.summary;
+        const created = summary.created_objects;
+        const updated = summary.updated_objects;
+        const duplicate = summary.duplicate_objects;
+        let tempStr = "Created Objects: " + created + "\n\n" + "Updated Objects: " + updated + "\n\n" + "Duplicate Objects: " + duplicate
+        document.getElementById("extract_output").innerHTML = tempStr;
     });
 
 </script>
