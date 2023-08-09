@@ -11,6 +11,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from pefile import PEFormatError
 
 from darkmoon.api.v1.metadata.schema import (
+    DatabaseUpload,
     DocMetadata,
     EXEMetadata,
     Metadata,
@@ -18,9 +19,7 @@ from darkmoon.api.v1.metadata.schema import (
 )
 from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
-    DuplicateFileException,
     ExtractionError,
-    IncorrectInputException,
     ValidationError,
 )
 
@@ -28,12 +27,9 @@ from darkmoon.core.schema import (
 async def upload_metadata_to_database(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> dict[str, Any]:
+) -> DatabaseUpload:
     """Docstring."""
     file_metadata = file.dict()["__root__"]
-    count_inserted: int = 0
-    count_conflicts: int = 0
-    count_update: int = 0
 
     duplicate_hashes = {
         "hashes.md5": file_metadata["hashes"]["md5"],
@@ -56,16 +52,15 @@ async def upload_metadata_to_database(
         case DocMetadata():
             ...
         case _:
-            raise IncorrectInputException(
-                status_code=422,
-                detail="Error validating file",
-            )
+            raise
 
     dup = await collection.find_one(check_dup)
     if dup:
         # raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
-        print("File is a duplicate")
-        count_conflicts += 1
+        return DatabaseUpload(
+            operation="conflict",
+            data=file,
+        )
 
     doc = await collection.find_one(duplicate_hashes)
     if doc:
@@ -101,27 +96,17 @@ async def upload_metadata_to_database(
             },
         }
         await collection.update_one(duplicate_hashes, change)
-        count_update += 1
-        return {
-            "metadata": Metadata.parse_obj(file_metadata),
-            "counts": {
-                "count_inserted": count_inserted,
-                "count_conflicts": count_conflicts,
-                "count_update": count_update,
-            },
-        }
+        return DatabaseUpload(
+            operation="updated",
+            data=file,
+        )
 
     else:
         await collection.insert_one(file_metadata)
-        count_inserted += 1
-        return {
-            "metadata": Metadata.parse_obj(file_metadata),
-            "counts": {
-                "count_inserted": count_inserted,
-                "count_conflicts": count_conflicts,
-                "count_update": count_update,
-            },
-        }
+        return DatabaseUpload(
+            operation="created",
+            data=file,
+        )
 
 
 def get_file_type(file: Path) -> str:
@@ -269,7 +254,6 @@ async def iterate_files(
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
     queue = []
-
     queue.append(path)
 
     while queue:

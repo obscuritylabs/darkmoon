@@ -32,8 +32,10 @@ from darkmoon.core.database import (
     get_suspicious_file_metadata_collection,
 )
 from darkmoon.core.schema import (
+    DuplicateFileException,
     ExtractionError,
     IncorrectInputException,
+    InternalServerException,
     ItemNotFoundException,
     ServerNotFoundException,
 )
@@ -325,6 +327,7 @@ async def get_metadata_by_id(
     "/",
     status_code=status.HTTP_201_CREATED,
     responses={
+        201: {"Successful Response": "Created"},
         409: {"Client Error Response": "Conflict"},
         422: {"Client Error Response": "Unprocessable Content"},
         500: {"Server Error Response": "Internal Server Error"},
@@ -394,18 +397,29 @@ async def upload_metadata(
             Endpoint is unable to connect to mongoDB instance
 
     """
- 
     try:
-        result = (await upload_metadata_to_database(collection=collection, file=file),)
-        raw_data = result["metadata"]
-        counts = result["counts"]
-        count_inserted = counts["count_inserted"]
-        count_conflicts = counts["count_conflicts"]
-        count_update = counts["count_update"],
-        return UploadMetadataResponse(
-            message=("Database results available ", count_inserted, "files added to database ", count_update, "entries updated ", count_conflicts, "conflicts occured")
-            data = raw_data,
-        )
+        result = await upload_metadata_to_database(collection=collection, file=file)
+        match result.operation:
+            case "created":
+                return UploadMetadataResponse(
+                    message="Created",
+                    data=result.data,
+                )
+            case "updated":
+                return UploadMetadataResponse(
+                    message="Updated",
+                    data=result.data,
+                )
+            case "conflict":
+                raise DuplicateFileException(
+                    status_code=409,
+                    detail="Provided file is already in the database",
+                )
+            case _:
+                raise InternalServerException(
+                    status_code=500,
+                    detail="Error occured during database upload",
+                )
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=500, detail="Server not found.")
