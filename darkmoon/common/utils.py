@@ -28,9 +28,12 @@ from darkmoon.core.schema import (
 async def upload_metadata_to_database(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> Metadata:
+) -> dict[str, Any]:
     """Docstring."""
     file_metadata = file.dict()["__root__"]
+    count_inserted: int = 0
+    count_conflicts: int = 0
+    count_update: int = 0
 
     duplicate_hashes = {
         "hashes.md5": file_metadata["hashes"]["md5"],
@@ -60,7 +63,9 @@ async def upload_metadata_to_database(
 
     dup = await collection.find_one(check_dup)
     if dup:
-        raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
+        # raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
+        print("File is a duplicate")
+        count_conflicts += 1
 
     doc = await collection.find_one(duplicate_hashes)
     if doc:
@@ -96,11 +101,27 @@ async def upload_metadata_to_database(
             },
         }
         await collection.update_one(duplicate_hashes, change)
-        return Metadata.parse_obj(file_metadata)
+        count_update += 1
+        return {
+            "metadata": Metadata.parse_obj(file_metadata),
+            "counts": {
+                "count_inserted": count_inserted,
+                "count_conflicts": count_conflicts,
+                "count_update": count_update,
+            },
+        }
 
     else:
         await collection.insert_one(file_metadata)
-        return Metadata.parse_obj(file_metadata)
+        count_inserted += 1
+        return {
+            "metadata": Metadata.parse_obj(file_metadata),
+            "counts": {
+                "count_inserted": count_inserted,
+                "count_conflicts": count_conflicts,
+                "count_update": count_update,
+            },
+        }
 
 
 def get_file_type(file: Path) -> str:

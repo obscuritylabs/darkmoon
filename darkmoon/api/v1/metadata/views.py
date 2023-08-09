@@ -47,6 +47,7 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
         400: {"Client Error Response": "Bad Request"},
+        404: {"Client Error Response": "Result Not Found"},
     },
 )
 async def get_hash_search(
@@ -393,10 +394,17 @@ async def upload_metadata(
             Endpoint is unable to connect to mongoDB instance
 
     """
+ 
     try:
+        result = (await upload_metadata_to_database(collection=collection, file=file),)
+        raw_data = result["metadata"]
+        counts = result["counts"]
+        count_inserted = counts["count_inserted"]
+        count_conflicts = counts["count_conflicts"]
+        count_update = counts["count_update"],
         return UploadMetadataResponse(
-            message="Database results available",
-            data=await upload_metadata_to_database(collection=collection, file=file),
+            message=("Database results available ", count_inserted, "files added to database ", count_update, "entries updated ", count_conflicts, "conflicts occured")
+            data = raw_data,
         )
 
     except errors.ServerSelectionTimeoutError:
