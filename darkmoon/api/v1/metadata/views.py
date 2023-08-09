@@ -539,7 +539,7 @@ async def hash_comparison(
 )
 async def extract_files(
     file: UploadFile = File(...),
-    source_iso: UploadFile = File(...),
+    source_iso: str = Form(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> dict[str, str]:
     """Extract file."""
@@ -551,10 +551,8 @@ async def extract_files(
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(file.file.read())
         tmp_path = PyPath(tmpfile.name)
-        tmpfile.write(await source_iso.read())
-        iso_path = str(PyPath(tmpfile.name))
         try:
-            await utils.extract_files(tmp_path, str(iso_path), collection)
+            await utils.extract_files(tmp_path, source_iso, collection)
             return {"message": "Extraction successful"}
         except ExtractionError:
             raise IncorrectInputException(
@@ -576,13 +574,11 @@ async def extract_files(
 )
 async def iterate_files(
     path: UploadFile = File(...),
-    source_iso: UploadFile = File(...),
+    source_iso: str = Form(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> None:
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
         tmp_path = PyPath(tmpfile.name)
-        tmpfile.write(await source_iso.read())
-        iso_path = str(PyPath(tmpfile.name))
-        await utils.iterate_files(tmp_path, iso_path, collection)
+        await utils.iterate_files(tmp_path, source_iso, collection)
