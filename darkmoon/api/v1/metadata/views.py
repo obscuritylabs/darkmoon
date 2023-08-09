@@ -562,7 +562,7 @@ async def hash_comparison(
 )
 async def extract_files(
     file: UploadFile = File(...),
-    source_iso: UploadFile = File(...),
+    source_iso: str = Form(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> CounterResponse:
     """Extract file."""
@@ -574,10 +574,8 @@ async def extract_files(
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(file.file.read())
         tmp_path = PyPath(tmpfile.name)
-        tmpfile.write(await source_iso.read())
-        iso_path = str(PyPath(tmpfile.name))
         try:
-            result = await utils.extract_files(tmp_path, str(iso_path), collection)
+            result = await utils.extract_files(tmp_path, source_iso, collection)
             return CounterResponse(
                 message="Successfully Extracted VMDK",
                 operations=result,
@@ -597,16 +595,14 @@ async def extract_files(
 )
 async def iterate_files(
     path: UploadFile = File(...),
-    source_iso: UploadFile = File(...),
+    source_iso: str = Form(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
 ) -> CounterResponse:
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
         tmp_path = PyPath(tmpfile.name)
-        tmpfile.write(await source_iso.read())
-        iso_path = str(PyPath(tmpfile.name))
-        result = await utils.iterate_files(tmp_path, iso_path, collection)
+        result = await utils.iterate_files(tmp_path, source_iso, collection)
         return CounterResponse(
             message="Successfully Iterated Files",
             operations=result,
