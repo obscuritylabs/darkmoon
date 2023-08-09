@@ -198,3 +198,17 @@ class DatabaseUpload(BaseModel):
     data: Metadata = Field(
         description="The object inserted or updated on the database",
     )
+
+
+class OperationCount(BaseModel):
+    """Return type for a count of the database operations performed."""
+
+    created: int
+    updated: int
+    conflict: int
+
+
+class OperationResponse(Response):
+    """Response to be sent after iterating through a VMDK."""
+
+    operations: OperationCount

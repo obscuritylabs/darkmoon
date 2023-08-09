@@ -22,6 +22,7 @@ from pymongo import errors
 from darkmoon.api.v1.metadata.schema import (
     Metadata,
     MetadataEntity,
+    OperationResponse,
     UploadListMetadataEntityResponse,
     UploadMetadataResponse,
 )
@@ -563,7 +564,7 @@ async def extract_files(
     file: UploadFile = File(...),
     source_iso: UploadFile = File(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> dict[str, str]:
+) -> OperationResponse:
     """Extract file."""
     allowed_extensions = ["application/octet-stream"]
     file_extension = file.content_type
@@ -576,18 +577,16 @@ async def extract_files(
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
         try:
-            await utils.extract_files(tmp_path, str(iso_path), collection)
-            return {"message": "Extraction successful"}
+            result = await utils.extract_files(tmp_path, str(iso_path), collection)
+            return OperationResponse(
+                message="Successfully Extracted VMDK",
+                operations=result,
+            )
         except ExtractionError:
             raise IncorrectInputException(
                 status_code=422,
                 detail="Error during extraction",
             )
-        # except Exception:
-        #     raise InternalServerException(
-        #         status_code=500,
-        #         detail="Internal Server Error",
-        #     )
 
 
 @router.post(
@@ -600,11 +599,15 @@ async def iterate_files(
     path: UploadFile = File(...),
     source_iso: UploadFile = File(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
+) -> OperationResponse:
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
         tmp_path = PyPath(tmpfile.name)
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
-        await utils.iterate_files(tmp_path, iso_path, collection)
+        result = await utils.iterate_files(tmp_path, iso_path, collection)
+        return OperationResponse(
+            message="Successfully Iterated Files",
+            operations=result,
+        )

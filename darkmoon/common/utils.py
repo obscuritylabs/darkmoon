@@ -16,6 +16,7 @@ from darkmoon.api.v1.metadata.schema import (
     EXEMetadata,
     Metadata,
     MetadataEntity,
+    OperationCount,
 )
 from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
@@ -52,7 +53,7 @@ async def upload_metadata_to_database(
         case DocMetadata():
             ...
         case _:
-            raise
+            raise ValidationError
 
     dup = await collection.find_one(check_dup)
     if dup:
@@ -237,24 +238,30 @@ async def extract_files(
     file: Path,
     source_iso: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
+) -> OperationCount:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
         result = subprocess.run(cmd)
         if result.returncode != 0:
             raise ExtractionError(str(result.stdout))
-        await iterate_files(Path(tmpdirname), source_iso, collection)
+        return await iterate_files(Path(tmpdirname), source_iso, collection)
 
 
 async def iterate_files(
     path: Path,
     source_iso: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
+) -> OperationCount:
     """Iterate over folder and call metadata function for each file."""
     queue = []
     queue.append(path)
+
+    operations = {
+        "created": 0,
+        "updated": 0,
+        "conflict": 0,
+    }
 
     while queue:
         curr_dir = queue.pop(0)
@@ -267,13 +274,14 @@ async def iterate_files(
 
                 metadata_instance = Metadata.parse_obj(metadata_dict)
 
-                await upload_metadata_to_database(
+                result = await upload_metadata_to_database(
                     file=metadata_instance,
                     collection=collection,
                 )
-
+                operations[result.operation] = operations[result.operation] + 1
             else:
                 queue.append(files)
+    return OperationCount.parse_obj(operations)
 
 
 def packer_build(template: Path) -> subprocess.Popen[bytes]:

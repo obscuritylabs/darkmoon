@@ -11,7 +11,7 @@ class Response(BaseModel):
 
 
 class ValidationError(Exception):
-    """Error thrown when a given packer template is invalid."""
+    """Error thrown when a given input could not be validated."""
 
 
 class ServerNotFoundException(HTTPException):
