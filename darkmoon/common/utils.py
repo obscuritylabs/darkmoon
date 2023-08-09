@@ -16,11 +16,12 @@ from darkmoon.api.v1.metadata.schema import (
     EXEMetadata,
     Metadata,
     MetadataEntity,
-    OperationCount,
+    MetadataInsertCounter,
 )
 from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
     ExtractionError,
+    InvalidMetadataError,
     ValidationError,
 )
 
@@ -53,7 +54,10 @@ async def upload_metadata_to_database(
         case DocMetadata():
             ...
         case _:
-            raise ValidationError
+            raise InvalidMetadataError(
+                status_code=422,
+                detail="Metadata could not be processed",
+            )
 
     dup = await collection.find_one(check_dup)
     if dup:
@@ -238,7 +242,7 @@ async def extract_files(
     file: Path,
     source_iso: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> OperationCount:
+) -> MetadataInsertCounter:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
@@ -252,7 +256,7 @@ async def iterate_files(
     path: Path,
     source_iso: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> OperationCount:
+) -> MetadataInsertCounter:
     """Iterate over folder and call metadata function for each file."""
     queue = []
     queue.append(path)
@@ -281,7 +285,7 @@ async def iterate_files(
                 operations[result.operation] = operations[result.operation] + 1
             else:
                 queue.append(files)
-    return OperationCount.parse_obj(operations)
+    return MetadataInsertCounter.parse_obj(operations)
 
 
 def packer_build(template: Path) -> subprocess.Popen[bytes]:

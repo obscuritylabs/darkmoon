@@ -36,3 +36,7 @@ class ExtractionError(Exception):
 
 class InternalServerException(HTTPException):
     """Exception raised when a problem occurs internally."""
+
+
+class InvalidMetadataError(HTTPException):
+    """Exception raised when inputed metadata has an error."""

@@ -200,7 +200,7 @@ class DatabaseUpload(BaseModel):
     )
 
 
-class OperationCount(BaseModel):
+class MetadataInsertCounter(BaseModel):
     """Return type for a count of the database operations performed."""
 
     created: int
@@ -208,7 +208,7 @@ class OperationCount(BaseModel):
     conflict: int
 
 
-class OperationResponse(Response):
+class CounterResponse(Response):
     """Response to be sent after iterating through a VMDK."""
 
-    operations: OperationCount
+    operations: MetadataInsertCounter

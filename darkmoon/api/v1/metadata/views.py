@@ -20,9 +20,9 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
 from darkmoon.api.v1.metadata.schema import (
+    CounterResponse,
     Metadata,
     MetadataEntity,
-    OperationResponse,
     UploadListMetadataEntityResponse,
     UploadMetadataResponse,
 )
@@ -403,12 +403,12 @@ async def upload_metadata(
         match result.operation:
             case "created":
                 return UploadMetadataResponse(
-                    message="Created",
+                    message="Created metadata entity",
                     data=result.data,
                 )
             case "updated":
                 return UploadMetadataResponse(
-                    message="Updated",
+                    message="Updated metadata entity",
                     data=result.data,
                 )
             case "conflict":
@@ -564,7 +564,7 @@ async def extract_files(
     file: UploadFile = File(...),
     source_iso: UploadFile = File(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> OperationResponse:
+) -> CounterResponse:
     """Extract file."""
     allowed_extensions = ["application/octet-stream"]
     file_extension = file.content_type
@@ -578,7 +578,7 @@ async def extract_files(
         iso_path = str(PyPath(tmpfile.name))
         try:
             result = await utils.extract_files(tmp_path, str(iso_path), collection)
-            return OperationResponse(
+            return CounterResponse(
                 message="Successfully Extracted VMDK",
                 operations=result,
             )
@@ -599,7 +599,7 @@ async def iterate_files(
     path: UploadFile = File(...),
     source_iso: UploadFile = File(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> OperationResponse:
+) -> CounterResponse:
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
@@ -607,7 +607,7 @@ async def iterate_files(
         tmpfile.write(await source_iso.read())
         iso_path = str(PyPath(tmpfile.name))
         result = await utils.iterate_files(tmp_path, iso_path, collection)
-        return OperationResponse(
+        return CounterResponse(
             message="Successfully Iterated Files",
             operations=result,
         )
