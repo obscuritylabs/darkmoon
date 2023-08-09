@@ -4,12 +4,35 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@latest/dist/htmx.min.js"></script>
 </head>
 
-<script>
-    function submissionComplete() {
-        alert("Data Submitted");
-    }
+<script type="text/javascript">
+
+    document.addEventListener("htmx:responseError", function (event) {
+        const response = event.detail.xhr.response;
+
+        const error = JSON.parse(response);
+
+        const fileComparison = `<b>${error.detail}`;
+        document.getElementById("VMDK_output").innerHTML = fileComparison;
+    });
+
+    document.addEventListener("htmx:configRequest", function (event) {
+        if (event.detail.verb === "post") {
+            document.getElementById("VMDK_output").style.display = "block";
+        }
+    });
+
+    document.addEventListener("htmx:afterRequest", function (event) {
+
+        const response = event.detail.xhr.response;
+        const jsonResponse = JSON.parse(response);
+
+        const VMDKUpload = ``;
+        document.getElementById("VMDK_output").innerHTML = VMDKUpload;
+
+    });
 </script>
 
 <body>
@@ -42,7 +65,7 @@
                     </div>
 
                 </div>
-                <button class="dropbtn"><a href="#">About</a></button>
+                <button class="dropbtn"><a href="/about">About</a></button>
             </ul>
 
         </nav>
@@ -53,56 +76,60 @@
 
     <h1></h1>
     <div style="padding:40px;">
-        <form action onsubmit="submissionComplete()">
 
-            <h2> .ISO Upload </h2>
-            <input type="file" id="myFile" required="required" name="filename">
+        <form id="VMDK_upload" hx-trigger="submit" hx-post='/metadata/process-iso' hx-target="#VMDK_output"
+            hx-swap="innerHTML" hx-encoding='multipart/form-data'>
 
+            <h3>VMDK Extraction</h3>
 
+            <hr>
+            <h1></h1>
+
+            <h2> .ISO </h2>
+            <input id="iso_upload" type="file" required="required" name="iso_upload"><br>
 
             <hr>
             <h1></h1>
-            <h2> Packer Template Upload </h2>
-            <input type="file" id="myFile" required="required" name="filename">
 
-
-
+            <h2> Packer Template </h2>
+            <input id="template_upload" type="file" required="required" name="template_upload"><br>
 
             <hr>
+            <h1></h1>
+
+            <h2> Answer File </h2>
+            <input id="answer_upload" type="file" required="required" name="answer_upload"><br>
+
 
             <h1></h1>
-            <h2> Answer File Upload </h2>
-            <input type="file" id="myFile" required="required" name="filename">
 
-            <h1>
-                <h2> Operating System </h2>
-                <label for="Operating" class="opSystem" data-icon="u"></label>
+            <!--- <h2> Operating System </h2>
+            <input id="op_system" name="op_system" required="required" type="text" placeholder="Operating System"><br>
 
-                <input id="Operating" name="opSystem" required="required" type="text" placeholder="Operating System" />
 
-            </h1>
             <h1></h1>
-            <h1>
-                <h2> Version </h2>
-                <label for="version" class="vers" data-icon="p"> </label>
 
-                <input id="version" name="password" required="required" type="text" placeholder="Version" />
+            <h2> Version </h2>
+            <input id="version" name="version" required="required" type="text" placeholder="Version"><br>
 
-            </h1>
             <h1></h1>
-            <h1>
-                <h2> Build </h2>
-                <label for="build" class="bu" data-icon="u"> </label>
 
-                <input id="build" name="bu" required="required" type="text" placeholder="Build" />
-                <h1></h1>
-                <input type="submit" value="Submit">
+            <h2> Build </h2>
+            <input id="build" name="build" required="required" type="text" placeholder="Build"><br>
 
+            <h1></h1> -->
 
-            </h1>
+            <input type="submit" value="Upload" hx-indicator="#VMDK_output">
+
         </form>
-    </div>
 
+        <h1></h1>
+
+        <div class="result_box" id="VMDK_output" style="display: none;">
+            <div class="loading-spinner" style="padding:30px; object-position: center;"></div>
+        </div>
+
+    </div>
 
 </body>
 

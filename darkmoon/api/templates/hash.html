@@ -1,115 +1,258 @@
 <!DOCTYPE html>
 
 <head>
+
     <meta charset="utf-8">
+
     <meta name="viewport" content="width=device-width">
+
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+
+    <script src="https://unpkg.com/htmx.org@latest/dist/htmx.min.js"></script>
+
 </head>
 
-<script>
-    function hashSubmission() {
-        alert("Successfully Submitted");
+
+
+<script type="text/javascript">
+    function showForm1() {
+        document.getElementById("file_output").style.display = "none";
     }
 
-    function fileSubmission() {
-        alert("File Successfully Uploaded");
+    function showForm2() {
+        document.getElementById("hash_output").style.display = "none";
     }
+
+    function openForm() {
+
+        document.getElementById("popupForm").style.display = "block";
+        document.getElementById("shadow").style.display = "block";
+
+    }
+
+    function closeForm() {
+
+        document.getElementById("popupForm").style.display = "none";
+        document.getElementById("shadow").style.display = "none";
+
+    }
+    function showPopupBox() {
+
+        document.getElementById("popupBox").classList.remove(".hidden");
+
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    document.addEventListener("htmx:responseError", function (event) {
+        const response = event.detail.xhr.response;
+
+        const error = JSON.parse(response);
+
+        const fileComparison = `<b>${error.detail}`;
+        document.getElementById("hash_output").innerHTML = fileComparison;
+    });
+
+    document.addEventListener("htmx:configRequest", function (event) {
+        if (event.detail.verb === "post") {
+            document.getElementById("file_output").style.display = "block";
+        }
+        if (event.detail.verb === "get") {
+            document.getElementById("hash_output").style.display = "block";
+        }
+    });
+
+    document.addEventListener("htmx:afterRequest", function (event) {
+
+        const response = event.detail.xhr.response;
+        const jsonResponse = JSON.parse(response);
+
+        for (let i = 0; i < jsonResponse.data.length; i++) {
+            const searchHashes = jsonResponse.data[i].hashes;
+
+            const searchFileType = jsonResponse.data[i].file_type;
+
+            const searchFileExtension = jsonResponse.data[i].file_extension;
+
+            const searchMessage = jsonResponse.message;
+
+            const searchSourceIso = jsonResponse.data[i].source_iso_name;
+
+            const searchOpSystem = jsonResponse.data[i].operating_system;
+
+            const searchName = jsonResponse.data[i].name;
+
+            const searchBaseFileType = jsonResponse.data[i].base_file_type;
+
+            const searchHash = `${searchMessage}<br><br><b>Name: </b>${searchName}<br><b>File Type: </b>${searchFileType}<br><b>File Extension: </b>
+                ${searchFileExtension}<br><b>Source ISO: </b>${searchSourceIso}<br><b>Operating System: </b>${searchOpSystem}<br><b>Base File Type: </b>
+                    ${searchBaseFileType} <br><br><b>MD5: </b> ${searchHashes.md5}<br><b>SHA1: </b>${searchHashes.sha1}<br><b>SHA256: </b>${searchHashes.sha256}<br>
+                        <b>SHA512: </b>${searchHashes.sha512}`;
+            document.getElementById("hash_output").innerHTML = searchHash;
+
+            const hashes = jsonResponse.data[i].hashes;
+
+            const fileType = jsonResponse.data[i].file_type;
+
+            const fileExtension = jsonResponse.data[i].file_extension;
+
+            const message = jsonResponse.message;
+
+            const sourceIso = jsonResponse.data[i].source_iso_name;
+
+            const opSystem = jsonResponse.data[i].operating_system;
+
+            const name = jsonResponse.data[i].name;
+
+            const baseFileType = jsonResponse.data[i].base_file_type;
+
+            const fileComparison = `${message}<br><br><b>Name: </b>${name}<br><b>File Type: </b>${fileType}<br><b>File Extension: </b>
+                            ${fileExtension}<br><b>Source ISO: </b>${sourceIso}<br><b>Operating System: </b>${opSystem}<br><b>Base File Type: </b>${baseFileType} <br><br><b>MD5: </b> ${hashes.md5}<br><b>SHA1: </b>${hashes.sha1}<br><b>SHA256: </b>${hashes.sha256}<br><b>SHA512: </b>${hashes.sha512}`;
+            document.getElementById("file_output").innerHTML = fileComparison;
+        }
+
+    });
 </script>
 
 <body>
+
     <header>
+
+
 
         <div class="logo">
 
+
+
             <h1 id="blackoutline">
+
+
 
                 <p>Darkmoon</p>
 
+
+
             </h1>
+
+
 
         </div>
 
+
+
         <nav>
+
+
 
             <ul>
                 <button class="dropbtn"><a href="/">Home</a></button>
                 <div class="dropdown">
 
+
+
                     <button class="button button1">Tools</button>
 
+
+
                     <div class="dropdown-content">
+
+
 
                         <a href="/hash-lookup">Hash Lookup</a>
 
                         <a href="/upload">ISO Upload</a>
 
+
                     </div>
 
+
+
                 </div>
+
                 <button class="dropbtn"><a href="/about">About</a></button>
+
             </ul>
 
+
+
         </nav>
+
+
 
     </header>
 
     <div style="padding:90px;">
+
         <h1></h1>
 
-        <form action onsubmit="hashSubmission()">
+        <form id="hash_upload" hx-get="/metadata/hashSearch" hx-target="#hash_output" hx-trigger="submit"
+            hx-swap="innerHTML" onsubmit="showPopupBox()">
 
-            <h2> Hash </h2>
-
-            <label for="Hash" class="hash" data-icon="p"> </label>
-            <input id="" name="password" required="required" type="text" placeholder="Hash" />
+            <h3>Hash Search</h3>
 
             <hr>
+            <h1></h1>
 
-            <h2>
+            <h2> Hash and Hash Type </h2>
 
-            </h2>
+            <input id="fullHash" name="fullHash" required="required" type="text"
+                placeholder="Ex: sha256:sdlkfjksldklsdjsdfklj" /><br>
 
-            <h2>Hash Type</h2>
-
-            <input type="radio" id="MDS" required="required" name="hash_type" value="MDS">
-            <label for="MDS">MD5</label><br>
-
-            <input type="radio" id="SHA-1" name="hash_type" value="SHA-1">
-            <label for="SHA-1">SHA-1</SHA-1></label><br>
-
-            <input type="radio" id="SHA-256" name="hash_type" value="SHA-256">
-            <label for="SHA-256">SHA-256</label><br>
-
-            <input type="radio" id="SHA-512" name="hash_type" value="SHA-512">
-            <label for="SHA-512">SHA-512</label>
-
-            <h2>
-
-            </h2>
-
-            <input type="submit" value="Submit" />
-
+            <input type="submit" value="Submit" hx-indicator="#hash_output" hx-trigger="button1" onclick="openForm()" />
 
         </form>
 
-        <h2>
-
-        </h2>
 
 
-        <form action onsubmit="fileSubmission()">
+        <div class="formPopup" id="popupForm">
+
+            <p id="hash_output"> </p>
+            <button type="button" class="btncancel" onclick="closeForm()">X</button>
+
+        </div>
+
+
+
+
+
+        <h2></h2>
+
+        <form id="file_upload" hx-trigger="submit" hx-post='/metadata/hashComparison' hx-target="#file_output"
+            hx-swap="innerHTML" hx-encoding='multipart/form-data'>
+
+            <h3>Hash Comparison</h3>
+
+            <hr>
+            <h1></h1>
 
             <h2> Upload File </h2>
-            <input type="file" id="myFile" required="required" name="filename">
-            <h1></h1>
-            <input type="submit" value="Submit">
 
+            <input id="fileInput" type="file" required="required" name="fileInput"><br>
+
+            <h2> ISO Key </h2>
+
+            <input id="sourceIsoName" name="sourceIsoName" required="required" type="text"><br>
+
+            <input type="submit" value="Upload" hx-indicator="#file_output" hx-trigger="button2" onclick="openForm()">
 
         </form>
+
+
+        <div class="formPopup" id="popupForm">
+
+            <p id="file_output"> </p>
+
+            <button type="button" class="btncancel" onclick="closeForm()">Close</button>
+
+        </div>
+
+
     </div>
 
-
-
 </body>
+
+
 
 </html>

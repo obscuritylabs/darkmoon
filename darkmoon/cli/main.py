@@ -5,10 +5,13 @@ from typing import Annotated
 
 import typer
 from rich import print_json
+from rich.console import Console
 from rich.progress import track
 
 from darkmoon.common import utils
 
+console = Console()
+console = Console()
 app = typer.Typer()
 
 
@@ -97,7 +100,7 @@ def get_all_exe_metadata(
 
 
 @app.command()
-def extract_files(
+async def extract_files(
     file: Annotated[
         Path,
         typer.Argument(
@@ -123,11 +126,11 @@ def extract_files(
     darkmoon_server_url: str,
 ) -> None:
     """Extract vmdk and put in new folder."""
-    utils.extract_files(file, str(source_iso), darkmoon_server_url)
+    await utils.extract_files(file, str(source_iso))
 
 
 @app.command()
-def iterate_extract(
+async def iterate_extract(
     path: Annotated[
         Path,
         typer.Argument(
@@ -143,11 +146,11 @@ def iterate_extract(
 ) -> None:
     """Iterate over vmdk folder and extracts files of each vmdk."""
     for vmdk in track(path.glob("*"), description="Processing..."):
-        extract_files(vmdk, str(vmdk), darkmoon_server_url)
+        await extract_files(vmdk, str(vmdk), darkmoon_server_url)
 
 
 @app.command()
-def iterate_files(
+async def iterate_files(
     path: Annotated[
         Path,
         typer.Argument(
@@ -173,7 +176,63 @@ def iterate_files(
     darkmoon_server_url: str,
 ) -> None:
     """Iterate over folder and call metadata function for each file."""
-    utils.iterate_files(path, source_iso, darkmoon_server_url)
+    await utils.iterate_files(path, source_iso)
+
+
+@app.command()
+async def process_iso(  # type:ignore
+    source_iso: Annotated[
+        str,
+        typer.Argument(
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ],
+    pkr_template: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            writable=False,
+            readable=True,
+            resolve_path=True,
+        ),
+    ],
+    mount_args: str,
+) -> None:
+    """Take in an ISO and a template to build and extract."""
+    vmid: int = 0
+    with console.status(
+        "Building Template (This May Take Awhile)...",
+        spinner="aesthetic",
+    ):
+        build_process = utils.packer_build(pkr_template)
+        output = []
+        while build_process.poll() is None:
+            if build_process.stdout is not None:
+                curr = build_process.stdout.readline().decode("utf-8")
+                if "A template was created:" in output:
+                    vmid = int(curr.split(":")[-1].strip())
+                output.append(curr)
+        if build_process.poll() != 0:
+            console.print(f"\nError, Exit Code {build_process.poll()}:")
+            console.print(*output)
+            raise Exception
+    if vmid == 0:
+        console.print("\nError, Could Not Get VMID:")
+        console.print(*output)
+        raise Exception
+    mount_point: Path = utils.mount_nfs(mount_args)
+    disk_img = mount_point.joinpath(f"template file for {vmid}")
+    await utils.extract_files(
+        file=disk_img,
+        source_iso=source_iso,
+    )
 
 
 if __name__ == "__main__":

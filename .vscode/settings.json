@@ -19,12 +19,21 @@
   "cSpell.words": [
     "anyio",
     "bson",
+    "darkmoon",
     "fastapi",
+    "ntfs",
+    "htmx",
     "pefile",
     "Pydantic",
     "pymongo",
+    "schemathesis",
     "templating",
     "tmpdirname",
     "typer"
+  ],
+  "xd.globalEditor": true,
+  "xd.lastPackage": "/Users/intern/Downloads/material-theme",
+  "python.analysis.extraPaths": [
+    "./darkmoon"
   ]
 }
