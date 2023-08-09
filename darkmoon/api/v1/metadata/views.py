@@ -20,6 +20,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo import errors
 
 from darkmoon.api.v1.metadata.schema import (
+    CounterResponse,
     Metadata,
     MetadataEntity,
     UploadListMetadataEntityResponse,
@@ -32,8 +33,10 @@ from darkmoon.core.database import (
     get_suspicious_file_metadata_collection,
 )
 from darkmoon.core.schema import (
+    DuplicateFileException,
     ExtractionError,
     IncorrectInputException,
+    InternalServerException,
     ItemNotFoundException,
     ServerNotFoundException,
 )
@@ -47,6 +50,7 @@ router = APIRouter(prefix="/metadata", tags=["metadata"])
         422: {"Client Error Response": "Unprocessable Content"},
         504: {"Server Error Response": "Gateway Timeout"},
         400: {"Client Error Response": "Bad Request"},
+        404: {"Client Error Response": "Result Not Found"},
     },
 )
 async def get_hash_search(
@@ -324,6 +328,7 @@ async def get_metadata_by_id(
     "/",
     status_code=status.HTTP_201_CREATED,
     responses={
+        201: {"Successful Response": "Created"},
         409: {"Client Error Response": "Conflict"},
         422: {"Client Error Response": "Unprocessable Content"},
         500: {"Server Error Response": "Internal Server Error"},
@@ -394,10 +399,28 @@ async def upload_metadata(
 
     """
     try:
-        return UploadMetadataResponse(
-            message="Database results available",
-            data=await upload_metadata_to_database(collection=collection, file=file),
-        )
+        result = await upload_metadata_to_database(collection=collection, file=file)
+        match result.operation:
+            case "created_objects":
+                return UploadMetadataResponse(
+                    message="Created metadata entity",
+                    data=result.data,
+                )
+            case "updated_objects":
+                return UploadMetadataResponse(
+                    message="Updated metadata entity",
+                    data=result.data,
+                )
+            case "duplicate_objects":
+                raise DuplicateFileException(
+                    status_code=409,
+                    detail="Provided file is already in the database",
+                )
+            case _:
+                raise InternalServerException(
+                    status_code=500,
+                    detail="Error occured during database upload",
+                )
 
     except errors.ServerSelectionTimeoutError:
         raise ServerNotFoundException(status_code=500, detail="Server not found.")
@@ -541,7 +564,7 @@ async def extract_files(
     file: UploadFile = File(...),
     source_iso: str = Form(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> dict[str, str]:
+) -> CounterResponse:
     """Extract file."""
     allowed_extensions = ["application/octet-stream"]
     file_extension = file.content_type
@@ -552,18 +575,16 @@ async def extract_files(
         tmpfile.write(file.file.read())
         tmp_path = PyPath(tmpfile.name)
         try:
-            await utils.extract_files(tmp_path, source_iso, collection)
-            return {"message": "Extraction successful"}
+            result = await utils.extract_files(tmp_path, source_iso, collection)
+            return CounterResponse(
+                message="Successfully Extracted VMDK",
+                summary=result,
+            )
         except ExtractionError:
             raise IncorrectInputException(
                 status_code=422,
                 detail="Error during extraction",
             )
-        # except Exception:
-        #     raise InternalServerException(
-        #         status_code=500,
-        #         detail="Internal Server Error",
-        #     )
 
 
 @router.post(
@@ -576,9 +597,13 @@ async def iterate_files(
     path: UploadFile = File(...),
     source_iso: str = Form(...),
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
+) -> CounterResponse:
     """Iterate through file."""
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(await path.read())
         tmp_path = PyPath(tmpfile.name)
-        await utils.iterate_files(tmp_path, source_iso, collection)
+        result = await utils.iterate_files(tmp_path, source_iso, collection)
+        return CounterResponse(
+            message="Successfully Iterated Files",
+            summary=result,
+        )

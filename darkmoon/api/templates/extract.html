@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width">
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
     <script src="https://unpkg.com/htmx.org@latest/dist/htmx.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@latest/dist/htmx.min.js"></script>
 </head>
 
 <script type="text/javascript">
@@ -15,24 +16,46 @@
         const error = JSON.parse(response);
 
         const fileComparison = `<b>${error.detail}`;
-        document.getElementById("VMDK_output").innerHTML = fileComparison;
+
+        document.getElementById("extract_output").innerHTML = fileComparison;
     });
 
+    function openForm() {
+
+        document.getElementById("popupForm").style.display = "block";
+
+
+    }
+    function closeForm() {
+
+        document.getElementById("popupForm").style.display = "none";
+
+
+    }
+    function showPopupBox() {
+
+        document.getElementById("popupForm").classList.remove(".hidden");
+
+    }
     document.addEventListener("htmx:configRequest", function (event) {
         if (event.detail.verb === "post") {
-            document.getElementById("VMDK_output").style.display = "block";
+            document.getElementById("extract_output").style.display = "block";
         }
     });
 
+</script>
+<script type="text/javascript">
     document.addEventListener("htmx:afterRequest", function (event) {
-
         const response = event.detail.xhr.response;
         const jsonResponse = JSON.parse(response);
-
-        const VMDKUpload = ``;
-        document.getElementById("VMDK_output").innerHTML = VMDKUpload;
-
+        const summary = jsonResponse.summary;
+        const created = summary.created_objects;
+        const updated = summary.updated_objects;
+        const duplicate = summary.duplicate_objects;
+        let tempStr = "Created Objects: " + created + "\n\n" + "Updated Objects: " + updated + "\n\n" + "Duplicate Objects: " + duplicate
+        document.getElementById("extract_output").innerHTML = tempStr;
     });
+
 </script>
 
 <body>
@@ -67,72 +90,36 @@
                     </div>
 
                 </div>
-                <button class="dropbtn"><a href="/about">About</a></button>
+                <button class="dropbtn"><a href="/credit">Credit</a></button>
             </ul>
 
         </nav>
 
     </header>
 
-
-
     <h1></h1>
     <div style="padding:40px;">
-
-        <form id="VMDK_upload" hx-trigger="submit" hx-post='/metadata/process-iso' hx-target="#VMDK_output"
+        <form id="extract_files" hx-trigger="submit" hx-post='/metadata/extract-files' hx-target="#extract_output"
             hx-swap="innerHTML" hx-encoding='multipart/form-data'>
-
-            <h3>VMDK Extraction</h3>
-
+            <h3>File Extraction</h3>
             <hr>
             <h1></h1>
-
             <h2> .ISO </h2>
-            <input id="iso_upload" type="file" required="required" name="iso_upload"><br>
-
+            <input id=" source_iso" type="text" required="required" name="source_iso"><br>
             <hr>
             <h1></h1>
-
-            <h2> Packer Template </h2>
-            <input id="template_upload" type="file" required="required" name="template_upload"><br>
-
-            <hr>
-            <h1></h1>
-
-            <h2> Answer File </h2>
-            <input id="answer_upload" type="file" required="required" name="answer_upload"><br>
-
-
-            <h1></h1>
-
-            <!--- <h2> Operating System </h2>
-            <input id="op_system" name="op_system" required="required" type="text" placeholder="Operating System"><br>
-
-
-            <h1></h1>
-
-            <h2> Version </h2>
-            <input id="version" name="version" required="required" type="text" placeholder="Version"><br>
-
-            <h1></h1>
-
-            <h2> Build </h2>
-            <input id="build" name="build" required="required" type="text" placeholder="Build"><br>
-
-            <h1></h1> -->
-
-            <input type="submit" value="Upload" hx-indicator="#VMDK_output">
-
+            <h2> File </h2>
+            <input id="file" type="file" required="required" name="file"><br>
+            <input type="submit" value="Upload" hx-indicator="#extract_output" onclick="openForm()">
         </form>
 
-        <h1></h1>
-
-        <div class="result_box" id="VMDK_output" style="display: none;">
-            <div class="loading-spinner" style="padding:30px; object-position: center;"></div>
+        <div class="formPopup" id="popupForm">
+            <div id="extract_output">
+                <div id="load-button" class="loading-spinner"></div>
+            </div>
+            <button type="button" class="btncancel" onclick="closeForm()">X</button>
         </div>
-
     </div>
-
 </body>
 
 </html>
