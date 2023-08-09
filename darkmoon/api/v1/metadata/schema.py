@@ -187,3 +187,30 @@ class UploadListMetadataEntityResponse(Response):
     data: list[MetadataEntity] = Field(
         description="The object inserted or updated on the database",
     )
+
+
+class DatabaseUpload(BaseModel):
+    """Return type forr when file metadata is posted to the database."""
+
+    operation: Literal["created_objects"] | Literal["updated_objects"] | Literal[
+        "duplicate_objects"
+    ] = Field(
+        description="The database operation performed",
+    )
+    data: Metadata = Field(
+        description="The object inserted or updated on the database",
+    )
+
+
+class MetadataInsertCounter(BaseModel):
+    """Return type for a count of the database operations performed."""
+
+    created_objects: int
+    updated_objects: int
+    duplicate_objects: int
+
+
+class CounterResponse(Response):
+    """Response to be sent after iterating through a VMDK."""
+
+    summary: MetadataInsertCounter
