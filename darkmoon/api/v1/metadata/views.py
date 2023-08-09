@@ -401,17 +401,17 @@ async def upload_metadata(
     try:
         result = await upload_metadata_to_database(collection=collection, file=file)
         match result.operation:
-            case "created":
+            case "created_objects":
                 return UploadMetadataResponse(
                     message="Created metadata entity",
                     data=result.data,
                 )
-            case "updated":
+            case "updated_objects":
                 return UploadMetadataResponse(
                     message="Updated metadata entity",
                     data=result.data,
                 )
-            case "duplicates":
+            case "duplicate_objects":
                 raise DuplicateFileException(
                     status_code=409,
                     detail="Provided file is already in the database",
@@ -578,7 +578,7 @@ async def extract_files(
             result = await utils.extract_files(tmp_path, source_iso, collection)
             return CounterResponse(
                 message="Successfully Extracted VMDK",
-                counter=result,
+                summary=result,
             )
         except ExtractionError:
             raise IncorrectInputException(
@@ -605,5 +605,5 @@ async def iterate_files(
         result = await utils.iterate_files(tmp_path, source_iso, collection)
         return CounterResponse(
             message="Successfully Iterated Files",
-            counter=result,
+            summary=result,
         )

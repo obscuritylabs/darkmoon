@@ -203,12 +203,12 @@ class DatabaseUpload(BaseModel):
 class MetadataInsertCounter(BaseModel):
     """Return type for a count of the database operations performed."""
 
-    created: int
-    updated: int
-    conflict: int
+    created_objects: int
+    updated_objects: int
+    duplicate_objects: int
 
 
 class CounterResponse(Response):
     """Response to be sent after iterating through a VMDK."""
 
-    counter: MetadataInsertCounter
+    summary: MetadataInsertCounter
