@@ -262,9 +262,9 @@ async def iterate_files(
     queue.append(path)
 
     operations = {
-        "created": 0,
-        "updated": 0,
-        "conflict": 0,
+        "created_objects": 0,
+        "updated_objects": 0,
+        "duplicate_objects": 0,
     }
 
     while queue:
