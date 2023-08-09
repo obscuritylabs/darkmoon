@@ -158,11 +158,11 @@
 
                     <div class="dropdown-content">
 
-
-
                         <a href="/hash-lookup">Hash Lookup</a>
 
                         <a href="/upload">ISO Upload</a>
+
+                        <a href="/extract">Extract Files</a>
 
 
                     </div>
@@ -187,7 +187,7 @@
 
         <h1></h1>
 
-        <form id="hash_upload" hx-get="/metadata/hashSearch" hx-target="#hash_output" hx-trigger="submit"
+        <form id="hash_upload" hx-get="/metadata/hash-search" hx-target="#hash_output" hx-trigger="submit"
             hx-swap="innerHTML" onsubmit="showPopupBox()">
 
             <h3>Hash Search</h3>
@@ -208,18 +208,18 @@
 
         <div class="formPopup" id="popupForm">
 
-            <p id="hash_output"> </p>
+            <div id="hash_output">
+                <div id="load-button" class="loading-spinner"></div>
+            </div>
             <button type="button" class="btncancel" onclick="closeForm()">X</button>
 
         </div>
 
 
 
-
-
         <h2></h2>
 
-        <form id="file_upload" hx-trigger="submit" hx-post='/metadata/hashComparison' hx-target="#file_output"
+        <form id="file_upload" hx-trigger="submit" hx-post='/metadata/hash-comparison' hx-target="#file_output"
             hx-swap="innerHTML" hx-encoding='multipart/form-data'>
 
             <h3>Hash Comparison</h3>
@@ -242,7 +242,9 @@
 
         <div class="formPopup" id="popupForm">
 
-            <p id="file_output"> </p>
+            <div id="file_output">
+                <div id="load-button" class="loading-spinner"></div>
+            </div>
 
             <button type="button" class="btncancel" onclick="closeForm()">Close</button>
 

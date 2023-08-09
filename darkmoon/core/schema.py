@@ -11,7 +11,7 @@ class Response(BaseModel):
 
 
 class ValidationError(Exception):
-    """Error thrown when a given packer template is invalid."""
+    """Error thrown when a given input could not be validated."""
 
 
 class ServerNotFoundException(HTTPException):
@@ -36,3 +36,7 @@ class ExtractionError(Exception):
 
 class InternalServerException(HTTPException):
     """Exception raised when a problem occurs internally."""
+
+
+class InvalidMetadataError(HTTPException):
+    """Exception raised when inputed metadata has an error."""

@@ -11,16 +11,17 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from pefile import PEFormatError
 
 from darkmoon.api.v1.metadata.schema import (
+    DatabaseUpload,
     DocMetadata,
     EXEMetadata,
     Metadata,
     MetadataEntity,
+    MetadataInsertCounter,
 )
 from darkmoon.core.database import get_file_metadata_collection
 from darkmoon.core.schema import (
-    DuplicateFileException,
     ExtractionError,
-    IncorrectInputException,
+    InvalidMetadataError,
     ValidationError,
 )
 
@@ -28,7 +29,7 @@ from darkmoon.core.schema import (
 async def upload_metadata_to_database(
     file: Metadata,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> Metadata:
+) -> DatabaseUpload:
     """Docstring."""
     file_metadata = file.dict()["__root__"]
 
@@ -53,14 +54,18 @@ async def upload_metadata_to_database(
         case DocMetadata():
             ...
         case _:
-            raise IncorrectInputException(
+            raise InvalidMetadataError(
                 status_code=422,
-                detail="Error validating file",
+                detail="Metadata could not be processed",
             )
 
     dup = await collection.find_one(check_dup)
     if dup:
-        raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
+        # raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
+        return DatabaseUpload(
+            operation="duplicate_objects",
+            data=file,
+        )
 
     doc = await collection.find_one(duplicate_hashes)
     if doc:
@@ -96,11 +101,17 @@ async def upload_metadata_to_database(
             },
         }
         await collection.update_one(duplicate_hashes, change)
-        return Metadata.parse_obj(file_metadata)
+        return DatabaseUpload(
+            operation="updated_objects",
+            data=file,
+        )
 
     else:
         await collection.insert_one(file_metadata)
-        return Metadata.parse_obj(file_metadata)
+        return DatabaseUpload(
+            operation="created_objects",
+            data=file,
+        )
 
 
 def get_file_type(file: Path) -> str:
@@ -231,25 +242,30 @@ async def extract_files(
     file: Path,
     source_iso: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
+) -> MetadataInsertCounter:
     """Extract vmdk and put in new folder."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         cmd = ["7z", "x", str(file), "-o" + tmpdirname]
         result = subprocess.run(cmd)
         if result.returncode != 0:
             raise ExtractionError(str(result.stdout))
-        await iterate_files(Path(tmpdirname), source_iso, collection)
+        return await iterate_files(Path(tmpdirname), source_iso, collection)
 
 
 async def iterate_files(
     path: Path,
     source_iso: str,
     collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> None:
+) -> MetadataInsertCounter:
     """Iterate over folder and call metadata function for each file."""
     queue = []
-
     queue.append(path)
+
+    operations = {
+        "created_objects": 0,
+        "updated_objects": 0,
+        "duplicate_objects": 0,
+    }
 
     while queue:
         curr_dir = queue.pop(0)
@@ -262,13 +278,14 @@ async def iterate_files(
 
                 metadata_instance = Metadata.parse_obj(metadata_dict)
 
-                await upload_metadata_to_database(
+                result = await upload_metadata_to_database(
                     file=metadata_instance,
                     collection=collection,
                 )
-
+                operations[result.operation] = operations[result.operation] + 1
             else:
                 queue.append(files)
+    return MetadataInsertCounter.parse_obj(operations)
 
 
 def packer_build(template: Path) -> subprocess.Popen[bytes]:
