@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+</head>
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+
+<body class="homepage">
+
+    <header>
+
+        <div class="logo">
+
+            <h1 id="blackoutline">
+
+                <p>Darkmoon</p>
+
+            </h1>
+
+        </div>
+
+        <nav>
+
+            <ul>
+                <button class="dropbtn"><a href="/">Home</a></button>
+                <div class="dropdown">
+
+                    <button class="dropbtn">Tools</button>
+
+                    <div class="dropdown-content">
+
+                        <a href="/hash-lookup">Hash Lookup</a>
+
+                        <a href="/upload">ISO Upload</a>
+
+                        <a href="/extract">Extract Files</a>
+
+                    </div>
+
+                </div>
+                <button class="dropbtn"><a href="/credit">Credit</a></button>
+            </ul>
+
+        </nav>
+
+    </header>
+
+</body>
+
+</html>
