@@ -15,14 +15,10 @@
         const error = JSON.parse(response);
 
         const fileComparison = `<b>${error.detail}`;
-        document.getElementById("extract").innerHTML = fileComparison;
+
+        document.getElementById("extract_output").innerHTML = fileComparison;
     });
 
-    // document.addEventListener("htmx:configRequest", function (event) {
-    //      if (event.detail.verb === "post") {
-    //          document.getElementById("extract").style.display = "block";
-    //      }
-    //  });
     function openForm() {
 
         document.getElementById("popupForm").style.display = "block";
@@ -51,10 +47,11 @@
     document.addEventListener("htmx:afterRequest", function (event) {
         const response = event.detail.xhr.response;
         const jsonResponse = JSON.parse(response);
-        const message = jsonResponse.message;
-        const searchHah = `Message: ${message}`
-        document.getElementById("extract_output").innerHTML = searchHash;
+        const message = jsonResponse.detail;
+        const extractOutput = `Message: ${detail}`
+        document.getElementById("extract_output").innerHTML = extractOutput;
     });
+
 </script>
 
 <body>
@@ -113,10 +110,10 @@
         </form>
 
         <div class="formPopup" id="popupForm">
-            <div class="loading-spinner"></div>
-            <p id="extract_output"> </p>
+            <div id="extract_output">
+                <div id="load-button" class="loading-spinner"></div>
+            </div>
             <button type="button" class="btncancel" onclick="closeForm()">X</button>
-
         </div>
     </div>
 </body>
