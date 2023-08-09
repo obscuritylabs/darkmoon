@@ -211,4 +211,4 @@ class MetadataInsertCounter(BaseModel):
 class CounterResponse(Response):
     """Response to be sent after iterating through a VMDK."""
 
-    operations: MetadataInsertCounter
+    counter: MetadataInsertCounter
