@@ -192,7 +192,9 @@ class UploadListMetadataEntityResponse(Response):
 class DatabaseUpload(BaseModel):
     """Return type forr when file metadata is posted to the database."""
 
-    operation: Literal["created"] | Literal["updated"] | Literal["conflict"] = Field(
+    operation: Literal["created_objects"] | Literal["updated_objects"] | Literal[
+        "duplicate_objects"
+    ] = Field(
         description="The database operation performed",
     )
     data: Metadata = Field(

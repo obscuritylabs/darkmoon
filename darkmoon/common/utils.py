@@ -63,7 +63,7 @@ async def upload_metadata_to_database(
     if dup:
         # raise DuplicateFileException(status_code=409, detail="File is a duplicate.")
         return DatabaseUpload(
-            operation="conflict",
+            operation="duplicate_objects",
             data=file,
         )
 
@@ -102,14 +102,14 @@ async def upload_metadata_to_database(
         }
         await collection.update_one(duplicate_hashes, change)
         return DatabaseUpload(
-            operation="updated",
+            operation="updated_objects",
             data=file,
         )
 
     else:
         await collection.insert_one(file_metadata)
         return DatabaseUpload(
-            operation="created",
+            operation="created_objects",
             data=file,
         )
 
