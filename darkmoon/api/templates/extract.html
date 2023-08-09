@@ -26,20 +26,25 @@
     function openForm() {
 
         document.getElementById("popupForm").style.display = "block";
-        document.getElementById("shadow").style.display = "block";
+
 
     }
     function closeForm() {
 
         document.getElementById("popupForm").style.display = "none";
-        document.getElementById("shadow").style.display = "none";
+
 
     }
     function showPopupBox() {
 
-        document.getElementById("popupBox").classList.remove(".hidden");
+        document.getElementById("popupForm").classList.remove(".hidden");
 
     }
+    document.addEventListener("htmx:configRequest", function (event) {
+        if (event.detail.verb === "post") {
+            document.getElementById("extract_output").style.display = "block";
+        }
+    });
 
 </script>
 <script type="text/javascript">
@@ -104,11 +109,11 @@
             <h1></h1>
             <h2> File </h2>
             <input id="file" type="file" required="required" name="file"><br>
-            <input type="submit" value="Upload" hx-indicator="#extract_output">
+            <input type="submit" value="Upload" hx-indicator="#extract_output" onclick="openForm()">
         </form>
-        <h1></h1>
-        <div class="formPopup" id="popupForm">
 
+        <div class="formPopup" id="popupForm">
+            <div class="loading-spinner"></div>
             <p id="extract_output"> </p>
             <button type="button" class="btncancel" onclick="closeForm()">X</button>
 
