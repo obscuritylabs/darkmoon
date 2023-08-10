@@ -42,6 +42,13 @@ section {
     height: 80vh;
 }
 
+.row {
+    margin-right: 500px;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
 article {
     float: left;
     padding: 20px;
@@ -245,6 +252,7 @@ input[type="submit"]:hover {
         mask: var(--corner) subtract, var(--inner);
         content: ''
     }
+
 }
 
 .results-container {
@@ -512,4 +520,66 @@ input[type="submit"]:hover {
 
     right: 0;
 
+}
+
+/* Three columns side by side */
+.column {
+    float: left;
+    width: 25%;
+    margin-bottom: 16px;
+    padding: 0 8px;
+
+}
+
+/* Display the columns below each other instead of side by side on small screens */
+@media screen and (max-width: 650px) {
+    .column {
+        width: 100%;
+        display: inline-block;
+    }
+}
+
+/* Add some shadows to create a card effect */
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    background-color: white;
+    padding: 40px;
+    height: 200px;
+}
+
+/* Some left and right padding inside the container */
+.container {
+    padding: 0 16px;
+
+}
+
+/* Clear floats */
+.container::after,
+.row::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.title {
+    color: grey;
+}
+
+.link {
+    color: #3498db
+}
+
+.name {
+    margin-top: 10px;
+    margin-bottom: 800px;
+}
+
+
+.button:hover {
+    background-color: #4069C9;
+}
+
+.row {
+    display: center;
+    margin-top: 300px;
 }
