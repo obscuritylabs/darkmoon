@@ -24,10 +24,10 @@ async def read_item_upload(request: Request) -> Response:
     return templates.TemplateResponse("upload.html", {"request": request})
 
 
-@router.get("/credit", response_class=HTMLResponse)
+@router.get("/about", response_class=HTMLResponse)
 async def read_item_credit(request: Request) -> Response:
     """Read credit."""
-    return templates.TemplateResponse("credit.html", {"request": request})
+    return templates.TemplateResponse("about.html", {"request": request})
 
 
 @router.get("/extract", response_class=HTMLResponse)
