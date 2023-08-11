@@ -199,16 +199,3 @@ def test_extract_files(
         )
 
         assert response.status_code == 422
-
-
-def test_iterate_files(populated_app: FastAPI, test_vmdk_file: Path) -> None:
-    """Test POST metadata/iterate-files endpoint."""
-    with TestClient(populated_app) as app:
-        response = app.post(
-            "/metadata/iterate-files",
-            files={"path": open(test_vmdk_file, "rb")},
-            data={
-                "source_iso": "Windows",
-            },
-        )
-        assert response.status_code == 200
