@@ -204,7 +204,7 @@ def test_suspicious_hash_comparison_file() -> Path:
 
 
 @pytest.fixture()
-def test_zip_file() -> Path:
+def test_vmdk_file() -> Path:
     """Load the test file as a fixture."""
     file = HERE / "test.vmdk"
     assert file.exists()
