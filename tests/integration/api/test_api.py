@@ -157,7 +157,11 @@ def test_hash_comparison(
         assert len(dict(response.json())["data"]) > 0
 
 
-def test_extract_files(populated_app: FastAPI, test_vmdk_file: Path) -> None:
+def test_extract_files(
+    populated_app: FastAPI,
+    test_vmdk_file: Path,
+    test_bad_vmdk_file: Path,
+) -> None:
     """Test /metadata/extract_files accurately counts uploaded data."""
     with TestClient(populated_app) as app:
         response = app.post(
@@ -185,3 +189,26 @@ def test_extract_files(populated_app: FastAPI, test_vmdk_file: Path) -> None:
         assert response.json()["summary"]["created_objects"] == 0
         assert response.json()["summary"]["updated_objects"] == 0
         assert response.json()["summary"]["duplicate_objects"] == 1
+
+        response = app.post(
+            "/metadata/extract-files",
+            files={"file": open(test_bad_vmdk_file, "rb")},
+            data={
+                "source_iso": "Windows",
+            },
+        )
+
+        assert response.status_code == 422
+
+
+def test_iterate_files(populated_app: FastAPI, test_vmdk_file: Path) -> None:
+    """Test POST metadata/iterate-files endpoint."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/metadata/iterate-files",
+            files={"path": open(test_vmdk_file, "rb")},
+            data={
+                "source_iso": "Windows",
+            },
+        )
+        assert response.status_code == 200

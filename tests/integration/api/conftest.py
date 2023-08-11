@@ -209,3 +209,11 @@ def test_vmdk_file() -> Path:
     file = HERE / "test.vmdk"
     assert file.exists()
     return file
+
+
+@pytest.fixture()
+def test_bad_vmdk_file() -> Path:
+    """Load the test file as a fixture."""
+    file = HERE / "bad.vmdk"
+    assert file.exists()
+    return file
