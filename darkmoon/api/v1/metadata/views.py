@@ -585,25 +585,3 @@ async def extract_files(
                 status_code=422,
                 detail="Error during extraction",
             )
-
-
-@router.post(
-    "/iterate-files",
-    responses={
-        400: {"Client Error Response": "Bad Request"},
-    },
-)
-async def iterate_files(
-    path: UploadFile = File(...),
-    source_iso: str = Form(...),
-    collection: AsyncIOMotorCollection = Depends(get_file_metadata_collection),
-) -> CounterResponse:
-    """Iterate through file."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-        tmpfile.write(await path.read())
-        tmp_path = PyPath(tmpfile.name)
-        result = await utils.iterate_files(tmp_path, source_iso, collection)
-        return CounterResponse(
-            message="Successfully Iterated Files",
-            summary=result,
-        )
