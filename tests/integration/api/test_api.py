@@ -148,3 +148,33 @@ def test_hash_comparison(
         assert response.status_code == 406
         response = app.get("/metadata/suspicious-metadata")
         assert len(dict(response.json())["data"]) > 0
+
+
+def test_extract_files(populated_app: FastAPI, test_zip_file: Path) -> None:
+    """Test extract files endpoint."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/metadata/extract-files",
+            files={"file": open(test_zip_file, "rb")},
+            data={
+                "source_iso": "Windows",
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.json()["summary"]["created_objects"] == 1
+        assert response.json()["summary"]["updated_objects"] == 0
+        assert response.json()["summary"]["duplicate_objects"] == 0
+
+        response = app.post(
+            "/metadata/extract-files",
+            files={"file": open(test_zip_file, "rb")},
+            data={
+                "source_iso": "Windows",
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.json()["summary"]["created_objects"] == 0
+        assert response.json()["summary"]["updated_objects"] == 1
+        assert response.json()["summary"]["duplicate_objects"] == 0
