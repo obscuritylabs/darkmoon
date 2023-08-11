@@ -63,8 +63,13 @@ def test_hash_search(
         assert response.status_code == 200
         assert dict(response.json())["data"][0] == test_metadata_entity
 
-        # negative case, missing parameters
-        response = app.get("/metadata/hash-search")
+        # negative case, incorrect parameters
+        response = app.get(
+            "/metadata/hash-search",
+            params={
+                "fullHash": "md5",
+            },
+        )
 
         assert response.status_code == 422
 
