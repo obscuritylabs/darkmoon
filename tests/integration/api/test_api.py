@@ -31,7 +31,7 @@ def test_list_metadata(
     populated_app: FastAPI,
     test_metadata_entity: dict[str, Any],
 ) -> None:
-    """Test default GET /metadata."""
+    """Test GET /metadata correctly receives object from database."""
     test_metadata_entity = test_metadata_entity["__root__"]
     with TestClient(populated_app) as app:
         response = app.get(
@@ -47,13 +47,14 @@ def test_hash_search(
     populated_app: FastAPI,
     test_metadata_entity: dict[str, Any],
 ) -> None:
-    """Test GET /metadata/hashSearch correctly receives object from database."""
+    """Test GET /metadata/hash_searches correctly receives object from database."""
     test_metadata_entity = test_metadata_entity["__root__"]
     with TestClient(populated_app) as app:
         # positive case, should get a copy of the MetaDataEntity fixture
         response = app.get(
             "/metadata/hash-search",
             params={
+                "file_name": "Test Name",
                 "fullHash": "md5:0d41402abc4b2a76b9719d911017c591",
             },
         )
@@ -63,8 +64,14 @@ def test_hash_search(
         assert response.status_code == 200
         assert dict(response.json())["data"][0] == test_metadata_entity
 
-        # negative case, missing parameters
-        response = app.get("/metadata/hash-search")
+        # negative case, incorrect parameters
+        response = app.get(
+            "/metadata/hash-search",
+            params={
+                "file_name": "invalid",
+                "fullHash": "md5",
+            },
+        )
 
         assert response.status_code == 422
 
@@ -95,7 +102,7 @@ def test_upload_metadata(
     populated_app: FastAPI,
     test_metadata: Metadata,
 ) -> None:
-    """Test post endpoint with a variety of inputs."""
+    """Test POST /metadata endpoint with multiple test cases."""
     with TestClient(populated_app) as app:
         response = app.post("/metadata/", data=test_metadata.json())
         assert response.status_code == 201
@@ -117,7 +124,7 @@ def test_hash_comparison_negative(
     populated_app: FastAPI,
     test_hash_comparison_without_file: Path,
 ) -> None:
-    """Returns fixture to test file."""
+    """Test POST /metadata/hash_comparison with bad data."""
     with TestClient(populated_app) as app:
         with open(test_hash_comparison_without_file, "rb") as testFile:
             response = app.post(
@@ -136,7 +143,7 @@ def test_hash_comparison(
     populated_app: FastAPI,
     test_suspicious_hash_comparison_file: Path,
 ) -> None:
-    """Docstring goes here."""
+    """Test POST /metadata/hash_comparison with good data."""
     with TestClient(populated_app) as app:
         response = app.post(
             "/metadata/hash-comparison",
@@ -148,3 +155,60 @@ def test_hash_comparison(
         assert response.status_code == 406
         response = app.get("/metadata/suspicious-metadata")
         assert len(dict(response.json())["data"]) > 0
+
+
+def test_extract_files(
+    populated_app: FastAPI,
+    test_vmdk_file: Path,
+    test_bad_vmdk_file: Path,
+) -> None:
+    """Test /metadata/extract_files accurately counts uploaded data."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/metadata/extract-files",
+            files={"file": open(test_vmdk_file, "rb")},
+            data={
+                "source_iso": "Windows",
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.json()["summary"]["created_objects"] == 1
+        assert response.json()["summary"]["updated_objects"] == 0
+        assert response.json()["summary"]["duplicate_objects"] == 0
+
+        response = app.post(
+            "/metadata/extract-files",
+            files={"file": open(test_vmdk_file, "rb")},
+            data={
+                "source_iso": "Windows",
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.json()["summary"]["created_objects"] == 0
+        assert response.json()["summary"]["updated_objects"] == 0
+        assert response.json()["summary"]["duplicate_objects"] == 1
+
+        response = app.post(
+            "/metadata/extract-files",
+            files={"file": open(test_bad_vmdk_file, "rb")},
+            data={
+                "source_iso": "Windows",
+            },
+        )
+
+        assert response.status_code == 422
+
+
+def test_iterate_files(populated_app: FastAPI, test_vmdk_file: Path) -> None:
+    """Test POST metadata/iterate-files endpoint."""
+    with TestClient(populated_app) as app:
+        response = app.post(
+            "/metadata/iterate-files",
+            files={"path": open(test_vmdk_file, "rb")},
+            data={
+                "source_iso": "Windows",
+            },
+        )
+        assert response.status_code == 200
