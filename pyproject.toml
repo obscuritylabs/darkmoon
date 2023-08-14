@@ -40,7 +40,7 @@ asgi-lifespan = "^2.1.0"
 pytest-asyncio = "^0.21.0"
 faker = "^19.1.0"
 testcontainers = "^3.7.1"
-schemathesis = "^3.19.5"
+schemathesis = "^3.19.6"
 
 [build-system]
 requires = ["poetry-core"]
