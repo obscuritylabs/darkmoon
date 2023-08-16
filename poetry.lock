@@ -2014,13 +2014,13 @@ files = [
 
 [[package]]
 name = "schemathesis"
-version = "3.19.5"
+version = "3.19.6"
 description = "Property-based testing framework for Open API and GraphQL based apps"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "schemathesis-3.19.5-py3-none-any.whl", hash = "sha256:57246b1a18d5604ba385efc909e05ad2a09adecdc42de2a4414e407f8728f46e"},
-    {file = "schemathesis-3.19.5.tar.gz", hash = "sha256:0570a2d6f0672e360acd5334e428eb20bb5f77565e60d02280fab558afef43cc"},
+    {file = "schemathesis-3.19.6-py3-none-any.whl", hash = "sha256:76b71814b04f067d0f25dbdd19fc1571937c519ec22719143735dee832a20d14"},
+    {file = "schemathesis-3.19.6.tar.gz", hash = "sha256:6c24017a8696ef8811f5a2f713b1bc5f4a3679cbac785be92053f252c8cf04cc"},
 ]
 
 [package.dependencies]
@@ -2051,7 +2051,7 @@ yarl = ">=1.5,<2.0"
 cov = ["coverage-enable-subprocess", "coverage[toml] (>=5.3)"]
 dev = ["schemathesis[cov,docs,tests]"]
 docs = ["sphinx"]
-tests = ["aiohttp (>=3.8.3,<4.0)", "coverage (>=6)", "fastapi (>=0.86.0)", "flask (>=2.1.1,<3.0)", "pydantic (>=1.10.2)", "pytest-asyncio (>=0.18.0,<1.0)", "pytest-httpserver (>=1.0,<2.0)", "pytest-mock (>=3.7.0,<4.0)", "pytest-xdist (>=2.5,<3.0)", "strawberry-graphql[fastapi] (>=0.109.0)", "trustme (>=0.9.0,<1.0)"]
+tests = ["aiohttp (>=3.8.3,<4.0)", "coverage (>=6)", "fastapi (>=0.86.0)", "flask (>=2.1.1,<3.0)", "pydantic (>=1.10.2)", "pytest-asyncio (>=0.18.0,<1.0)", "pytest-httpserver (>=1.0,<2.0)", "pytest-mock (>=3.7.0,<4.0)", "pytest-xdist (>=3,<4.0)", "strawberry-graphql[fastapi] (>=0.109.0)", "trustme (>=0.9.0,<1.0)"]
 
 [[package]]
 name = "setuptools"
@@ -2749,4 +2749,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "10aa59ea8525a98caa21b5a1d4c557c6b4f3d75e3bd2d9417dc93b2e127b3e41"
+content-hash = "c1b261510e555ba5c114d2d45528a0fc53fad77f471a185cdf107d10f4c26a12"
